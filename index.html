@@ -1913,18 +1913,6 @@ body.light-mode .report-period select,body.light-mode .report-period input{backg
   }
   
   .sidebar-overlay.show{display:block}
-
-  /* إصلاح استمارة التسجيل على الموبايل */
-  .sheet-controls-row{flex-wrap:wrap;gap:6px}
-  .sheet-btn{font-size:0.75rem;padding:8px 10px;flex:1;min-width:calc(50% - 6px)}
-  .sheet-stats-row{flex-wrap:wrap;gap:8px;font-size:0.8rem}
-  .reg-sheet-container{margin:0 -16px;border-radius:0}
-  .reg-sheet-table-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
-  .reg-sheet-table{min-width:900px;font-size:0.75rem}
-  .reg-sheet-table th,.reg-sheet-table td{padding:6px 4px;white-space:nowrap}
-  .reg-sheet-table input{font-size:0.75rem;padding:4px}
-  .reg-sheet-header h2{font-size:1.1rem}
-  .reg-sheet-header p{font-size:0.8rem}
 }
 .reg-container{max-width:600px;margin:0 auto}
 .reg-header{background:linear-gradient(135deg,var(--green),var(--red));padding:30px;border-radius:15px 15px 0 0;text-align:center;position:relative;overflow:hidden}
@@ -2872,10 +2860,10 @@ html[dir="ltr"] .archive-item{border-right:none;border-left:4px solid var(--gold
 <div class="header"><h1>📊 التقارير والإحصائيات</h1><p>تقارير شاملة جاهزة للطباعة والتصدير</p></div>
 
 <div class="report-tabs">
-<button class="report-tab active" data-report="members">👥 الأعضاء</button>
-<button class="report-tab" data-report="finance">💰 المالية</button>
-<button class="report-tab" data-report="voting">🗳️ التصويت</button>
-<button class="report-tab" data-report="overview">📋 نظرة عامة</button>
+<button class="report-tab active" onclick="switchReport('members')">👥 الأعضاء</button>
+<button class="report-tab" onclick="switchReport('finance')">💰 المالية</button>
+<button class="report-tab" onclick="switchReport('voting')">🗳️ التصويت</button>
+<button class="report-tab" onclick="switchReport('overview')">📋 نظرة عامة</button>
 </div>
 
 <!-- تقرير الأعضاء -->
@@ -3236,16 +3224,16 @@ html[dir="ltr"] .archive-item{border-right:none;border-left:4px solid var(--gold
 </div>
 <div class="home-section-edit" id="quickActionsEdit" style="display:none;">
 <p style="font-size:0.8rem;color:var(--muted);margin-bottom:10px;">اختر الأزرار التي تريد إظهارها:</p>
-<div class="checkbox-row"><input type="checkbox" id="qaRegister" onchange="saveHomeSettings()"><label for="qaRegister">📝 استمارة الانتساب</label></div>
-<div class="checkbox-row"><input type="checkbox" id="qaVoting" onchange="saveHomeSettings()"><label for="qaVoting">🗳️ التصويت</label></div>
-<div class="checkbox-row"><input type="checkbox" id="qaLive" onchange="saveHomeSettings()"><label for="qaLive">📺 البث المباشر</label></div>
-<div class="checkbox-row"><input type="checkbox" id="qaMap" onchange="saveHomeSettings()"><label for="qaMap">🗺️ خارطة المنتسبين</label></div>
-<div class="checkbox-row"><input type="checkbox" id="qaNews" onchange="saveHomeSettings()"><label for="qaNews">📰 الأخبار</label></div>
-<div class="checkbox-row"><input type="checkbox" id="qaFinance" onchange="saveHomeSettings()"><label for="qaFinance">💰 المالية</label></div>
-<div class="checkbox-row"><input type="checkbox" id="qaBylaws" onchange="saveHomeSettings()"><label for="qaBylaws">📜 النظام الداخلي</label></div>
-<div class="checkbox-row"><input type="checkbox" id="qaInvitation" onchange="saveHomeSettings()"><label for="qaInvitation">📨 محرر الدعوات</label></div>
-<div class="checkbox-row"><input type="checkbox" id="qaConfInvite" onchange="saveHomeSettings()"><label for="qaConfInvite">🏛️ دعوة المؤتمر</label></div>
-<div class="checkbox-row"><input type="checkbox" id="qaContact" onchange="saveHomeSettings()"><label for="qaContact">✉️ تواصل معنا</label></div>
+<div class="checkbox-row"><input type="checkbox" id="qaRegister" checked onchange="saveHomeSettings()"><label>📝 استمارة الانتساب</label></div>
+<div class="checkbox-row"><input type="checkbox" id="qaVoting" checked onchange="saveHomeSettings()"><label>🗳️ التصويت</label></div>
+<div class="checkbox-row"><input type="checkbox" id="qaLive" checked onchange="saveHomeSettings()"><label>📺 البث المباشر</label></div>
+<div class="checkbox-row"><input type="checkbox" id="qaMap" checked onchange="saveHomeSettings()"><label>🗺️ خارطة المنتسبين</label></div>
+<div class="checkbox-row"><input type="checkbox" id="qaNews" onchange="saveHomeSettings()"><label>📰 الأخبار</label></div>
+<div class="checkbox-row"><input type="checkbox" id="qaFinance" onchange="saveHomeSettings()"><label>💰 المالية</label></div>
+<div class="checkbox-row"><input type="checkbox" id="qaBylaws" onchange="saveHomeSettings()"><label>📜 النظام الداخلي</label></div>
+<div class="checkbox-row"><input type="checkbox" id="qaInvitation" onchange="saveHomeSettings()"><label>📨 محرر الدعوات</label></div>
+<div class="checkbox-row"><input type="checkbox" id="qaConfInvite" onchange="saveHomeSettings()"><label>🏛️ دعوة المؤتمر</label></div>
+<div class="checkbox-row"><input type="checkbox" id="qaContact" onchange="saveHomeSettings()"><label>✉️ تواصل معنا</label></div>
 </div>
 </div>
 
@@ -4412,55 +4400,6 @@ window.toggleEditSection = function(id){
     }
 };
 
-window.saveHomeSettings = function(){
-    if(!appData.homeSettings) appData.homeSettings = {};
-    var hs = appData.homeSettings;
-    
-    var el;
-    el = document.getElementById('homeShowHero'); if(el) hs.showHero = el.checked;
-    el = document.getElementById('homeShowStats'); if(el) hs.showStats = el.checked;
-    el = document.getElementById('homeShowQuickActions'); if(el) hs.showQuickActions = el.checked;
-    el = document.getElementById('homeShowActiveVote'); if(el) hs.showActiveVote = el.checked;
-    el = document.getElementById('homeShowNews'); if(el) hs.showNews = el.checked;
-    el = document.getElementById('homeShowAbout'); if(el) hs.showAbout = el.checked;
-    el = document.getElementById('homeShowEvents'); if(el) hs.showEvents = el.checked;
-    el = document.getElementById('homeShowSocial'); if(el) hs.showSocial = el.checked;
-    
-    el = document.getElementById('heroTitle'); if(el) hs.heroTitle = el.value;
-    el = document.getElementById('heroSubtitle'); if(el) hs.heroSubtitle = el.value;
-    el = document.getElementById('heroBtn1Text'); if(el) hs.heroBtn1 = el.value;
-    el = document.getElementById('heroBtn2Text'); if(el) hs.heroBtn2 = el.value;
-    el = document.getElementById('homeNewsCount'); if(el) hs.newsCount = parseInt(el.value) || 3;
-    el = document.getElementById('homeAboutText'); if(el) hs.aboutText = el.value;
-    el = document.getElementById('homeVision'); if(el) hs.vision = el.value;
-    el = document.getElementById('homeMission'); if(el) hs.mission = el.value;
-    
-    el = document.getElementById('socialFacebook'); if(el) hs.socialFacebook = el.value;
-    el = document.getElementById('socialInstagram'); if(el) hs.socialInstagram = el.value;
-    el = document.getElementById('socialWhatsapp'); if(el) hs.socialWhatsapp = el.value;
-    el = document.getElementById('socialEmail'); if(el) hs.socialEmail = el.value;
-    
-    // Quick Access Buttons - حفظ مستقل
-    hs.quickBtns = {
-        register: document.getElementById('qaRegister') ? document.getElementById('qaRegister').checked : true,
-        voting: document.getElementById('qaVoting') ? document.getElementById('qaVoting').checked : true,
-        live: document.getElementById('qaLive') ? document.getElementById('qaLive').checked : true,
-        map: document.getElementById('qaMap') ? document.getElementById('qaMap').checked : true,
-        news: document.getElementById('qaNews') ? document.getElementById('qaNews').checked : false,
-        finance: document.getElementById('qaFinance') ? document.getElementById('qaFinance').checked : false,
-        bylaws: document.getElementById('qaBylaws') ? document.getElementById('qaBylaws').checked : false,
-        invitation: document.getElementById('qaInvitation') ? document.getElementById('qaInvitation').checked : false,
-        confInvite: document.getElementById('qaConfInvite') ? document.getElementById('qaConfInvite').checked : false,
-        contact: document.getElementById('qaContact') ? document.getElementById('qaContact').checked : false
-    };
-    
-    // حفظ homeSettings بشكل مستقل عشان ما ينمسح
-    localStorage.setItem('homeSettings', JSON.stringify(hs));
-    save();
-    if(typeof renderHomePage === 'function') renderHomePage();
-    if(typeof toast === 'function') toast('تم حفظ إعدادات الرئيسية ✅');
-};
-
 window.addEvent = function(){
     if(!appData.homeSettings) appData.homeSettings = {};
     if(!appData.homeSettings.events) appData.homeSettings.events = [];
@@ -4632,17 +4571,21 @@ window.saveHomeSettings = function(){
     hs.socialWhatsapp = document.getElementById('socialWhatsapp')?.value || '';
     hs.socialEmail = document.getElementById('socialEmail')?.value || '';
     
+    // Quick Access Buttons
+    if(!hs.quickBtns) hs.quickBtns = {};
+    var qaIds = ['qaRegister','qaVoting','qaLive','qaMap','qaNews','qaFinance','qaBylaws','qaInvitation','qaConfInvite','qaContact'];
+    var qaKeys = ['register','voting','live','map','news','finance','bylaws','invitation','confInvite','contact'];
+    for(var i=0; i<qaIds.length; i++){
+        var el = document.getElementById(qaIds[i]);
+        if(el) hs.quickBtns[qaKeys[i]] = el.checked;
+    }
+    
     save();
     renderHomePage();
     toast('تم حفظ إعدادات الرئيسية ✅');
 };
 
 window.loadHomeSettings = function(){
-    // تحميل من localStorage المستقل أولاً
-    var savedHS = localStorage.getItem('homeSettings');
-    if(savedHS){
-        try{ appData.homeSettings = JSON.parse(savedHS); }catch(e){}
-    }
     var hs = appData.homeSettings || {};
     
     // Set toggle values
@@ -4673,27 +4616,21 @@ window.loadHomeSettings = function(){
     
     // Quick Access Buttons
     var qb = hs.quickBtns || {};
-    var hasQb = Object.keys(qb).length > 0;
-    if(document.getElementById('qaRegister')) document.getElementById('qaRegister').checked = hasQb ? !!qb.register : true;
-    if(document.getElementById('qaVoting')) document.getElementById('qaVoting').checked = hasQb ? !!qb.voting : true;
-    if(document.getElementById('qaLive')) document.getElementById('qaLive').checked = hasQb ? !!qb.live : true;
-    if(document.getElementById('qaMap')) document.getElementById('qaMap').checked = hasQb ? !!qb.map : true;
-    if(document.getElementById('qaNews')) document.getElementById('qaNews').checked = !!qb.news;
-    if(document.getElementById('qaFinance')) document.getElementById('qaFinance').checked = !!qb.finance;
-    if(document.getElementById('qaBylaws')) document.getElementById('qaBylaws').checked = !!qb.bylaws;
-    if(document.getElementById('qaInvitation')) document.getElementById('qaInvitation').checked = !!qb.invitation;
-    if(document.getElementById('qaConfInvite')) document.getElementById('qaConfInvite').checked = !!qb.confInvite;
-    if(document.getElementById('qaContact')) document.getElementById('qaContact').checked = !!qb.contact;
+    if(document.getElementById('qaRegister')) document.getElementById('qaRegister').checked = qb.register !== false;
+    if(document.getElementById('qaVoting')) document.getElementById('qaVoting').checked = qb.voting !== false;
+    if(document.getElementById('qaLive')) document.getElementById('qaLive').checked = qb.live !== false;
+    if(document.getElementById('qaMap')) document.getElementById('qaMap').checked = qb.map !== false;
+    if(document.getElementById('qaNews')) document.getElementById('qaNews').checked = qb.news === true;
+    if(document.getElementById('qaFinance')) document.getElementById('qaFinance').checked = qb.finance === true;
+    if(document.getElementById('qaBylaws')) document.getElementById('qaBylaws').checked = qb.bylaws === true;
+    if(document.getElementById('qaInvitation')) document.getElementById('qaInvitation').checked = qb.invitation === true;
+    if(document.getElementById('qaConfInvite')) document.getElementById('qaConfInvite').checked = qb.confInvite === true;
+    if(document.getElementById('qaContact')) document.getElementById('qaContact').checked = qb.contact === true;
     
     renderEventsList();
 };
 
 window.renderHomePage = function(){
-    // تحميل من localStorage المستقل
-    var savedHS = localStorage.getItem('homeSettings');
-    if(savedHS){
-        try{ appData.homeSettings = JSON.parse(savedHS); }catch(e){}
-    }
     var hs = appData.homeSettings || {};
     
     // Show/Hide sections
@@ -4749,7 +4686,6 @@ window.renderQuickAccessBtns = function(){
     if(!grid) return;
     var hs = appData.homeSettings || {};
     var qb = hs.quickBtns || {};
-    var hasQb = Object.keys(qb).length > 0;
     var allBtns = [
         {id:'register', icon:'📝', label:'استمارة الانتساب', def:true},
         {id:'voting', icon:'🗳️', label:'التصويت', def:true},
@@ -4764,7 +4700,7 @@ window.renderQuickAccessBtns = function(){
     ];
     var h = '';
     allBtns.forEach(function(b){
-        var show = hasQb ? !!qb[b.id] : b.def;
+        var show = qb[b.id] !== undefined ? qb[b.id] : b.def;
         if(show){
             h += '<button class="quick-action-btn" onclick="goTo(\''+b.id+'\')">';
             h += '<span class="quick-icon">'+b.icon+'</span>';
@@ -5692,14 +5628,10 @@ var v=parseInt(localStorage.getItem("visitors")||"0"),ld=localStorage.getItem("l
 // تحميل البيانات من Backend أو Cloud
 if(USE_BACKEND && window.API && window.API.Auth.isLoggedIn()){
 loadDataFromBackend().then(function(){
-loadLogo();loadOrgName();loadNews();loadFinance();loadCount();updateVisibility();renderHomePage();
+loadLogo();loadOrgName();
 });
 }else{
 loadFromCloud(function(){
-loadLogo();loadNews();loadFinance();loadCount();updateVisibility();loadOrgName();renderHomePage();
-});
-}
-
 // ========== النسخ الاحتياطي ==========
 window.exportBackup=function(){
   var data=JSON.parse(JSON.stringify(appData));
@@ -5732,6 +5664,7 @@ window.importBackup=function(input){
       if(!confirm('⚠️ هل أنت متأكد؟\n\nسيتم استبدال جميع البيانات الحالية بالبيانات من النسخة الاحتياطية.\n\nتاريخ النسخة: '+(data._backupDate||'غير معروف'))){
         return;
       }
+      // حفظ نسخة من الحالي قبل الاستبدال
       localStorage.setItem('appData_before_import',JSON.stringify(appData));
       
       delete data._backupDate;
@@ -5760,10 +5693,10 @@ window.exportBackupCloud=function(){
 };
 
 // ========== التقارير والإحصائيات ==========
-window.switchReport=function(tab, clickedBtn){
+window.switchReport=function(tab){
   document.querySelectorAll('.report-tab').forEach(function(t){t.classList.remove('active');});
   document.querySelectorAll('.report-panel').forEach(function(p){p.classList.remove('active');});
-  if(clickedBtn) clickedBtn.classList.add('active');
+  event.target.classList.add('active');
   var panelId={members:'reportMembers',finance:'reportFinance',voting:'reportVoting',overview:'reportOverview'};
   var panel=document.getElementById(panelId[tab]);
   if(panel)panel.classList.add('active');
@@ -5774,13 +5707,6 @@ window.switchReport=function(tab, clickedBtn){
 };
 
 window.initReports=function(){loadMembersReport();};
-
-// ربط أزرار التقارير
-document.querySelectorAll('[data-report]').forEach(function(btn){
-  btn.addEventListener('click', function(){
-    switchReport(this.getAttribute('data-report'), this);
-  });
-});
 
 window.loadMembersReport=function(){
   var members=appData.members||[];
@@ -6024,6 +5950,9 @@ document.getElementById('themeToggle').addEventListener('click',toggleTheme);
   }
 })();
 
+loadLogo();loadNews();loadFinance();loadCount();updateVisibility();loadOrgName();renderHomePage();
+});
+}
 document.getElementById("btnHome").addEventListener("click",function(){goTo("home");renderHomePage();});document.getElementById("btnNews").addEventListener("click",function(){goTo("news");});
 document.getElementById("btnAdmin").addEventListener("click",function(){goTo("admin");loadHomeSettings();});document.getElementById("btnBylaws").addEventListener("click",function(){goTo("bylaws");loadBylaws();});document.getElementById("btnVoting").addEventListener("click",function(){goTo("voting");loadFromCloud(loadVoting);});document.getElementById("btnFinance").addEventListener("click",function(){goTo("finance");});document.getElementById("btnMap").addEventListener("click",function(){goTo("map");});document.getElementById("btnRegister").addEventListener("click",function(){goTo("register");});document.getElementById("btnInvitation").addEventListener("click",function(){goTo("invitation");});document.getElementById("btnConfInvite").addEventListener("click",function(){goTo("confInvite");initConfInv();});document.getElementById("btnReports").addEventListener("click",function(){goTo("reports");initReports();});document.getElementById("btnContact").addEventListener("click",function(){goTo("contact");});document.getElementById("btnLive").addEventListener("click",function(){goTo("live");loadFromCloud(function(){loadLiveStreamStatus();loadLiveVotingList();});});document.getElementById("btnMembers").addEventListener("click",function(){goTo("members");});document.getElementById("btnPending").addEventListener("click",function(){goTo("pending");loadPending();});document.getElementById("btnRegistrationSheet").addEventListener("click",function(){goTo("registrationSheet");loadSheet();});document.getElementById("btnManageTx").addEventListener("click",function(){goTo("manageTx");});document.getElementById("btnManageNews").addEventListener("click",function(){goTo("manageNews");});document.getElementById("btnManageVoting").addEventListener("click",function(){goTo("manageVoting");loadFromCloud(loadAdminVoting);});document.getElementById("btnInbox").addEventListener("click",function(){goTo("inbox");loadFromCloud(loadMessages);});document.getElementById("btnManageLive").addEventListener("click",function(){goTo("manageLive");loadFromCloud(function(){loadAdminLiveVotes();loadLiveStreamStatus();});});
 document.getElementById("mobileBtn").addEventListener("click",function(){document.getElementById("sidebar").classList.toggle("open");});
@@ -8661,4 +8590,3 @@ loadInvLogo();
 </script>
 </body>
 </html>
-
