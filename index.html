@@ -689,6 +689,200 @@ box-shadow:0 0 10px rgba(0,150,57,0.3);
   border-top:1px solid var(--border);
   background:rgba(0,0,0,0.3);
 }
+.privacy-link{
+  display:block;
+  text-align:center;
+  color:var(--muted);
+  font-size:0.75rem;
+  margin-top:10px;
+  cursor:pointer;
+  transition:color 0.2s;
+}
+.privacy-link:hover{color:var(--green);}
+
+/* Cookie Consent Banner */
+.cookie-banner{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  background:var(--card-solid);
+  border-top:2px solid var(--green);
+  padding:16px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+  flex-wrap:wrap;
+  z-index:99999;
+  box-shadow:0 -4px 20px rgba(0,0,0,0.4);
+  animation:slideUp 0.4s ease;
+}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.cookie-banner-text{
+  color:var(--text);
+  font-size:0.9rem;
+  flex:1;
+  min-width:200px;
+}
+.cookie-banner-text a{color:var(--green);text-decoration:underline;cursor:pointer;}
+.cookie-banner-btns{display:flex;gap:10px;flex-wrap:wrap;}
+.cookie-btn-accept{
+  padding:10px 28px;
+  background:var(--green);
+  color:white;
+  border:none;
+  border-radius:var(--radius-sm);
+  font-weight:700;
+  cursor:pointer;
+  font-family:inherit;
+  font-size:0.9rem;
+  transition:all 0.2s;
+}
+.cookie-btn-accept:hover{transform:scale(1.05);box-shadow:var(--glow-green);}
+
+/* Privacy Policy Page */
+.privacy-page{padding:20px;}
+.privacy-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius-md);
+  padding:30px;
+  margin-bottom:20px;
+}
+.privacy-card h2{
+  color:var(--green);
+  font-size:1.3rem;
+  margin-bottom:15px;
+  padding-bottom:10px;
+  border-bottom:2px solid var(--border);
+}
+.privacy-card h3{
+  color:var(--gold);
+  font-size:1.1rem;
+  margin:15px 0 8px;
+}
+.privacy-card p,.privacy-card li{
+  color:var(--text);
+  line-height:1.8;
+  font-size:0.95rem;
+  margin-bottom:8px;
+}
+.privacy-card ul{
+  padding-right:20px;
+  margin:10px 0;
+}
+.privacy-card ul li{margin-bottom:6px;}
+.privacy-tabs{display:flex;gap:10px;margin-bottom:20px;}
+.privacy-tab{
+  padding:10px 20px;
+  border-radius:var(--radius-sm);
+  border:1px solid var(--border);
+  background:transparent;
+  color:var(--muted);
+  cursor:pointer;
+  font-family:inherit;
+  font-size:0.9rem;
+  transition:all 0.2s;
+}
+.privacy-tab.active{background:var(--green);color:white;border-color:var(--green);}
+.privacy-lang{display:none;}
+.privacy-lang.active{display:block;}
+
+/* ========== Photo Gallery ========== */
+.gallery-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+  gap:16px;
+}
+.gallery-album{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  overflow:hidden;
+  cursor:pointer;
+  transition:var(--transition);
+}
+.gallery-album:hover{border-color:var(--green);transform:translateY(-4px);box-shadow:0 8px 30px rgba(0,0,0,0.3);}
+.gallery-album-cover{
+  width:100%;height:180px;object-fit:cover;
+  background:linear-gradient(135deg,var(--green),var(--red));
+}
+.gallery-album-info{padding:14px;}
+.gallery-album-title{font-weight:700;margin-bottom:4px;}
+.gallery-album-count{font-size:0.8rem;color:var(--muted);}
+.gallery-album-date{font-size:0.75rem;color:var(--muted);}
+
+.gallery-photos{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:10px;
+}
+.gallery-photo{
+  width:100%;height:150px;object-fit:cover;
+  border-radius:var(--radius-sm);
+  cursor:pointer;transition:var(--transition);
+}
+.gallery-photo:hover{transform:scale(1.05);box-shadow:0 4px 20px rgba(0,0,0,0.3);}
+
+/* Admin Gallery */
+.gallery-upload-area{
+  border:2px dashed var(--border);
+  border-radius:var(--radius-md);
+  padding:30px;text-align:center;
+  cursor:pointer;transition:var(--transition);
+  color:var(--muted);
+}
+.gallery-upload-area:hover{border-color:var(--green);color:var(--green);}
+.gallery-thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.gallery-thumb{
+  width:80px;height:80px;object-fit:cover;
+  border-radius:var(--radius-sm);position:relative;
+}
+.gallery-thumb-wrap{position:relative;display:inline-block;}
+.gallery-thumb-remove{
+  position:absolute;top:-6px;right:-6px;
+  width:22px;height:22px;border-radius:50%;
+  background:var(--red);color:#fff;border:none;
+  font-size:0.8rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+
+/* ========== Upcoming Events Timeline ========== */
+.upcoming-events-wrapper{margin-bottom:10px;}
+.upcoming-event{
+  display:flex;align-items:center;gap:14px;
+  padding:12px 16px;background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius-md);
+  border-right:4px solid var(--gold);
+  margin-bottom:8px;transition:var(--transition);
+}
+.upcoming-event:hover{border-color:var(--green);transform:translateX(-3px);}
+.upcoming-event-date{
+  text-align:center;min-width:55px;
+  background:linear-gradient(135deg,rgba(201,162,39,0.15),rgba(201,162,39,0.05));
+  padding:8px 10px;border-radius:var(--radius-sm);
+}
+.upcoming-event-day{font-size:1.4rem;font-weight:800;color:var(--gold);line-height:1;}
+.upcoming-event-month{font-size:0.7rem;color:var(--muted);margin-top:2px;}
+.upcoming-event-info{flex:1;}
+.upcoming-event-title{font-weight:700;font-size:0.95rem;margin-bottom:2px;}
+.upcoming-event-desc{font-size:0.8rem;color:var(--muted);}
+.upcoming-event-countdown{
+  font-size:0.7rem;color:var(--green);
+  background:rgba(0,210,106,0.1);
+  padding:3px 10px;border-radius:12px;
+  white-space:nowrap;
+}
+
+/* ========== Voting Results Charts ========== */
+.vote-result-chart{margin-top:15px;}
+.vote-bar-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.vote-bar-label{min-width:100px;font-size:0.9rem;text-align:left;}
+.vote-bar-track{flex:1;height:28px;background:rgba(255,255,255,0.08);border-radius:14px;overflow:hidden;position:relative;}
+.vote-bar-fill{height:100%;border-radius:14px;transition:width 0.8s ease;display:flex;align-items:center;justify-content:flex-end;padding:0 10px;font-size:0.8rem;font-weight:700;color:#fff;min-width:fit-content;}
+.vote-bar-count{font-size:0.85rem;color:var(--muted);min-width:50px;text-align:center;}
 
 .visitor-box{
   background:linear-gradient(135deg,var(--gold),#e6c200);
@@ -1257,18 +1451,46 @@ body.light-mode .report-period select,body.light-mode .report-period input{backg
   overflow:hidden;
   border:1px solid var(--border);
   transition:var(--transition);
+  margin-bottom:20px;
 }
 
-.news-card:hover{border-color:var(--green);transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,0.3)}
+.news-card:hover{border-color:var(--green);box-shadow:0 12px 40px rgba(0,0,0,0.3)}
 
 .news-card-img{width:100%;height:160px;object-fit:cover;background:linear-gradient(135deg,var(--green),var(--red))}
-.news-card-gallery{display:flex;gap:6px;overflow-x:auto;padding:12px;scrollbar-width:none}
-.news-card-gallery::-webkit-scrollbar{display:none}
-.news-card-gallery img{width:85px;height:85px;object-fit:cover;border-radius:var(--radius-sm);cursor:pointer;transition:var(--transition)}
-.news-card-gallery img:hover{transform:scale(1.05)}
 .news-card-body{padding:20px}
 .news-card-date{font-size:0.8rem;color:var(--muted);margin-bottom:8px}
-.news-card-title{font-weight:700;margin-bottom:10px;font-size:1.05rem}
+.news-card-title{font-weight:700;margin-bottom:10px;font-size:1.1rem}
+
+/* Facebook-style Image Gallery */
+.news-gallery-wrapper{position:relative;overflow:hidden;background:#000;border-top:1px solid var(--border);}
+.news-gallery-slider{display:flex;transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);will-change:transform;}
+.news-gallery-slide{min-width:100%;display:flex;align-items:center;justify-content:center;max-height:400px;}
+.news-gallery-slide img{width:100%;max-height:400px;object-fit:contain;cursor:pointer;}
+.news-gallery-btn{
+  position:absolute;top:50%;transform:translateY(-50%);
+  width:40px;height:40px;border-radius:50%;
+  background:rgba(0,0,0,0.6);color:#fff;border:none;
+  font-size:1.2rem;cursor:pointer;z-index:5;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.2s;backdrop-filter:blur(4px);
+}
+.news-gallery-btn:hover{background:rgba(0,0,0,0.85);transform:translateY(-50%) scale(1.1);}
+.news-gallery-prev{right:12px;}
+.news-gallery-next{left:12px;}
+.news-gallery-counter{
+  position:absolute;bottom:10px;left:50%;transform:translateX(-50%);
+  background:rgba(0,0,0,0.65);color:#fff;
+  padding:4px 14px;border-radius:20px;font-size:0.8rem;
+  backdrop-filter:blur(4px);
+}
+.news-gallery-dots{
+  display:flex;justify-content:center;gap:6px;padding:10px 0;
+}
+.news-gallery-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--muted);cursor:pointer;transition:all 0.2s;border:none;
+}
+.news-gallery-dot.active{background:var(--green);transform:scale(1.3);}
 
 /* ========== Enhanced Home Page Styles ========== */
 .hero-section{
@@ -2380,6 +2602,7 @@ html[dir="ltr"] .archive-item{border-right:none;border-left:4px solid var(--gold
 <button class="nav-btn" id="btnConfInvite">🏛️ <span>دعوة المؤتمر</span></button>
 <button class="nav-btn" id="btnReports">📊 <span>التقارير والإحصائيات</span></button>
 <button class="nav-btn" id="btnContact">✉️ <span data-i18n="contactUs">تواصل معنا</span></button>
+<button class="nav-btn" id="btnGallery">🖼️ <span>معرض الصور</span></button>
 <button class="nav-btn hidden" id="btnLive">🔴 <span data-i18n="liveStream">البث المباشر</span></button>
 <div class="nav-title hidden" id="adminTitle" data-i18n="adminPanel">لوحة الإدارة</div>
 <button class="nav-btn hidden" id="btnAdmin">⚙️ <span data-i18n="settings">الإعدادات</span></button>
@@ -2391,6 +2614,7 @@ html[dir="ltr"] .archive-item{border-right:none;border-left:4px solid var(--gold
 <button class="nav-btn hidden" id="btnManageVoting">🗳️ <span data-i18n="manageVoting">إدارة التصويت</span></button>
 <button class="nav-btn hidden" id="btnInbox">📬 <span data-i18n="inbox">صندوق الرسائل</span> <span class="inbox-badge hidden" id="inboxBadge">0</span></button>
 <button class="nav-btn hidden" id="btnManageLive">🎬 <span data-i18n="manageLive">إدارة البث المباشر</span></button>
+<button class="nav-btn hidden" id="btnManageGallery">🖼️ <span>إدارة معرض الصور</span></button>
 </nav>
 <div class="sidebar-footer">
 <div class="lang-switcher">
@@ -2400,6 +2624,7 @@ html[dir="ltr"] .archive-item{border-right:none;border-left:4px solid var(--gold
 </div>
 <div class="visitor-box hidden" id="visitorBox">👥 <span data-i18n="visitors">الزوار</span>: <span id="visitors">0</span></div>
 <button class="login-btn" id="loginBtn">🔐 <span data-i18n="adminLogin">دخول المسؤول</span></button>
+<a class="privacy-link" onclick="goTo('privacy')">🔒 سياسة الخصوصية | Personvern</a>
 </div>
 </aside>
 <main class="main">
@@ -2414,6 +2639,7 @@ html[dir="ltr"] .archive-item{border-right:none;border-left:4px solid var(--gold
 <button class="btn btn-green btn-lg" onclick="goTo('register')" id="heroBtn1"><span id="heroBtn1Display">📝 انضم إلينا</span></button>
 <button class="btn btn-gray btn-lg" onclick="goTo('contact')" id="heroBtn2"><span id="heroBtn2Display">✉️ تواصل معنا</span></button>
 </div>
+<button class="btn btn-gold" onclick="enablePushNotifications()" style="margin-top:12px;font-size:0.85rem;padding:8px 20px;" id="pushNotifBtn">🔔 فعّل الإشعارات</button>
 </div>
 </div>
 
@@ -2495,7 +2721,7 @@ html[dir="ltr"] .archive-item{border-right:none;border-left:4px solid var(--gold
 <!-- Events Section -->
 <div class="events-section" id="eventsSection" style="display:none;">
 <div class="section-title-home">📅 الفعاليات القادمة</div>
-<div class="events-list" id="homeEventsList">
+<div class="upcoming-events-wrapper" id="homeEventsList">
 <!-- يتم ملؤها ديناميكياً -->
 </div>
 </div>
@@ -2509,13 +2735,18 @@ html[dir="ltr"] .archive-item{border-right:none;border-left:4px solid var(--gold
 </div>
 
 </div>
-<div class="page" id="pageNews"><div class="header"><h1>📰 الأخبار</h1></div><div class="grid" id="newsGrid"></div></div>
+<div class="page" id="pageNews"><div class="header"><h1>📰 الأخبار</h1></div><div id="newsGrid" style="max-width:600px;margin:0 auto;"></div></div>
 <div class="page" id="pageFinance">
 <div class="header"><h1>💰 المحاسبة المالية</h1></div>
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:15px;flex-wrap:wrap;">
+<label style="color:var(--muted);font-size:0.9rem;">📅 السنة المالية:</label>
+<select class="form-select" id="financeYearFilter" onchange="loadFinance()" style="width:auto;min-width:120px;">
+</select>
+</div>
 <div class="grid" style="margin-bottom:20px;">
-<div class="card" style="text-align:center;"><div class="stat-num" id="statBalance" style="color:#009639;">0 NOK</div><div class="stat-label">الرصيد</div></div>
-<div class="card" style="text-align:center;"><div class="stat-num" id="statIncome" style="color:#C9A227;">0 NOK</div><div class="stat-label">الإيرادات</div></div>
-<div class="card" style="text-align:center;"><div class="stat-num" id="statExpense" style="color:#CE1126;">0 NOK</div><div class="stat-label">المصروفات</div></div>
+<div class="card" style="text-align:center;"><div class="stat-num" id="statBalance" style="color:#009639;">0 NOK</div><div class="stat-label" id="finBalanceLabel">الرصيد</div></div>
+<div class="card" style="text-align:center;"><div class="stat-num" id="statIncome" style="color:#C9A227;">0 NOK</div><div class="stat-label" id="finIncomeLabel">الإيرادات</div></div>
+<div class="card" style="text-align:center;"><div class="stat-num" id="statExpense" style="color:#CE1126;">0 NOK</div><div class="stat-label" id="finExpenseLabel">المصروفات</div></div>
 </div>
 <div class="card"><div class="card-title">📋 المعاملات</div><div id="txList"></div></div>
 </div>
@@ -2676,7 +2907,8 @@ html[dir="ltr"] .archive-item{border-right:none;border-left:4px solid var(--gold
 <div class="checkbox-row"><input type="checkbox" id="regShowPhone"><label for="regShowPhone" data-i18n="showPhoneToMembers">إظهار رقم هاتفي للأعضاء</label></div>
 <div class="checkbox-row"><input type="checkbox" id="regShowEmail"><label for="regShowEmail" data-i18n="showEmailToMembers">إظهار بريدي الإلكتروني للأعضاء</label></div>
 </div>
-<div class="checkbox-row" style="margin-bottom:15px;"><input type="checkbox" id="regAgree" required><label for="regAgree"><span data-i18n="agreeToJoin">أوافق على الانضمام للملتقى الفلسطيني والالتزام بأهدافه</span> *</label></div>
+<div class="checkbox-row" style="margin-bottom:15px;"><input type="checkbox" id="regAgree" required><label for="regAgree"><span data-i18n="agreeToJoin">أوافق على الانضمام للجالية الفلسطينية والالتزام بأهدافها</span> *</label></div>
+<div class="checkbox-row" style="margin-bottom:15px;"><input type="checkbox" id="regPrivacy" required><label for="regPrivacy">أوافق على <a onclick="goTo('privacy')" style="color:var(--green);cursor:pointer;text-decoration:underline;">سياسة الخصوصية</a> ومعالجة بياناتي الشخصية *</label></div>
 <button type="submit" class="reg-submit">🇵🇸 <span data-i18n="submitRequest">إرسال طلب الانتساب</span></button>
 </form>
 </div>
@@ -3328,10 +3560,16 @@ html[dir="ltr"] .archive-item{border-right:none;border-left:4px solid var(--gold
 <div class="form-group"><label class="form-label">النوع</label><select class="form-select" id="txType"><option value="income">إيراد</option><option value="expense">مصروف</option></select></div>
 <div class="form-group"><label class="form-label">الوصف</label><input class="form-input" id="txDesc"></div>
 <div class="form-group"><label class="form-label">المبلغ (NOK)</label><input type="number" class="form-input" id="txAmount"></div>
+<div class="form-group"><label class="form-label">التاريخ</label><input type="date" class="form-input" id="txDate"></div>
 <div class="form-group"><label class="form-label">صور الفواتير</label><div class="upload-box" id="txReceiptsUpload">📷 إضافة فواتير</div><input type="file" id="txReceiptsFile" accept="image/*" multiple style="display:none"><div class="receipts-preview" id="txReceiptsPreview"></div></div>
 <button class="btn btn-green" id="btnSaveTx">💾 حفظ</button>
 </div>
-<div class="card"><div class="card-title">📋 جميع المعاملات</div><div id="adminTxList"></div></div>
+<div style="display:flex;align-items:center;gap:10px;margin:15px 0;flex-wrap:wrap;">
+<label style="color:var(--muted);font-size:0.9rem;">📅 فلتر السنة:</label>
+<select class="form-select" id="adminTxYearFilter" onchange="loadAdminTx()" style="width:auto;min-width:120px;">
+</select>
+</div>
+<div class="card"><div class="card-title">📋 المعاملات</div><div id="adminTxList"></div></div>
 </div>
 <div class="page" id="pageManageNews">
 <div class="header"><h1>📰 إدارة الأخبار</h1></div>
@@ -3344,7 +3582,186 @@ html[dir="ltr"] .archive-item{border-right:none;border-left:4px solid var(--gold
 </div>
 <div class="card"><div class="card-title">📋 جميع الأخبار</div><div id="adminNewsList"></div></div>
 </div>
+
+<!-- صفحة معرض الصور -->
+<div class="page" id="pageGallery">
+<div class="header"><h1>🖼️ معرض الصور</h1><p>صور الفعاليات والمناسبات</p></div>
+<div id="galleryContent">
+<div class="gallery-grid" id="galleryGrid"></div>
+</div>
+<div id="galleryAlbumView" style="display:none;">
+<button class="btn btn-gray" onclick="closeAlbumView()" style="margin-bottom:15px;">→ العودة للألبومات</button>
+<h3 id="albumViewTitle" style="margin-bottom:15px;"></h3>
+<div class="gallery-photos" id="albumPhotos"></div>
+</div>
+</div>
+
+<!-- صفحة إدارة معرض الصور -->
+<div class="page" id="pageManageGallery">
+<div class="header"><h1>🖼️ إدارة معرض الصور</h1></div>
+<div class="card">
+<div class="card-title">إضافة ألبوم جديد</div>
+<div class="form-group"><label class="form-label">اسم الألبوم</label><input class="form-input" id="albumTitle" placeholder="مثلاً: فعالية يوم الأرض 2026"></div>
+<div class="form-group"><label class="form-label">الوصف</label><input class="form-input" id="albumDesc" placeholder="وصف قصير"></div>
+<div class="form-group"><label class="form-label">الصور</label>
+<div class="gallery-upload-area" id="albumUploadArea">📷 اضغط أو اسحب الصور هنا</div>
+<input type="file" id="albumFiles" accept="image/*" multiple style="display:none">
+<div class="gallery-thumbs" id="albumThumbs"></div>
+</div>
+<button class="btn btn-green" onclick="saveAlbum()">💾 حفظ الألبوم</button>
+</div>
+<div class="card"><div class="card-title">📋 الألبومات</div><div id="adminAlbumList"></div></div>
+</div>
+
+<!-- صفحة سياسة الخصوصية -->
+<div class="page" id="pagePrivacy">
+<div class="header"><h1>🔒 سياسة الخصوصية</h1><p>Personvernerklæring</p></div>
+<div class="privacy-page">
+<div class="privacy-tabs">
+<button class="privacy-tab active" onclick="switchPrivacyLang('ar')">🇵🇸 العربية</button>
+<button class="privacy-tab" onclick="switchPrivacyLang('no')">🇳🇴 Norsk</button>
+</div>
+
+<!-- العربية -->
+<div class="privacy-lang active" id="privacyAr">
+<div class="privacy-card">
+<h2>🏛️ من نحن</h2>
+<p>الجالية الفلسطينية في روغالاند هي منظمة تطوعية مسجلة في النرويج. نحن نلتزم بحماية خصوصية أعضائنا وزوار موقعنا وفقاً لقانون حماية البيانات الشخصية النرويجي (Personopplysningsloven) واللائحة العامة لحماية البيانات (GDPR).</p>
+</div>
+
+<div class="privacy-card">
+<h2>📋 البيانات التي نجمعها</h2>
+<h3>بيانات الأعضاء</h3>
+<p>عند التسجيل كعضو، نجمع المعلومات التالية:</p>
+<ul>
+<li>الاسم الكامل</li>
+<li>رقم الهاتف</li>
+<li>عنوان السكن (المدينة)</li>
+<li>معلومات العائلة (عدد أفراد الأسرة)</li>
+</ul>
+<h3>بيانات الزوار</h3>
+<p>عند استخدام نموذج "تواصل معنا"، قد نجمع الاسم ورقم الهاتف والبريد الإلكتروني (اختياري).</p>
+<h3>بيانات تقنية</h3>
+<p>نستخدم التخزين المحلي (localStorage) في متصفحك لحفظ تفضيلاتك مثل اللغة والمظهر. لا نستخدم ملفات تعريف الارتباط (cookies) لتتبع الزوار.</p>
+</div>
+
+<div class="privacy-card">
+<h2>🎯 لماذا نجمع هذه البيانات</h2>
+<ul>
+<li><strong>إدارة العضوية:</strong> تسجيل الأعضاء والتواصل معهم بشأن الفعاليات والأنشطة</li>
+<li><strong>التواصل:</strong> الرد على استفساراتكم ورسائلكم</li>
+<li><strong>التصويت:</strong> إدارة عمليات التصويت الداخلية</li>
+<li><strong>الإحصائيات:</strong> فهم حجم الجالية وتحسين خدماتنا</li>
+</ul>
+<p>الأساس القانوني لمعالجة البيانات هو <strong>الموافقة</strong> (المادة 6(1)(أ) من GDPR) التي تقدمها عند التسجيل.</p>
+</div>
+
+<div class="privacy-card">
+<h2>🔐 كيف نحمي بياناتكم</h2>
+<ul>
+<li>البيانات محفوظة بشكل مشفّر ومحمي</li>
+<li>الوصول للبيانات مقتصر على المسؤولين المعتمدين فقط</li>
+<li>لا نشارك بياناتكم مع أي طرف ثالث بدون إذنكم</li>
+<li>لا نبيع أو نتاجر بالبيانات الشخصية أبداً</li>
+</ul>
+</div>
+
+<div class="privacy-card">
+<h2>⚖️ حقوقكم</h2>
+<p>بموجب قانون GDPR، لديكم الحقوق التالية:</p>
+<ul>
+<li><strong>حق الوصول:</strong> طلب نسخة من بياناتكم الشخصية</li>
+<li><strong>حق التصحيح:</strong> تعديل أي بيانات غير صحيحة</li>
+<li><strong>حق الحذف:</strong> طلب حذف بياناتكم بالكامل</li>
+<li><strong>حق سحب الموافقة:</strong> سحب موافقتكم على معالجة البيانات في أي وقت</li>
+<li><strong>حق تقديم شكوى:</strong> تقديم شكوى لهيئة حماية البيانات النرويجية (Datatilsynet)</li>
+</ul>
+</div>
+
+<div class="privacy-card">
+<h2>📞 تواصل معنا</h2>
+<p>لأي استفسار يتعلق بخصوصية بياناتكم أو لممارسة حقوقكم، يرجى التواصل معنا عبر صفحة "تواصل معنا" في الموقع.</p>
+<p style="color:var(--muted);margin-top:15px;font-size:0.85rem;">آخر تحديث: فبراير 2026</p>
+</div>
+</div>
+
+<!-- النرويجية -->
+<div class="privacy-lang" id="privacyNo">
+<div class="privacy-card">
+<h2>🏛️ Hvem er vi</h2>
+<p>Det palestinske samfunn i Rogaland er en frivillig organisasjon registrert i Norge. Vi forplikter oss til å beskytte personvernet til våre medlemmer og besøkende på vår nettside i samsvar med den norske personopplysningsloven og EUs personvernforordning (GDPR).</p>
+</div>
+
+<div class="privacy-card">
+<h2>📋 Hvilke opplysninger samler vi inn</h2>
+<h3>Medlemsdata</h3>
+<p>Ved registrering som medlem samler vi inn følgende opplysninger:</p>
+<ul>
+<li>Fullt navn</li>
+<li>Telefonnummer</li>
+<li>Bostedsadresse (by)</li>
+<li>Familieinformasjon (antall familiemedlemmer)</li>
+</ul>
+<h3>Besøksdata</h3>
+<p>Ved bruk av «Kontakt oss»-skjemaet kan vi samle inn navn, telefonnummer og e-postadresse (valgfritt).</p>
+<h3>Tekniske data</h3>
+<p>Vi bruker lokal lagring (localStorage) i nettleseren din for å lagre dine preferanser som språk og tema. Vi bruker ikke informasjonskapsler (cookies) for å spore besøkende.</p>
+</div>
+
+<div class="privacy-card">
+<h2>🎯 Hvorfor samler vi inn disse dataene</h2>
+<ul>
+<li><strong>Medlemsadministrasjon:</strong> Registrering av medlemmer og kommunikasjon om arrangementer og aktiviteter</li>
+<li><strong>Kommunikasjon:</strong> Besvare henvendelser og meldinger</li>
+<li><strong>Avstemning:</strong> Administrasjon av interne avstemninger</li>
+<li><strong>Statistikk:</strong> Forstå størrelsen på samfunnet og forbedre våre tjenester</li>
+</ul>
+<p>Det rettslige grunnlaget for behandling av personopplysninger er <strong>samtykke</strong> (artikkel 6(1)(a) i GDPR) som du gir ved registrering.</p>
+</div>
+
+<div class="privacy-card">
+<h2>🔐 Hvordan beskytter vi dine data</h2>
+<ul>
+<li>Data lagres kryptert og beskyttet</li>
+<li>Tilgang til data er begrenset til autoriserte administratorer</li>
+<li>Vi deler ikke dine data med tredjeparter uten ditt samtykke</li>
+<li>Vi selger eller handler aldri med personopplysninger</li>
+</ul>
+</div>
+
+<div class="privacy-card">
+<h2>⚖️ Dine rettigheter</h2>
+<p>I henhold til GDPR har du følgende rettigheter:</p>
+<ul>
+<li><strong>Rett til innsyn:</strong> Be om en kopi av dine personopplysninger</li>
+<li><strong>Rett til retting:</strong> Korrigere eventuelle feilaktige opplysninger</li>
+<li><strong>Rett til sletting:</strong> Be om fullstendig sletting av dine data</li>
+<li><strong>Rett til å trekke samtykke:</strong> Trekke tilbake ditt samtykke til databehandling når som helst</li>
+<li><strong>Rett til å klage:</strong> Sende klage til Datatilsynet</li>
+</ul>
+</div>
+
+<div class="privacy-card">
+<h2>📞 Kontakt oss</h2>
+<p>For spørsmål om personvern eller for å utøve dine rettigheter, ta kontakt via «Kontakt oss»-siden på nettsiden vår.</p>
+<p style="color:var(--muted);margin-top:15px;font-size:0.85rem;">Sist oppdatert: februar 2026</p>
+</div>
+</div>
+
+</div>
+</div>
+
 </main>
+
+<!-- Cookie Consent Banner -->
+<div class="cookie-banner" id="cookieBanner" style="display:none;">
+<div class="cookie-banner-text">
+🔒 نستخدم التخزين المحلي لتحسين تجربتك. باستخدامك للموقع فإنك توافق على <a onclick="goTo('privacy')">سياسة الخصوصية</a>.
+<br><small>Vi bruker lokal lagring for å forbedre opplevelsen din. Ved å bruke nettstedet godtar du vår <a onclick="goTo('privacy')">personvernerklæring</a>.</small>
+</div>
+<div class="cookie-banner-btns">
+<button class="cookie-btn-accept" onclick="acceptCookies()">✅ موافق | Godta</button>
+</div>
 </div>
 <button class="mobile-btn" id="mobileBtn">☰</button>
 <button class="theme-toggle" id="themeToggle" title="تبديل الوضع">🌙</button>
@@ -3365,7 +3782,7 @@ html[dir="ltr"] .archive-item{border-right:none;border-left:4px solid var(--gold
 <div class="checkbox-row"><input type="checkbox" id="memberShowEmail"><label>إظهار البريد</label></div>
 </div><div class="modal-foot"><button class="btn btn-gray" id="cancelMember">إلغاء</button><button class="btn btn-green" id="saveMember">💾 حفظ</button></div></div></div>
 <div class="modal-bg" id="deleteModal"><div class="modal" style="max-width:350px;"><div class="modal-head"><h3>⚠️ تأكيد الحذف</h3><button class="modal-close" id="closeDelete">×</button></div><div class="modal-body"><p id="deleteMsg">هل تريد حذف؟</p></div><div class="modal-foot"><button class="btn btn-gray" id="cancelDelete">إلغاء</button><button class="btn btn-red" id="confirmDelete">🗑️ حذف</button></div></div></div>
-<div class="modal-bg" id="editTxModal"><div class="modal"><div class="modal-head"><h3>✏️ تعديل المعاملة</h3><button class="modal-close" id="closeEditTx">×</button></div><div class="modal-body"><input type="hidden" id="editTxId"><div class="form-group"><label class="form-label">النوع</label><select class="form-select" id="editTxType"><option value="income">إيراد</option><option value="expense">مصروف</option></select></div><div class="form-group"><label class="form-label">الوصف</label><input class="form-input" id="editTxDesc"></div><div class="form-group"><label class="form-label">المبلغ</label><input type="number" class="form-input" id="editTxAmount"></div><div class="form-group"><label class="form-label">فواتير</label><div class="upload-box" id="editTxReceiptsUpload">📷 إضافة</div><input type="file" id="editTxReceiptsFile" accept="image/*" multiple style="display:none"><div class="receipts-preview" id="editTxReceiptsPreview"></div></div></div><div class="modal-foot"><button class="btn btn-gray" id="cancelEditTx">إلغاء</button><button class="btn btn-green" id="saveEditTx">💾 حفظ</button></div></div></div>
+<div class="modal-bg" id="editTxModal"><div class="modal"><div class="modal-head"><h3>✏️ تعديل المعاملة</h3><button class="modal-close" id="closeEditTx">×</button></div><div class="modal-body"><input type="hidden" id="editTxId"><div class="form-group"><label class="form-label">النوع</label><select class="form-select" id="editTxType"><option value="income">إيراد</option><option value="expense">مصروف</option></select></div><div class="form-group"><label class="form-label">الوصف</label><input class="form-input" id="editTxDesc"></div><div class="form-group"><label class="form-label">المبلغ</label><input type="number" class="form-input" id="editTxAmount"></div><div class="form-group"><label class="form-label">التاريخ</label><input type="date" class="form-input" id="editTxDate"></div><div class="form-group"><label class="form-label">فواتير</label><div class="upload-box" id="editTxReceiptsUpload">📷 إضافة</div><input type="file" id="editTxReceiptsFile" accept="image/*" multiple style="display:none"><div class="receipts-preview" id="editTxReceiptsPreview"></div></div></div><div class="modal-foot"><button class="btn btn-gray" id="cancelEditTx">إلغاء</button><button class="btn btn-green" id="saveEditTx">💾 حفظ</button></div></div></div>
 <div class="modal-bg" id="editNewsModal"><div class="modal"><div class="modal-head"><h3>✏️ تعديل الخبر</h3><button class="modal-close" id="closeEditNews">×</button></div><div class="modal-body"><input type="hidden" id="editNewsId"><div class="form-group"><label class="form-label">العنوان</label><input class="form-input" id="editNewsTitle"></div><div class="form-group"><label class="form-label">المحتوى</label><textarea class="form-textarea" id="editNewsContent"></textarea></div><div class="form-group"><label class="form-label">صور</label><div class="upload-box" id="editNewsImgsUpload">📷 إضافة</div><input type="file" id="editNewsImgsFile" accept="image/*" multiple style="display:none"><div class="imgs-preview" id="editNewsImgsPreview"></div></div></div><div class="modal-foot"><button class="btn btn-gray" id="cancelEditNews">إلغاء</button><button class="btn btn-green" id="saveEditNews">💾 حفظ</button></div></div></div>
 <div class="modal-bg" id="pendingModal"><div class="modal"><div class="modal-head"><span>📋 تفاصيل الطلب</span><button class="modal-close" id="closePending">×</button></div><div class="modal-body" id="pendingDetails"></div><div class="modal-foot"><button class="btn btn-gray" id="rejectPending">❌ رفض</button><button class="btn btn-green" id="approvePending">✅ قبول</button></div></div></div>
 <div class="modal-bg" id="editFamilyModal"><div class="modal" style="max-width:500px;"><div class="modal-head"><span>✏️ تعديل بيانات العائلة</span><button class="modal-close" onclick="document.getElementById('editFamilyModal').classList.remove('show')">×</button></div><div class="modal-body">
@@ -4780,20 +5197,38 @@ window.renderHomeEvents = function(){
         return;
     }
     
+    // Sort by date ascending
+    var sorted = events.slice().sort(function(a,b){return new Date(a.date)-new Date(b.date);});
+    var today = new Date();
+    today.setHours(0,0,0,0);
+    
+    var months = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+    
     var html = '';
-    events.forEach(function(ev){
+    sorted.forEach(function(ev){
         var date = new Date(ev.date);
         var day = date.getDate();
-        var months = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
         var month = months[date.getMonth()];
         
-        html += '<div class="event-card">';
-        html += '<div class="event-date-box"><div class="event-date-day">'+day+'</div><div class="event-date-month">'+month+'</div></div>';
-        html += '<div class="event-info"><div class="event-title">'+ev.title+'</div><div class="event-desc">'+(ev.description || '')+'</div></div>';
+        // Countdown
+        var diff = Math.ceil((date - today) / (1000*60*60*24));
+        var countdown = '';
+        if(diff === 0) countdown = '🔴 اليوم!';
+        else if(diff === 1) countdown = 'غداً';
+        else if(diff > 0 && diff <= 30) countdown = 'بعد ' + diff + ' يوم';
+        else if(diff > 30) countdown = month;
+        else countdown = 'انتهت';
+        
+        if(diff < 0) return; // Skip past events
+        
+        html += '<div class="upcoming-event">';
+        html += '<div class="upcoming-event-date"><div class="upcoming-event-day">'+day+'</div><div class="upcoming-event-month">'+month+'</div></div>';
+        html += '<div class="upcoming-event-info"><div class="upcoming-event-title">'+ev.title+'</div><div class="upcoming-event-desc">'+(ev.description || '')+'</div></div>';
+        html += '<div class="upcoming-event-countdown">'+countdown+'</div>';
         html += '</div>';
     });
     
-    container.innerHTML = html;
+    container.innerHTML = html || '<p style="color:var(--muted);text-align:center;padding:20px;">لا توجد فعاليات قادمة</p>';
 };
 
 window.renderSocialLinks = function(){
@@ -4881,10 +5316,26 @@ if(isAdmin){document.getElementById("btnFindCenter").classList.remove("hidden");
 }
 window.goTo=function(p){var bs=document.querySelectorAll(".nav-btn");for(var i=0;i<bs.length;i++)bs[i].classList.remove("active");var b=document.getElementById("btn"+p.charAt(0).toUpperCase()+p.slice(1));if(b)b.classList.add("active");var ps=document.querySelectorAll(".page");for(var j=0;j<ps.length;j++)ps[j].classList.remove("active");var pg=document.getElementById("page"+p.charAt(0).toUpperCase()+p.slice(1));if(pg)pg.classList.add("active");if(p==="map"&&!myMap)setTimeout(initMap,300);if(p==="members")loadMembers();if(p==="manageTx")loadAdminTx();if(p==="manageNews")loadAdminNews();document.getElementById("sidebar").classList.remove("open");}
 function loadLogo(){if(appData.logo){document.getElementById("logoContainer").innerHTML='<img src="'+appData.logo+'">';document.getElementById("invLogo").innerHTML='<img src="'+appData.logo+'">';}}
-function loadNews(){var g=document.getElementById("newsGrid");if(!g)return;g.innerHTML="";for(var i=0;i<appData.news.length;i++){var n=appData.news[i];var imgs=n.imgs||[];if(n.img&&imgs.length===0)imgs=[n.img];var imgHtml='';if(imgs.length>0){imgHtml='<img src="'+imgs[0]+'" class="news-card-img" onclick="showLightbox(\''+imgs[0]+'\')">'; if(imgs.length>1){imgHtml+='<div class="news-card-gallery">';for(var k=0;k<imgs.length;k++)imgHtml+='<img src="'+imgs[k]+'" onclick="showLightbox(\''+imgs[k]+'\')">';imgHtml+='</div>';}}else{imgHtml='<div class="news-card-img"></div>';}g.innerHTML+='<div class="news-card">'+imgHtml+'<div class="news-card-body"><div class="news-card-date">'+fmtDate(n.date)+'</div><div class="news-card-title">'+n.title+'</div><div class="news-card-text">'+n.content+'</div></div></div>';}renderHomeNews();}
+function loadNews(){var g=document.getElementById("newsGrid");if(!g)return;g.innerHTML="";for(var i=0;i<appData.news.length;i++){var n=appData.news[i];var imgs=n.imgs||[];if(n.img&&imgs.length===0)imgs=[n.img];var galleryHtml='';if(imgs.length>0){var sliderId='newsSlider_'+i;galleryHtml='<div class="news-gallery-wrapper">';galleryHtml+='<div class="news-gallery-slider" id="'+sliderId+'">';for(var k=0;k<imgs.length;k++){galleryHtml+='<div class="news-gallery-slide"><img src="'+imgs[k]+'" onclick="showLightbox(\''+imgs[k]+'\')"></div>';}galleryHtml+='</div>';if(imgs.length>1){galleryHtml+='<button class="news-gallery-btn news-gallery-prev" onclick="slideNews(\''+sliderId+'\',-1)">❯</button>';galleryHtml+='<button class="news-gallery-btn news-gallery-next" onclick="slideNews(\''+sliderId+'\',1)">❮</button>';galleryHtml+='<div class="news-gallery-counter" id="'+sliderId+'_counter">'+imgs.length+' / 1</div>';galleryHtml+='<div class="news-gallery-dots" id="'+sliderId+'_dots">';for(var d=0;d<imgs.length;d++){galleryHtml+='<button class="news-gallery-dot'+(d===0?' active':'')+'" onclick="goToSlide(\''+sliderId+'\','+d+')"></button>';}galleryHtml+='</div>';}galleryHtml+='</div>';}g.innerHTML+='<div class="news-card"><div class="news-card-body"><div class="news-card-date">'+fmtDate(n.date)+'</div><div class="news-card-title">'+n.title+'</div><div class="news-card-text">'+n.content+'</div></div>'+galleryHtml+'</div>';}renderHomeNews();}
 function loadAdminNews(){var l=document.getElementById("adminNewsList");l.innerHTML="";if(appData.news.length===0){l.innerHTML='<p style="color:var(--muted);text-align:center;">لا توجد أخبار</p>';return;}for(var i=0;i<appData.news.length;i++){var n=appData.news[i];var newsId=n.id||n._id;l.innerHTML+='<div class="member-item" data-newsid="'+newsId+'"><div class="member-info"><div class="member-name">'+n.title+'</div><div class="member-city">'+fmtDate(n.date)+'</div></div><div class="news-actions"><button class="btn btn-gray btn-sm news-edit-btn" data-newsid="'+newsId+'">✏️</button><button class="btn btn-red btn-sm news-delete-btn" data-newsid="'+newsId+'">🗑️</button></div></div>';}attachNewsListeners();}
-function loadFinance(){var inc=0,exp=0;for(var i=0;i<appData.tx.length;i++){if(appData.tx[i].type==="income")inc+=appData.tx[i].amount;else exp+=appData.tx[i].amount;}var bal=inc-exp;var statBal=document.getElementById("statBalance");var statInc=document.getElementById("statIncome");var statExp=document.getElementById("statExpense");if(statBal)statBal.textContent=bal.toLocaleString()+" NOK";if(statInc)statInc.textContent=inc.toLocaleString()+" NOK";if(statExp)statExp.textContent=exp.toLocaleString()+" NOK";var list=document.getElementById("txList");if(list){list.innerHTML="";for(var j=0;j<appData.tx.length;j++){var t=appData.tx[j];var rh="";if(t.receipts&&t.receipts.length>0){rh='<div class="tx-receipts">';for(var k=0;k<t.receipts.length;k++)rh+='<img src="'+t.receipts[k]+'" class="tx-receipt-img" onclick="showLightbox(\''+t.receipts[k]+'\')">';rh+='</div>';}list.innerHTML+='<div class="tx-item"><div class="tx-icon '+(t.type==="income"?"inc":"exp")+'">'+(t.type==="income"?"📥":"📤")+'</div><div class="tx-info"><div class="tx-title">'+t.desc+'</div><div class="tx-date">'+fmtDate(t.date)+'</div></div><div class="tx-amount '+(t.type==="income"?"inc":"exp")+'">'+(t.type==="income"?"+":"-")+t.amount.toLocaleString()+' NOK</div>'+rh+'</div>';}}}
-function loadAdminTx(){var list=document.getElementById("adminTxList");list.innerHTML="";if(appData.tx.length===0){list.innerHTML='<p style="color:var(--muted);text-align:center;">لا توجد معاملات</p>';return;}for(var j=0;j<appData.tx.length;j++){var t=appData.tx[j];var txId=t.id||t._id;var rh="";if(t.receipts&&t.receipts.length>0){rh='<div class="tx-receipts">';for(var k=0;k<t.receipts.length;k++)rh+='<img src="'+t.receipts[k]+'" class="tx-receipt-img" onclick="showLightbox(\''+t.receipts[k]+'\')">';rh+='</div>';}list.innerHTML+='<div class="tx-item" data-txid="'+txId+'"><div class="tx-icon '+(t.type==="income"?"inc":"exp")+'">'+(t.type==="income"?"📥":"📤")+'</div><div class="tx-info"><div class="tx-title">'+t.desc+'</div><div class="tx-date">'+fmtDate(t.date)+'</div></div><div class="tx-amount '+(t.type==="income"?"inc":"exp")+'">'+(t.type==="income"?"+":"-")+t.amount.toLocaleString()+' NOK</div><div class="tx-actions"><button class="btn btn-gray btn-sm tx-edit-btn" data-txid="'+txId+'">✏️</button><button class="btn btn-red btn-sm tx-delete-btn" data-txid="'+txId+'">🗑️</button></div>'+rh+'</div>';}attachTxListeners();}
+function populateYearFilter(selectId){
+var sel=document.getElementById(selectId);if(!sel)return;
+var years={};for(var i=0;i<appData.tx.length;i++){var d=appData.tx[i].date;if(d){var y=new Date(d).getFullYear();if(!isNaN(y))years[y]=true;}}
+var currentYear=new Date().getFullYear();years[currentYear]=true;
+var sortedYears=Object.keys(years).sort(function(a,b){return b-a;});
+var currentVal=sel.value;
+sel.innerHTML='<option value="all">📊 الكل</option>';
+for(var j=0;j<sortedYears.length;j++){sel.innerHTML+='<option value="'+sortedYears[j]+'">📅 '+sortedYears[j]+'</option>';}
+if(!currentVal||currentVal===''){sel.value=String(currentYear);}else{sel.value=currentVal;}
+}
+function getFilteredTx(selectId){
+var sel=document.getElementById(selectId);
+var year=sel?sel.value:'all';
+if(year==='all')return appData.tx.slice();
+return appData.tx.filter(function(t){return t.date&&new Date(t.date).getFullYear()===parseInt(year);});
+}
+function loadFinance(){populateYearFilter('financeYearFilter');var filtered=getFilteredTx('financeYearFilter');var inc=0,exp=0;for(var i=0;i<filtered.length;i++){if(filtered[i].type==="income")inc+=filtered[i].amount;else exp+=filtered[i].amount;}var bal=inc-exp;var statBal=document.getElementById("statBalance");var statInc=document.getElementById("statIncome");var statExp=document.getElementById("statExpense");if(statBal)statBal.textContent=bal.toLocaleString()+" NOK";if(statInc)statInc.textContent=inc.toLocaleString()+" NOK";if(statExp)statExp.textContent=exp.toLocaleString()+" NOK";var sel=document.getElementById('financeYearFilter');var yearLabel=sel&&sel.value!=='all'?' ('+sel.value+')':'';var lbl1=document.getElementById('finBalanceLabel');var lbl2=document.getElementById('finIncomeLabel');var lbl3=document.getElementById('finExpenseLabel');if(lbl1)lbl1.textContent='الرصيد'+yearLabel;if(lbl2)lbl2.textContent='الإيرادات'+yearLabel;if(lbl3)lbl3.textContent='المصروفات'+yearLabel;var list=document.getElementById("txList");if(list){list.innerHTML="";if(filtered.length===0){list.innerHTML='<p style="color:var(--muted);text-align:center;padding:20px;">لا توجد معاملات</p>';return;}for(var j=0;j<filtered.length;j++){var t=filtered[j];var rh="";if(t.receipts&&t.receipts.length>0){rh='<div class="tx-receipts">';for(var k=0;k<t.receipts.length;k++)rh+='<img src="'+t.receipts[k]+'" class="tx-receipt-img" onclick="showLightbox(\''+t.receipts[k]+'\')">';rh+='</div>';}list.innerHTML+='<div class="tx-item"><div class="tx-icon '+(t.type==="income"?"inc":"exp")+'">'+(t.type==="income"?"📥":"📤")+'</div><div class="tx-info"><div class="tx-title">'+t.desc+'</div><div class="tx-date">'+fmtDate(t.date)+'</div></div><div class="tx-amount '+(t.type==="income"?"inc":"exp")+'">'+(t.type==="income"?"+":"-")+t.amount.toLocaleString()+' NOK</div>'+rh+'</div>';}}}
+function loadAdminTx(){populateYearFilter('adminTxYearFilter');var filtered=getFilteredTx('adminTxYearFilter');var list=document.getElementById("adminTxList");list.innerHTML="";if(filtered.length===0){list.innerHTML='<p style="color:var(--muted);text-align:center;">لا توجد معاملات</p>';return;}for(var j=0;j<filtered.length;j++){var t=filtered[j];var txId=t.id||t._id;var rh="";if(t.receipts&&t.receipts.length>0){rh='<div class="tx-receipts">';for(var k=0;k<t.receipts.length;k++)rh+='<img src="'+t.receipts[k]+'" class="tx-receipt-img" onclick="showLightbox(\''+t.receipts[k]+'\')">';rh+='</div>';}list.innerHTML+='<div class="tx-item" data-txid="'+txId+'"><div class="tx-icon '+(t.type==="income"?"inc":"exp")+'">'+(t.type==="income"?"📥":"📤")+'</div><div class="tx-info"><div class="tx-title">'+t.desc+'</div><div class="tx-date">'+fmtDate(t.date)+'</div></div><div class="tx-amount '+(t.type==="income"?"inc":"exp")+'">'+(t.type==="income"?"+":"-")+t.amount.toLocaleString()+' NOK</div><div class="tx-actions"><button class="btn btn-gray btn-sm tx-edit-btn" data-txid="'+txId+'">✏️</button><button class="btn btn-red btn-sm tx-delete-btn" data-txid="'+txId+'">🗑️</button></div>'+rh+'</div>';}attachTxListeners();}
 function loadCount(){updateHomeStats();}
 function loadMembers(filter){
 var l=document.getElementById("membersList");
@@ -5081,8 +5532,8 @@ function updConfAgI(i,v){confAg[i]=v;renderConfAgPrev();}
 function printConfCard(){var p=document.getElementById('confCardPrev');if(!p)return;var w=window.open('','_blank');w.document.write('<html dir="rtl"><head><title>دعوة المؤتمر</title><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box;font-family:"Tajawal",sans-serif}body{padding:20px}</style></head><body>'+p.outerHTML+'</body></html>');w.document.close();w.onload=function(){w.print();};}
 function dlConfImg(){var p=document.getElementById('confCardPrev');if(!p)return;if(typeof html2canvas==='undefined'){toast('جاري تحميل...');var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';s.onload=function(){dlConfImg();};document.head.appendChild(s);return;}html2canvas(p,{scale:2,useCORS:true,backgroundColor:'#fff'}).then(function(c){var a=document.createElement('a');a.download='conference-invitation.png';a.href=c.toDataURL('image/png');a.click();toast('تم تحميل الصورة ✅');});}
 function dlConfPDF(){var p=document.getElementById('confCardPrev');if(!p)return;if(typeof html2canvas==='undefined'||typeof jspdf==='undefined'){toast('جاري تحميل...');var s1=document.createElement('script');s1.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';s1.onload=function(){var s2=document.createElement('script');s2.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';s2.onload=function(){dlConfPDF();};document.head.appendChild(s2);};document.head.appendChild(s1);return;}html2canvas(p,{scale:2,useCORS:true,backgroundColor:'#fff'}).then(function(c){var img=c.toDataURL('image/png'),pdf=new jspdf.jsPDF('p','mm','a4'),w=190,h=(c.height*w)/c.width;pdf.addImage(img,'PNG',10,10,w,h);pdf.save('conference-invitation.pdf');toast('تم تحميل PDF ✅');});}
-function showAdmin(){var el;el=document.getElementById("visitorBox");if(el)el.classList.remove("hidden");el=document.getElementById("adminTitle");if(el)el.classList.remove("hidden");el=document.getElementById("btnAdmin");if(el)el.classList.remove("hidden");el=document.getElementById("btnMembers");if(el)el.classList.remove("hidden");el=document.getElementById("btnPending");if(el)el.classList.remove("hidden");el=document.getElementById("btnRegistrationSheet");if(el)el.classList.remove("hidden");el=document.getElementById("btnManageTx");if(el)el.classList.remove("hidden");el=document.getElementById("btnManageNews");if(el)el.classList.remove("hidden");el=document.getElementById("btnManageVoting");if(el)el.classList.remove("hidden");el=document.getElementById("btnInbox");if(el)el.classList.remove("hidden");el=document.getElementById("btnManageLive");if(el)el.classList.remove("hidden");el=document.getElementById("btnLive");if(el)el.classList.remove("hidden");el=document.getElementById("btnEditBylaws");if(el)el.classList.remove("hidden");el=document.getElementById("loginBtn");if(el){el.textContent="🚪 خروج";el.classList.add("logout");}updateVisibility();}
-function hideAdmin(){var el;el=document.getElementById("visitorBox");if(el)el.classList.add("hidden");el=document.getElementById("adminTitle");if(el)el.classList.add("hidden");el=document.getElementById("btnAdmin");if(el)el.classList.add("hidden");el=document.getElementById("btnMembers");if(el)el.classList.add("hidden");el=document.getElementById("btnPending");if(el)el.classList.add("hidden");el=document.getElementById("btnRegistrationSheet");if(el)el.classList.add("hidden");el=document.getElementById("btnManageTx");if(el)el.classList.add("hidden");el=document.getElementById("btnManageNews");if(el)el.classList.add("hidden");el=document.getElementById("btnManageVoting");if(el)el.classList.add("hidden");el=document.getElementById("btnInbox");if(el)el.classList.add("hidden");el=document.getElementById("btnManageLive");if(el)el.classList.add("hidden");el=document.getElementById("btnEditBylaws");if(el)el.classList.add("hidden");el=document.getElementById("bylawsEditSection");if(el)el.classList.remove("show");el=document.getElementById("loginBtn");if(el){el.textContent="🔐 دخول المسؤول";el.classList.remove("logout");}updateVisibility();loadLiveStreamStatus();}
+function showAdmin(){var el;el=document.getElementById("visitorBox");if(el)el.classList.remove("hidden");el=document.getElementById("adminTitle");if(el)el.classList.remove("hidden");el=document.getElementById("btnAdmin");if(el)el.classList.remove("hidden");el=document.getElementById("btnMembers");if(el)el.classList.remove("hidden");el=document.getElementById("btnPending");if(el)el.classList.remove("hidden");el=document.getElementById("btnRegistrationSheet");if(el)el.classList.remove("hidden");el=document.getElementById("btnManageTx");if(el)el.classList.remove("hidden");el=document.getElementById("btnManageNews");if(el)el.classList.remove("hidden");el=document.getElementById("btnManageVoting");if(el)el.classList.remove("hidden");el=document.getElementById("btnInbox");if(el)el.classList.remove("hidden");el=document.getElementById("btnManageLive");if(el)el.classList.remove("hidden");el=document.getElementById("btnManageGallery");if(el)el.classList.remove("hidden");el=document.getElementById("btnLive");if(el)el.classList.remove("hidden");el=document.getElementById("btnEditBylaws");if(el)el.classList.remove("hidden");el=document.getElementById("loginBtn");if(el){el.textContent="🚪 خروج";el.classList.add("logout");}updateVisibility();}
+function hideAdmin(){var el;el=document.getElementById("visitorBox");if(el)el.classList.add("hidden");el=document.getElementById("adminTitle");if(el)el.classList.add("hidden");el=document.getElementById("btnAdmin");if(el)el.classList.add("hidden");el=document.getElementById("btnMembers");if(el)el.classList.add("hidden");el=document.getElementById("btnPending");if(el)el.classList.add("hidden");el=document.getElementById("btnRegistrationSheet");if(el)el.classList.add("hidden");el=document.getElementById("btnManageTx");if(el)el.classList.add("hidden");el=document.getElementById("btnManageNews");if(el)el.classList.add("hidden");el=document.getElementById("btnManageVoting");if(el)el.classList.add("hidden");el=document.getElementById("btnInbox");if(el)el.classList.add("hidden");el=document.getElementById("btnManageLive");if(el)el.classList.add("hidden");el=document.getElementById("btnManageGallery");if(el)el.classList.add("hidden");el=document.getElementById("btnEditBylaws");if(el)el.classList.add("hidden");el=document.getElementById("bylawsEditSection");if(el)el.classList.remove("show");el=document.getElementById("loginBtn");if(el){el.textContent="🔐 دخول المسؤول";el.classList.remove("logout");}updateVisibility();loadLiveStreamStatus();}
 function openMemberModal(m){document.getElementById("memberModalTitle").textContent=m?"✏️ تعديل":"➕ إضافة";document.getElementById("memberId").value=m?m.id:"";document.getElementById("memberName").value=m?m.name:"";document.getElementById("memberPhone").value=m?m.phone||"":"";document.getElementById("memberEmail").value=m?m.email||"":"";document.getElementById("memberNotes").value=m?m.notes||"":"";document.getElementById("memberLat").value=m?m.lat||"":"";document.getElementById("memberLng").value=m?m.lng||"":"";document.getElementById("memberAddressSearch").value=m?m.addressText||"":"";document.getElementById("memberShowMap").checked=m?m.showMap:true;document.getElementById("memberShowPhone").checked=m?m.showPhone:false;document.getElementById("memberShowEmail").checked=m?m.showEmail:false;memberImg=m?m.img||"":"";if(memberImg){document.getElementById("memberImgPreview").src=memberImg;document.getElementById("memberImgPreview").style.display="block";}else{document.getElementById("memberImgPreview").style.display="none";}document.getElementById("locationResult").classList.remove("show");document.getElementById("memberModal").classList.add("show");}
 async function saveMemberData(){
 var nm=document.getElementById("memberName").value.trim();
@@ -5147,6 +5598,52 @@ function renderTxReceipts(){var p=document.getElementById("txReceiptsPreview");p
 function renderEditTxReceipts(){var p=document.getElementById("editTxReceiptsPreview");p.innerHTML="";for(var i=0;i<editTxReceipts.length;i++)p.innerHTML+='<div class="receipt-preview-item"><img src="'+editTxReceipts[i]+'"><button class="remove-receipt" onclick="removeEditTxReceipt('+i+')">×</button></div>';}
 window.removeNewsImg=function(i){newsImgs.splice(i,1);renderNewsImgs();};window.removeEditNewsImg=function(i){editNewsImgs.splice(i,1);renderEditNewsImgs();};window.removeTxReceipt=function(i){txReceipts.splice(i,1);renderTxReceipts();};window.removeEditTxReceipt=function(i){editTxReceipts.splice(i,1);renderEditTxReceipts();};
 window.showLightbox=function(s){document.getElementById("lightboxImg").src=s;document.getElementById("lightbox").classList.add("show");};
+
+// News Gallery Slider
+var newsSliderStates={};
+window.slideNews=function(sliderId,dir){
+var slider=document.getElementById(sliderId);if(!slider)return;
+var total=slider.children.length;
+if(!newsSliderStates[sliderId])newsSliderStates[sliderId]=0;
+newsSliderStates[sliderId]+=dir;
+if(newsSliderStates[sliderId]<0)newsSliderStates[sliderId]=total-1;
+if(newsSliderStates[sliderId]>=total)newsSliderStates[sliderId]=0;
+var idx=newsSliderStates[sliderId];
+slider.style.transform='translateX('+(-idx*100)+'%)';
+var counter=document.getElementById(sliderId+'_counter');
+if(counter)counter.textContent=total+' / '+(idx+1);
+var dots=document.querySelectorAll('#'+sliderId+'_dots .news-gallery-dot');
+for(var i=0;i<dots.length;i++){dots[i].classList.toggle('active',i===idx);}
+};
+window.goToSlide=function(sliderId,idx){
+var slider=document.getElementById(sliderId);if(!slider)return;
+var total=slider.children.length;
+newsSliderStates[sliderId]=idx;
+slider.style.transform='translateX('+(-idx*100)+'%)';
+var counter=document.getElementById(sliderId+'_counter');
+if(counter)counter.textContent=total+' / '+(idx+1);
+var dots=document.querySelectorAll('#'+sliderId+'_dots .news-gallery-dot');
+for(var i=0;i<dots.length;i++){dots[i].classList.toggle('active',i===idx);}
+};
+
+// Touch swipe support for news gallery
+document.addEventListener('touchstart',function(e){
+var wrapper=e.target.closest('.news-gallery-wrapper');
+if(!wrapper)return;
+wrapper._touchStartX=e.touches[0].clientX;
+},{passive:true});
+document.addEventListener('touchend',function(e){
+var wrapper=e.target.closest('.news-gallery-wrapper');
+if(!wrapper||!wrapper._touchStartX)return;
+var diff=wrapper._touchStartX-e.changedTouches[0].clientX;
+var slider=wrapper.querySelector('.news-gallery-slider');
+if(!slider)return;
+var sliderId=slider.id;
+if(Math.abs(diff)>50){
+slideNews(sliderId,diff>0?1:-1);
+}
+wrapper._touchStartX=null;
+},{passive:true});
 window.editM=function(id){
 id = String(id);
 var m = appData.members.find(function(x){return String(x.id||x._id)===id;});
@@ -5167,6 +5664,7 @@ document.getElementById("editTxId").value=id;
 document.getElementById("editTxType").value=t.type;
 document.getElementById("editTxDesc").value=t.desc;
 document.getElementById("editTxAmount").value=t.amount;
+document.getElementById("editTxDate").value=t.date||"";
 editTxReceipts=t.receipts?t.receipts.slice():[];
 renderEditTxReceipts();
 document.getElementById("editTxModal").classList.add("show");
@@ -5954,7 +6452,7 @@ loadLogo();loadNews();loadFinance();loadCount();updateVisibility();loadOrgName()
 });
 }
 document.getElementById("btnHome").addEventListener("click",function(){goTo("home");renderHomePage();});document.getElementById("btnNews").addEventListener("click",function(){goTo("news");});
-document.getElementById("btnAdmin").addEventListener("click",function(){goTo("admin");loadHomeSettings();});document.getElementById("btnBylaws").addEventListener("click",function(){goTo("bylaws");loadBylaws();});document.getElementById("btnVoting").addEventListener("click",function(){goTo("voting");loadFromCloud(loadVoting);});document.getElementById("btnFinance").addEventListener("click",function(){goTo("finance");});document.getElementById("btnMap").addEventListener("click",function(){goTo("map");});document.getElementById("btnRegister").addEventListener("click",function(){goTo("register");});document.getElementById("btnInvitation").addEventListener("click",function(){goTo("invitation");});document.getElementById("btnConfInvite").addEventListener("click",function(){goTo("confInvite");initConfInv();});document.getElementById("btnReports").addEventListener("click",function(){goTo("reports");initReports();});document.getElementById("btnContact").addEventListener("click",function(){goTo("contact");});document.getElementById("btnLive").addEventListener("click",function(){goTo("live");loadFromCloud(function(){loadLiveStreamStatus();loadLiveVotingList();});});document.getElementById("btnMembers").addEventListener("click",function(){goTo("members");});document.getElementById("btnPending").addEventListener("click",function(){goTo("pending");loadPending();});document.getElementById("btnRegistrationSheet").addEventListener("click",function(){goTo("registrationSheet");loadSheet();});document.getElementById("btnManageTx").addEventListener("click",function(){goTo("manageTx");});document.getElementById("btnManageNews").addEventListener("click",function(){goTo("manageNews");});document.getElementById("btnManageVoting").addEventListener("click",function(){goTo("manageVoting");loadFromCloud(loadAdminVoting);});document.getElementById("btnInbox").addEventListener("click",function(){goTo("inbox");loadFromCloud(loadMessages);});document.getElementById("btnManageLive").addEventListener("click",function(){goTo("manageLive");loadFromCloud(function(){loadAdminLiveVotes();loadLiveStreamStatus();});});
+document.getElementById("btnAdmin").addEventListener("click",function(){goTo("admin");loadHomeSettings();});document.getElementById("btnBylaws").addEventListener("click",function(){goTo("bylaws");loadBylaws();});document.getElementById("btnVoting").addEventListener("click",function(){goTo("voting");loadFromCloud(loadVoting);});document.getElementById("btnFinance").addEventListener("click",function(){goTo("finance");});document.getElementById("btnMap").addEventListener("click",function(){goTo("map");});document.getElementById("btnRegister").addEventListener("click",function(){goTo("register");});document.getElementById("btnInvitation").addEventListener("click",function(){goTo("invitation");});document.getElementById("btnConfInvite").addEventListener("click",function(){goTo("confInvite");initConfInv();});document.getElementById("btnReports").addEventListener("click",function(){goTo("reports");initReports();});document.getElementById("btnContact").addEventListener("click",function(){goTo("contact");});document.getElementById("btnLive").addEventListener("click",function(){goTo("live");loadFromCloud(function(){loadLiveStreamStatus();loadLiveVotingList();});});document.getElementById("btnMembers").addEventListener("click",function(){goTo("members");});document.getElementById("btnPending").addEventListener("click",function(){goTo("pending");loadPending();});document.getElementById("btnRegistrationSheet").addEventListener("click",function(){goTo("registrationSheet");loadSheet();});document.getElementById("btnManageTx").addEventListener("click",function(){goTo("manageTx");document.getElementById("txDate").value=new Date().toISOString().split("T")[0];loadAdminTx();});document.getElementById("btnManageNews").addEventListener("click",function(){goTo("manageNews");});document.getElementById("btnManageVoting").addEventListener("click",function(){goTo("manageVoting");loadFromCloud(loadAdminVoting);});document.getElementById("btnInbox").addEventListener("click",function(){goTo("inbox");loadFromCloud(loadMessages);});document.getElementById("btnManageLive").addEventListener("click",function(){goTo("manageLive");loadFromCloud(function(){loadAdminLiveVotes();loadLiveStreamStatus();});});
 document.getElementById("mobileBtn").addEventListener("click",function(){document.getElementById("sidebar").classList.toggle("open");});
 document.getElementById("loginBtn").addEventListener("click",function(){if(isAdmin){isAdmin=false;hideAdmin();goTo("home");toast("تم الخروج");}else{document.getElementById("passInput").value="";document.getElementById("loginModal").classList.add("show");}});
 document.getElementById("closeLogin").addEventListener("click",function(){document.getElementById("loginModal").classList.remove("show");});document.getElementById("cancelLogin").addEventListener("click",function(){document.getElementById("loginModal").classList.remove("show");});document.getElementById("loginModal").addEventListener("click",function(e){if(e.target.id==="loginModal")this.classList.remove("show");});
@@ -6064,6 +6562,7 @@ document.getElementById("newNewsContent").value="";
 newsImgs=[];
 renderNewsImgs();
 toast("تم النشر");
+sendLocalNotification('📰 خبر جديد - الجالية الفلسطينية', t);
 }
 });
 document.getElementById("txReceiptsUpload").addEventListener("click",function(){document.getElementById("txReceiptsFile").click();});document.getElementById("txReceiptsFile").addEventListener("change",function(e){var files=e.target.files;for(var i=0;i<files.length;i++){(function(file){var r=new FileReader();r.onload=function(ev){txReceipts.push(ev.target.result);renderTxReceipts();};r.readAsDataURL(file);})(files[i]);}});
@@ -6098,12 +6597,13 @@ console.error(err);
 toast(err.message||"خطأ في الاتصال",true);
 }
 }else{
-appData.tx.unshift({id:Date.now(),type:tp,desc:ds,amount:am,date:new Date().toISOString().split("T")[0],receipts:txReceipts.slice()});
+appData.tx.unshift({id:Date.now(),type:tp,desc:ds,amount:am,date:document.getElementById("txDate").value||new Date().toISOString().split("T")[0],receipts:txReceipts.slice()});
 save();
 loadFinance();
 loadAdminTx();
 document.getElementById("txDesc").value="";
 document.getElementById("txAmount").value="";
+document.getElementById("txDate").value="";
 txReceipts=[];
 renderTxReceipts();
 toast("تم الحفظ");
@@ -6111,7 +6611,7 @@ toast("تم الحفظ");
 });
 document.getElementById("editTxReceiptsUpload").addEventListener("click",function(){document.getElementById("editTxReceiptsFile").click();});document.getElementById("editTxReceiptsFile").addEventListener("change",function(e){var files=e.target.files;for(var i=0;i<files.length;i++){(function(file){var r=new FileReader();r.onload=function(ev){editTxReceipts.push(ev.target.result);renderEditTxReceipts();};r.readAsDataURL(file);})(files[i]);}});
 document.getElementById("closeEditTx").addEventListener("click",function(){document.getElementById("editTxModal").classList.remove("show");});document.getElementById("cancelEditTx").addEventListener("click",function(){document.getElementById("editTxModal").classList.remove("show");});document.getElementById("editTxModal").addEventListener("click",function(e){if(e.target.id==="editTxModal")this.classList.remove("show");});
-document.getElementById("saveEditTx").addEventListener("click",function(){var id=String(document.getElementById("editTxId").value);var tp=document.getElementById("editTxType").value;var ds=document.getElementById("editTxDesc").value;var am=parseFloat(document.getElementById("editTxAmount").value);if(!ds||!am){toast("املأ الحقول",true);return;}var t=appData.tx.find(function(x){return String(x.id||x._id)===id;});if(t){t.type=tp;t.desc=ds;t.amount=am;t.receipts=editTxReceipts.slice();}save();loadFinance();loadAdminTx();document.getElementById("editTxModal").classList.remove("show");toast("تم حفظ التعديلات ✅");});
+document.getElementById("saveEditTx").addEventListener("click",function(){var id=String(document.getElementById("editTxId").value);var tp=document.getElementById("editTxType").value;var ds=document.getElementById("editTxDesc").value;var am=parseFloat(document.getElementById("editTxAmount").value);var dt=document.getElementById("editTxDate").value;if(!ds||!am){toast("املأ الحقول",true);return;}var t=appData.tx.find(function(x){return String(x.id||x._id)===id;});if(t){t.type=tp;t.desc=ds;t.amount=am;if(dt)t.date=dt;t.receipts=editTxReceipts.slice();}save();loadFinance();loadAdminTx();document.getElementById("editTxModal").classList.remove("show");toast("تم حفظ التعديلات ✅");});
 document.getElementById("editNewsImgsUpload").addEventListener("click",function(){document.getElementById("editNewsImgsFile").click();});document.getElementById("editNewsImgsFile").addEventListener("change",function(e){var files=e.target.files;for(var i=0;i<files.length;i++){(function(file){var r=new FileReader();r.onload=function(ev){editNewsImgs.push(ev.target.result);renderEditNewsImgs();};r.readAsDataURL(file);})(files[i]);}});
 document.getElementById("closeEditNews").addEventListener("click",function(){document.getElementById("editNewsModal").classList.remove("show");});document.getElementById("cancelEditNews").addEventListener("click",function(){document.getElementById("editNewsModal").classList.remove("show");});document.getElementById("editNewsModal").addEventListener("click",function(e){if(e.target.id==="editNewsModal")this.classList.remove("show");});
 document.getElementById("saveEditNews").addEventListener("click",function(){var id=String(document.getElementById("editNewsId").value);var t=document.getElementById("editNewsTitle").value;var c=document.getElementById("editNewsContent").value;if(!t||!c){toast("املأ الحقول",true);return;}var n=appData.news.find(function(x){return String(x.id||x._id)===id;});if(n){n.title=t;n.content=c;n.imgs=editNewsImgs.slice();}save();loadNews();loadAdminNews();document.getElementById("editNewsModal").classList.remove("show");toast("تم حفظ التعديلات ✅");});
@@ -6223,6 +6723,8 @@ var lat=parseFloat(document.getElementById("regLat").value)||null;
 var lng=parseFloat(document.getElementById("regLng").value)||null;
 
 if(!name||!phone||!city){toast(t('fillRequiredFields'),true);return;}
+var privacyCheck=document.getElementById("regPrivacy");
+if(privacyCheck&&!privacyCheck.checked){toast('يرجى الموافقة على سياسة الخصوصية',true);return;}
 
 var familyMembers=[];
 var fmCards=document.querySelectorAll(".family-member-card");
@@ -8586,6 +9088,186 @@ initLanguage();
 updateInboxBadge();
 initLiveStream();
 loadInvLogo();
+
+// Cookie Consent Banner
+if(!localStorage.getItem('cookieConsent')){
+    var cb = document.getElementById('cookieBanner');
+    if(cb) cb.style.display = 'flex';
+}
+
+// Privacy page language switcher
+window.switchPrivacyLang = function(lang){
+    var tabs = document.querySelectorAll('.privacy-tab');
+    for(var i=0;i<tabs.length;i++) tabs[i].classList.remove('active');
+    event.target.classList.add('active');
+    var langs = document.querySelectorAll('.privacy-lang');
+    for(var j=0;j<langs.length;j++) langs[j].classList.remove('active');
+    var target = document.getElementById(lang === 'no' ? 'privacyNo' : 'privacyAr');
+    if(target) target.classList.add('active');
+};
+
+// Accept cookies
+window.acceptCookies = function(){
+    localStorage.setItem('cookieConsent', 'accepted');
+    var cb = document.getElementById('cookieBanner');
+    if(cb) cb.style.display = 'none';
+};
+
+// ========== Photo Gallery ==========
+if(!appData.gallery) appData.gallery = [];
+
+window.saveAlbum = function(){
+    var title = document.getElementById('albumTitle').value.trim();
+    var desc = document.getElementById('albumDesc').value.trim();
+    if(!title){toast('أدخل اسم الألبوم',true);return;}
+    if(albumPhotos.length===0){toast('أضف صورة واحدة على الأقل',true);return;}
+    appData.gallery.unshift({
+        id:Date.now(), title:title, desc:desc,
+        photos:albumPhotos.slice(),
+        date:new Date().toISOString().split('T')[0]
+    });
+    save();
+    document.getElementById('albumTitle').value='';
+    document.getElementById('albumDesc').value='';
+    albumPhotos=[];
+    document.getElementById('albumThumbs').innerHTML='';
+    loadGallery();loadAdminGallery();
+    toast('تم حفظ الألبوم ✅');
+};
+
+var albumPhotos=[];
+document.getElementById('albumUploadArea').addEventListener('click',function(){
+    document.getElementById('albumFiles').click();
+});
+document.getElementById('albumFiles').addEventListener('change',function(e){
+    var files=e.target.files;
+    for(var i=0;i<files.length;i++){
+        (function(file){
+            var r=new FileReader();
+            r.onload=function(ev){
+                albumPhotos.push(ev.target.result);
+                renderAlbumThumbs();
+            };
+            r.readAsDataURL(file);
+        })(files[i]);
+    }
+});
+
+function renderAlbumThumbs(){
+    var c=document.getElementById('albumThumbs');c.innerHTML='';
+    for(var i=0;i<albumPhotos.length;i++){
+        c.innerHTML+='<div class="gallery-thumb-wrap"><img src="'+albumPhotos[i]+'" class="gallery-thumb"><button class="gallery-thumb-remove" onclick="removeAlbumPhoto('+i+')">×</button></div>';
+    }
+}
+window.removeAlbumPhoto=function(i){albumPhotos.splice(i,1);renderAlbumThumbs();};
+
+function loadGallery(){
+    var g=document.getElementById('galleryGrid');if(!g)return;
+    g.innerHTML='';
+    if(!appData.gallery||appData.gallery.length===0){
+        g.innerHTML='<p style="color:var(--muted);text-align:center;padding:40px;grid-column:1/-1;">لا توجد ألبومات بعد</p>';
+        return;
+    }
+    for(var i=0;i<appData.gallery.length;i++){
+        var a=appData.gallery[i];
+        var cover=a.photos&&a.photos.length>0?'<img src="'+a.photos[0]+'" class="gallery-album-cover">':'<div class="gallery-album-cover" style="display:flex;align-items:center;justify-content:center;font-size:3rem;">📷</div>';
+        g.innerHTML+='<div class="gallery-album" onclick="openAlbum('+i+')">'+cover+'<div class="gallery-album-info"><div class="gallery-album-title">'+a.title+'</div><div class="gallery-album-count">📷 '+(a.photos?a.photos.length:0)+' صورة</div><div class="gallery-album-date">'+fmtDate(a.date)+'</div></div></div>';
+    }
+}
+
+window.openAlbum=function(idx){
+    var a=appData.gallery[idx];if(!a)return;
+    document.getElementById('galleryContent').style.display='none';
+    document.getElementById('galleryAlbumView').style.display='block';
+    document.getElementById('albumViewTitle').textContent='🖼️ '+a.title+' ('+a.photos.length+' صورة)';
+    var c=document.getElementById('albumPhotos');c.innerHTML='';
+    for(var i=0;i<a.photos.length;i++){
+        c.innerHTML+='<img src="'+a.photos[i]+'" class="gallery-photo" onclick="showLightbox(\''+a.photos[i]+'\')">';
+    }
+};
+
+window.closeAlbumView=function(){
+    document.getElementById('galleryContent').style.display='block';
+    document.getElementById('galleryAlbumView').style.display='none';
+};
+
+function loadAdminGallery(){
+    var c=document.getElementById('adminAlbumList');if(!c)return;
+    c.innerHTML='';
+    if(!appData.gallery||appData.gallery.length===0){
+        c.innerHTML='<p style="color:var(--muted);text-align:center;">لا توجد ألبومات</p>';return;
+    }
+    for(var i=0;i<appData.gallery.length;i++){
+        var a=appData.gallery[i];
+        c.innerHTML+='<div class="tx-item"><div class="tx-icon inc">🖼️</div><div class="tx-info"><div class="tx-title">'+a.title+'</div><div class="tx-date">'+fmtDate(a.date)+' | 📷 '+(a.photos?a.photos.length:0)+' صورة</div></div><div class="tx-actions"><button class="btn btn-red btn-sm" onclick="deleteAlbum('+i+')">🗑️</button></div></div>';
+    }
+}
+
+window.deleteAlbum=function(idx){
+    if(!confirm('حذف هذا الألبوم؟'))return;
+    appData.gallery.splice(idx,1);
+    save();loadGallery();loadAdminGallery();
+    toast('تم حذف الألبوم');
+};
+
+// Gallery nav button
+document.getElementById('btnGallery').addEventListener('click',function(){goTo('gallery');loadGallery();});
+document.getElementById('btnManageGallery').addEventListener('click',function(){goTo('manageGallery');loadAdminGallery();});
+
+// Gallery nav button
+window.enablePushNotifications=function(){
+    if(!('Notification' in window)){
+        toast('متصفحك لا يدعم الإشعارات',true);return;
+    }
+    if(Notification.permission==='granted'){
+        toast('الإشعارات مفعّلة بالفعل ✅');return;
+    }
+    if(Notification.permission==='denied'){
+        toast('الإشعارات محظورة. فعّلها من إعدادات المتصفح',true);return;
+    }
+    Notification.requestPermission().then(function(p){
+        if(p==='granted'){
+            localStorage.setItem('pushEnabled','true');
+            toast('تم تفعيل الإشعارات ✅');
+            new Notification('الجالية الفلسطينية 🇵🇸',{body:'تم تفعيل الإشعارات بنجاح!',icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🇵🇸</text></svg>'});
+        }else{
+            toast('لم يتم تفعيل الإشعارات',true);
+        }
+    });
+};
+
+function sendLocalNotification(title,body){
+    if(Notification.permission==='granted' && localStorage.getItem('pushEnabled')==='true'){
+        new Notification(title,{body:body,icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🇵🇸</text></svg>'});
+    }
+}
+
+// Show admin buttons for gallery
+var origShowAdmin = window.showAdmin;
+if(typeof showAdmin === 'function'){
+    var _origShow = showAdmin;
+    showAdmin = function(){
+        _origShow();
+        document.getElementById('btnManageGallery').classList.remove('hidden');
+    };
+}
+
+// Update hideAdmin to hide gallery button
+var origHideAdmin = window.hideAdmin;
+if(typeof hideAdmin === 'function'){
+    var _origHide = hideAdmin;
+    hideAdmin = function(){
+        _origHide();
+        document.getElementById('btnManageGallery').classList.add('hidden');
+    };
+}
+
+// Hide push button if already enabled
+if(localStorage.getItem('pushEnabled')==='true'){
+    var pb=document.getElementById('pushNotifBtn');
+    if(pb)pb.style.display='none';
+}
+
 })();
 </script>
 </body>
