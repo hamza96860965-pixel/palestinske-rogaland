@@ -5,7 +5,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// 🔑 Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyB2vd10mZBfvZ9_NxpjzT07ih0m5cOTOgo",
   authDomain: "palestinske-rogaland.firebaseapp.com",
@@ -21,17 +20,23 @@ const COLLECTION = "appData";
 const DOC_ID = "main";
 
 function cleanForFirestore(obj) {
-  return JSON.parse(JSON.stringify(obj));
+  var clean = JSON.parse(JSON.stringify(obj));
+  // حذف الحقول الكبيرة (أكبر من 900KB) - Firestore حد 1MB
+  for (var key in clean) {
+    if (typeof clean[key] === 'string' && clean[key].length > 900000) {
+      console.log("⚠️ تم تخطي حقل كبير:", key, "(" + Math.round(clean[key].length/1024) + "KB)");
+      delete clean[key];
+    }
+  }
+  return clean;
 }
 
 // ═══ استبدال دالة save ═══
 const _origSave = window.save;
 window.save = function() {
-  // تشغيل الحفظ المحلي الأصلي أولاً
   if (_origSave) {
     try { _origSave(); } catch(e) {}
   }
-  // حفظ في Firebase من localStorage
   try {
     var data = JSON.parse(localStorage.getItem("appData"));
     if (data) {
@@ -79,4 +84,4 @@ window.loadFromCloud = function(callback) {
   });
 };
 
-console.log("🔥 Firebase patch loaded successfully!");
+console.log("🔥 Firebase patch v3 loaded!");
