@@ -1,5 +1,5 @@
 // ============================================
-// 🔥 Firebase Integration v4 - palestinske-rogaland
+// 🔥 Firebase Integration v5 - palestinske-rogaland
 // ============================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -28,28 +28,25 @@ function cleanForFirestore(obj) {
   return clean;
 }
 
-// ═══ استبدال save - يحفظ محلي + Firebase ═══
+// ═══ save - محلي + Firebase ═══
 var _origSave = window.save;
 window.save = function() {
-  // حفظ محلي أولاً
   if (_origSave) { try { _origSave(); } catch(e) {} }
-  // حفظ في Firebase
   try {
     var data = JSON.parse(localStorage.getItem("appData"));
     if (data) {
       setDoc(REF, cleanForFirestore(data), { merge: true })
         .then(function() { console.log("✅ Firebase: تم الحفظ"); })
-        .catch(function(e) { console.error("❌ Firebase save error:", e); });
+        .catch(function(e) { console.error("❌ Firebase save:", e); });
     }
   } catch(e) { console.error("❌ Save error:", e); }
 };
 
-// ═══ استبدال loadFromCloud - يحمّل من Firebase ═══
+// ═══ loadFromCloud - من Firebase ═══
 window.loadFromCloud = function(callback) {
   getDoc(REF).then(function(snap) {
     if (snap.exists()) {
       var cloudData = snap.data();
-      console.log("✅ Firebase: تم التحميل");
       if (window.appData) {
         Object.assign(window.appData, cloudData);
         if (window.appData.adminPass) window.adminPass = window.appData.adminPass;
@@ -57,50 +54,53 @@ window.loadFromCloud = function(callback) {
       }
       if (callback) callback();
     } else {
-      // لا بيانات بالسحابة - رفع المحلية
       var raw = localStorage.getItem("appData");
       if (raw) {
-        setDoc(REF, cleanForFirestore(JSON.parse(raw)))
-          .then(function() { console.log("☁️ Firebase: تم رفع البيانات المحلية"); });
+        setDoc(REF, cleanForFirestore(JSON.parse(raw)));
       }
       if (callback) callback();
     }
   }).catch(function(e) {
-    console.error("❌ Firebase load error:", e);
+    console.error("❌ Firebase load:", e);
     if (callback) callback();
   });
 };
 
-// ═══ تحميل تلقائي من Firebase عند فتح الصفحة ═══
-function autoLoadFromFirebase() {
+// ═══ تحميل تلقائي + إعادة عرض الصفحة ═══
+function autoSync() {
   getDoc(REF).then(function(snap) {
     if (snap.exists()) {
       var cloudData = snap.data();
-      console.log("🔄 Firebase: تحميل تلقائي عند فتح الصفحة");
       if (window.appData) {
-        // دمج البيانات - Firebase له الأولوية
         Object.assign(window.appData, cloudData);
         if (window.appData.adminPass) window.adminPass = window.appData.adminPass;
         localStorage.setItem("appData", JSON.stringify(window.appData));
-        // إعادة عرض الصفحة
-        if (typeof renderAll === 'function') renderAll();
-        else if (typeof renderHome === 'function') renderHome();
-        else if (typeof showSection === 'function') showSection('home');
+        // إعادة عرض كل أقسام الصفحة
+        try { if (typeof renderHomePage === 'function') renderHomePage(); } catch(e) {}
+        try { if (typeof renderHomeNews === 'function') renderHomeNews(); } catch(e) {}
+        try { if (typeof renderHomeEvents === 'function') renderHomeEvents(); } catch(e) {}
+        try { if (typeof renderQuickAccessBtns === 'function') renderQuickAccessBtns(); } catch(e) {}
+        try { if (typeof loadHomeSettings === 'function') loadHomeSettings(); } catch(e) {}
+        console.log("✅ Firebase: تم المزامنة وتحديث الصفحة");
       }
-      console.log("✅ Firebase: البيانات محدّثة!");
+    } else {
+      // أول مرة - رفع البيانات المحلية
+      var raw = localStorage.getItem("appData");
+      if (raw) {
+        setDoc(REF, cleanForFirestore(JSON.parse(raw)))
+          .then(function() { console.log("☁️ Firebase: رفع أولي للبيانات"); });
+      }
     }
-  }).catch(function(e) {
-    console.error("❌ Firebase auto-load error:", e);
-  });
+  }).catch(function(e) { console.error("❌ Firebase sync:", e); });
 }
 
-// انتظر حتى يكتمل تحميل الصفحة ثم حمّل من Firebase
+// تشغيل المزامنة بعد تحميل الصفحة
 if (document.readyState === 'complete') {
-  setTimeout(autoLoadFromFirebase, 1000);
+  setTimeout(autoSync, 1500);
 } else {
   window.addEventListener('load', function() {
-    setTimeout(autoLoadFromFirebase, 1000);
+    setTimeout(autoSync, 1500);
   });
 }
 
-console.log("🔥 Firebase patch v4 loaded!");
+console.log("🔥 Firebase patch v5 loaded!");
