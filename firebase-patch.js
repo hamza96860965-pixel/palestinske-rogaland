@@ -1,5 +1,5 @@
 // ============================================
-// 🔥 Firebase Integration for palestinske-rogaland
+// 🔥 Firebase Integration v4 - palestinske-rogaland
 // ============================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -16,72 +16,91 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const COLLECTION = "appData";
-const DOC_ID = "main";
+const REF = doc(db, "appData", "main");
 
 function cleanForFirestore(obj) {
   var clean = JSON.parse(JSON.stringify(obj));
-  // حذف الحقول الكبيرة (أكبر من 900KB) - Firestore حد 1MB
   for (var key in clean) {
     if (typeof clean[key] === 'string' && clean[key].length > 900000) {
-      console.log("⚠️ تم تخطي حقل كبير:", key, "(" + Math.round(clean[key].length/1024) + "KB)");
       delete clean[key];
     }
   }
   return clean;
 }
 
-// ═══ استبدال دالة save ═══
-const _origSave = window.save;
+// ═══ استبدال save - يحفظ محلي + Firebase ═══
+var _origSave = window.save;
 window.save = function() {
-  if (_origSave) {
-    try { _origSave(); } catch(e) {}
-  }
+  // حفظ محلي أولاً
+  if (_origSave) { try { _origSave(); } catch(e) {} }
+  // حفظ في Firebase
   try {
     var data = JSON.parse(localStorage.getItem("appData"));
     if (data) {
-      var ref = doc(db, COLLECTION, DOC_ID);
-      setDoc(ref, cleanForFirestore(data), { merge: true })
-        .then(function() { console.log("✅ تم الحفظ في Firebase"); })
-        .catch(function(e) { console.error("❌ خطأ Firebase save:", e); });
+      setDoc(REF, cleanForFirestore(data), { merge: true })
+        .then(function() { console.log("✅ Firebase: تم الحفظ"); })
+        .catch(function(e) { console.error("❌ Firebase save error:", e); });
     }
-  } catch(e) {
-    console.error("❌ خطأ في الحفظ:", e);
-  }
+  } catch(e) { console.error("❌ Save error:", e); }
 };
 
-// ═══ استبدال دالة loadFromCloud ═══
-const _origLoad = window.loadFromCloud;
+// ═══ استبدال loadFromCloud - يحمّل من Firebase ═══
 window.loadFromCloud = function(callback) {
-  var ref = doc(db, COLLECTION, DOC_ID);
-  getDoc(ref).then(function(snap) {
+  getDoc(REF).then(function(snap) {
     if (snap.exists()) {
       var cloudData = snap.data();
-      console.log("✅ تم تحميل البيانات من Firebase");
-      var local = localStorage.getItem("appData");
-      var localData = local ? JSON.parse(local) : {};
-      Object.assign(localData, cloudData);
-      localStorage.setItem("appData", JSON.stringify(localData));
-      if (window.appData !== undefined) {
-        Object.assign(window.appData, localData);
+      console.log("✅ Firebase: تم التحميل");
+      if (window.appData) {
+        Object.assign(window.appData, cloudData);
         if (window.appData.adminPass) window.adminPass = window.appData.adminPass;
+        localStorage.setItem("appData", JSON.stringify(window.appData));
       }
       if (callback) callback();
     } else {
-      console.log("📄 لا توجد بيانات في Firebase - رفع المحلية");
-      var localRaw = localStorage.getItem("appData");
-      if (localRaw) {
-        setDoc(ref, cleanForFirestore(JSON.parse(localRaw)))
-          .then(function() { console.log("☁️ تم رفع البيانات المحلية إلى Firebase"); })
-          .catch(function(e) { console.error("❌ خطأ رفع:", e); });
+      // لا بيانات بالسحابة - رفع المحلية
+      var raw = localStorage.getItem("appData");
+      if (raw) {
+        setDoc(REF, cleanForFirestore(JSON.parse(raw)))
+          .then(function() { console.log("☁️ Firebase: تم رفع البيانات المحلية"); });
       }
       if (callback) callback();
     }
   }).catch(function(e) {
-    console.error("❌ خطأ في التحميل:", e);
-    if (_origLoad) { _origLoad(callback); }
-    else if (callback) { callback(); }
+    console.error("❌ Firebase load error:", e);
+    if (callback) callback();
   });
 };
 
-console.log("🔥 Firebase patch v3 loaded!");
+// ═══ تحميل تلقائي من Firebase عند فتح الصفحة ═══
+function autoLoadFromFirebase() {
+  getDoc(REF).then(function(snap) {
+    if (snap.exists()) {
+      var cloudData = snap.data();
+      console.log("🔄 Firebase: تحميل تلقائي عند فتح الصفحة");
+      if (window.appData) {
+        // دمج البيانات - Firebase له الأولوية
+        Object.assign(window.appData, cloudData);
+        if (window.appData.adminPass) window.adminPass = window.appData.adminPass;
+        localStorage.setItem("appData", JSON.stringify(window.appData));
+        // إعادة عرض الصفحة
+        if (typeof renderAll === 'function') renderAll();
+        else if (typeof renderHome === 'function') renderHome();
+        else if (typeof showSection === 'function') showSection('home');
+      }
+      console.log("✅ Firebase: البيانات محدّثة!");
+    }
+  }).catch(function(e) {
+    console.error("❌ Firebase auto-load error:", e);
+  });
+}
+
+// انتظر حتى يكتمل تحميل الصفحة ثم حمّل من Firebase
+if (document.readyState === 'complete') {
+  setTimeout(autoLoadFromFirebase, 1000);
+} else {
+  window.addEventListener('load', function() {
+    setTimeout(autoLoadFromFirebase, 1000);
+  });
+}
+
+console.log("🔥 Firebase patch v4 loaded!");
