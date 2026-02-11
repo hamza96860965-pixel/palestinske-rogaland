@@ -8,13 +8,6 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css"/>
-<script type="module">
-import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import{getFirestore,doc,getDoc,setDoc}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-var a=initializeApp({apiKey:"AIzaSyB2vd10mZBfvZ9_NxpjzT07ih0m5cOTOgo",authDomain:"palestinske-rogaland.firebaseapp.com",projectId:"palestinske-rogaland",storageBucket:"palestinske-rogaland.firebasestorage.app",messagingSenderId:"228379992371",appId:"1:228379992371:web:56577dc6e553ef39d91e46"});
-var db=getFirestore(a);window._fbREF=doc(db,"appData","main");window._fbSetDoc=setDoc;window._fbGetDoc=getDoc;
-console.log("🔥 Firebase ready");
-</script>
 <style>
 /* ========== Modern Design System V2 ========== */
 :root{
@@ -4933,19 +4926,23 @@ if(!appData.bylaws)appData.bylaws={chapters:[
 function save(){
 appData.adminPass=adminPass;
 localStorage.setItem("appData",JSON.stringify(appData));
-// Firebase save
-if(window._fbREF && window._fbSetDoc){
-var c=JSON.parse(JSON.stringify(appData));
-for(var k in c)if(typeof c[k]==='string'&&c[k].length>900000)delete c[k];
-window._fbSetDoc(window._fbREF,c).then(function(){console.log("✅ Firebase محفوظ");}).catch(function(e){console.error("❌ Firebase:",e);});
-}
+import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(function(appMod){
+return import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(function(fsMod){
+var app;try{app=appMod.getApp();}catch(e){app=appMod.initializeApp({apiKey:"AIzaSyB2vd10mZBfvZ9_NxpjzT07ih0m5cOTOgo",authDomain:"palestinske-rogaland.firebaseapp.com",projectId:"palestinske-rogaland",storageBucket:"palestinske-rogaland.firebasestorage.app",messagingSenderId:"228379992371",appId:"1:228379992371:web:56577dc6e553ef39d91e46"});}
+var db=fsMod.getFirestore(app);var ref=fsMod.doc(db,"appData","main");
+var c=JSON.parse(JSON.stringify(appData));for(var k in c)if(typeof c[k]==='string'&&c[k].length>900000)delete c[k];
+fsMod.setDoc(ref,c).then(function(){console.log("✅ محفوظ");}).catch(function(e){console.error("❌",e);});
+});
+}).catch(function(e){console.error("❌ Firebase:",e);});
 }
 function loadFromCloud(callback){
-if(window._fbREF && window._fbGetDoc){
-window._fbGetDoc(window._fbREF).then(function(snap){
+import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(function(appMod){
+return import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(function(fsMod){
+var app;try{app=appMod.getApp();}catch(e){app=appMod.initializeApp({apiKey:"AIzaSyB2vd10mZBfvZ9_NxpjzT07ih0m5cOTOgo",authDomain:"palestinske-rogaland.firebaseapp.com",projectId:"palestinske-rogaland",storageBucket:"palestinske-rogaland.firebasestorage.app",messagingSenderId:"228379992371",appId:"1:228379992371:web:56577dc6e553ef39d91e46"});}
+var db=fsMod.getFirestore(app);var ref=fsMod.doc(db,"appData","main");
+fsMod.getDoc(ref).then(function(snap){
 if(snap.exists()){
-var cloud=snap.data();
-var logo=appData.logo;
+var cloud=snap.data();var logo=appData.logo;
 Object.keys(cloud).forEach(function(k){appData[k]=cloud[k];});
 if(logo&&!appData.logo)appData.logo=logo;
 if(appData.adminPass)adminPass=appData.adminPass;
@@ -4953,7 +4950,8 @@ localStorage.setItem("appData",JSON.stringify(appData));
 }
 if(callback)callback();
 }).catch(function(e){console.log("Firebase load error:",e);if(callback)callback();});
-}else{if(callback)callback();}
+});
+}).catch(function(e){console.log("Firebase import error:",e);if(callback)callback();});
 }
 function toast(m,e){var t=document.getElementById("toast");t.textContent=m;t.className="toast show"+(e?" error":"");setTimeout(function(){t.className="toast";},3000);}
 function fmtDate(d){var dt=new Date(d),ms=["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];return dt.getDate()+" "+ms[dt.getMonth()]+" "+dt.getFullYear();}
