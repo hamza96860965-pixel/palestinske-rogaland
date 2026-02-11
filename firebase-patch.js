@@ -1,5 +1,5 @@
 // ============================================
-// 🔥 Firebase FINAL - بدون reload
+// 🔥 Firebase - يحمّل البيانات قبل الصفحة
 // ============================================
 if (window._fbOK) throw "";
 window._fbOK = true;
@@ -25,19 +25,39 @@ function clean(obj) {
   return c;
 }
 
+// ═══ حمّل من Firebase وحط بـ localStorage قبل ما الصفحة تشتغل ═══
+try {
+  var snap = await getDoc(REF);
+  if (snap.exists()) {
+    var raw = localStorage.getItem("appData");
+    var local = raw ? JSON.parse(raw) : {};
+    var logo = local.logo;
+    Object.assign(local, snap.data());
+    if (logo && !local.logo) local.logo = logo;
+    localStorage.setItem("appData", JSON.stringify(local));
+    console.log("✅ Firebase: بيانات جاهزة قبل الصفحة");
+  } else {
+    var raw = localStorage.getItem("appData");
+    if (raw) await setDoc(REF, clean(JSON.parse(raw)));
+    console.log("☁️ رفع أولي");
+  }
+} catch(e) {
+  console.log("⚠️ Firebase offline، نكمّل من localStorage");
+}
+
 // ═══ save: محلي + Firebase ═══
 var _orig = window.save;
 window.save = function() {
   if (_orig) try { _orig(); } catch(e) {}
   try {
     var raw = localStorage.getItem("appData");
-    if (raw) setDoc(REF, clean(JSON.parse(raw))).then(function() {
-      console.log("✅ محفوظ");
-    }).catch(function(e) { console.error("❌", e); });
+    if (raw) setDoc(REF, clean(JSON.parse(raw)))
+      .then(function() { console.log("✅ محفوظ"); })
+      .catch(function(e) { console.error("❌", e); });
   } catch(e) {}
 };
 
-// ═══ loadFromCloud: من Firebase ═══
+// ═══ loadFromCloud ═══
 window.loadFromCloud = function(cb) {
   getDoc(REF).then(function(s) {
     if (s.exists()) {
@@ -51,22 +71,5 @@ window.loadFromCloud = function(cb) {
     if (cb) cb();
   }).catch(function() { if (cb) cb(); });
 };
-
-// ═══ أول تحميل: sync من Firebase ثم حدّث localStorage ═══
-getDoc(REF).then(function(snap) {
-  if (snap.exists()) {
-    var raw = localStorage.getItem("appData");
-    var local = raw ? JSON.parse(raw) : {};
-    var logo = local.logo;
-    Object.assign(local, snap.data());
-    if (logo && !local.logo) local.logo = logo;
-    localStorage.setItem("appData", JSON.stringify(local));
-    console.log("✅ بيانات Firebase جاهزة");
-  } else {
-    var raw = localStorage.getItem("appData");
-    if (raw) setDoc(REF, clean(JSON.parse(raw)));
-    console.log("☁️ رفع أولي");
-  }
-}).catch(function() {});
 
 console.log("🔥 Firebase OK");
