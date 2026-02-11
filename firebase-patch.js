@@ -1,5 +1,5 @@
 // ============================================
-// 🔥 Firebase v7 - Firebase = المصدر الوحيد
+// 🔥 Firebase v8 - Real-time sync
 // ============================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -17,6 +17,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const REF = doc(db, "appData", "main");
+var saving = false;
 
 function cleanForFirestore(obj) {
   var clean = JSON.parse(JSON.stringify(obj));
@@ -28,82 +29,71 @@ function cleanForFirestore(obj) {
   return clean;
 }
 
-// تحديث appData وإعادة عرض الصفحة
-function applyData(data) {
-  if (!window.appData) return;
-  // احتفظ بالlogo المحلي لأنه كبير ومش بنرفعه
-  var localLogo = window.appData.logo;
-  Object.keys(window.appData).forEach(function(k) { delete window.appData[k]; });
-  Object.assign(window.appData, data);
-  if (localLogo && !window.appData.logo) window.appData.logo = localLogo;
-  if (window.appData.adminPass) window.adminPass = window.appData.adminPass;
-  localStorage.setItem("appData", JSON.stringify(window.appData));
-}
-
-function refreshUI() {
-  try { if (typeof renderHomePage === 'function') renderHomePage(); } catch(e) {}
-  try { if (typeof renderHomeNews === 'function') renderHomeNews(); } catch(e) {}
-  try { if (typeof renderHomeEvents === 'function') renderHomeEvents(); } catch(e) {}
-  try { if (typeof renderSocialLinks === 'function') renderSocialLinks(); } catch(e) {}
-  try { if (typeof loadHomeSettings === 'function') loadHomeSettings(); } catch(e) {}
-}
-
-// ═══ save - يحفظ على Firebase فوراً ═══
+// ═══ save - يحفظ محلي + Firebase ═══
 var _origSave = window.save;
 window.save = function() {
-  // حفظ محلي أولاً (سريع)
+  saving = true;
   if (_origSave) { try { _origSave(); } catch(e) {} }
-  // رفع لـ Firebase
   try {
-    var data = window.appData || JSON.parse(localStorage.getItem("appData"));
-    if (data) {
-      setDoc(REF, cleanForFirestore(data))
-        .then(function() { console.log("✅ Firebase: محفوظ"); })
-        .catch(function(e) { console.error("❌ Firebase:", e); });
-    }
-  } catch(e) {}
-};
-
-// ═══ loadFromCloud ═══
-window.loadFromCloud = function(callback) {
-  getDoc(REF).then(function(snap) {
-    if (snap.exists()) {
-      applyData(snap.data());
-    }
-    if (callback) callback();
-  }).catch(function(e) {
-    if (callback) callback();
-  });
-};
-
-// ═══ Real-time listener - تحديث فوري! ═══
-// لما أي جهاز يحفظ، كل الأجهزة الثانية بتتحدث فوراً
-var firstSnapshot = true;
-onSnapshot(REF, function(snap) {
-  if (snap.exists()) {
-    var data = snap.data();
-    applyData(data);
-    if (firstSnapshot) {
-      firstSnapshot = false;
-      console.log("🔄 Firebase: تحميل أولي");
-    } else {
-      console.log("⚡ Firebase: تحديث فوري من جهاز آخر!");
-    }
-    refreshUI();
-  }
-}, function(error) {
-  console.error("❌ Listener error:", error);
-});
-
-// رفع أولي لو Firebase فاضي
-getDoc(REF).then(function(snap) {
-  if (!snap.exists()) {
     var raw = localStorage.getItem("appData");
     if (raw) {
-      console.log("☁️ رفع أولي للبيانات");
-      setDoc(REF, cleanForFirestore(JSON.parse(raw)));
+      setDoc(REF, cleanForFirestore(JSON.parse(raw)))
+        .then(function() {
+          console.log("✅ Firebase: محفوظ");
+          setTimeout(function() { saving = false; }, 2000);
+        })
+        .catch(function(e) {
+          console.error("❌ Firebase:", e);
+          saving = false;
+        });
     }
+  } catch(e) { saving = false; }
+};
+
+// ═══ Real-time: لما تتغير البيانات على Firebase ═══
+var isFirstLoad = true;
+onSnapshot(REF, function(snap) {
+  if (!snap.exists()) {
+    // أول مرة - رفع البيانات المحلية
+    if (isFirstLoad) {
+      isFirstLoad = false;
+      var raw = localStorage.getItem("appData");
+      if (raw) {
+        setDoc(REF, cleanForFirestore(JSON.parse(raw)))
+          .then(function() { console.log("☁️ رفع أولي"); });
+      }
+    }
+    return;
   }
+
+  var cloudData = snap.data();
+
+  if (isFirstLoad) {
+    // أول تحميل - حط بيانات Firebase بـ localStorage وأعد تحميل الصفحة
+    isFirstLoad = false;
+    var localRaw = localStorage.getItem("appData");
+    var localData = localRaw ? JSON.parse(localRaw) : {};
+    // احتفظ بالlogo المحلي
+    var logo = localData.logo;
+    Object.assign(localData, cloudData);
+    if (logo && !localData.logo) localData.logo = logo;
+    localStorage.setItem("appData", JSON.stringify(localData));
+    console.log("✅ Firebase: تحميل أولي - إعادة تحميل");
+    location.reload();
+    return;
+  }
+
+  // تحديث من جهاز آخر - بس لو مش أنا اللي حفظت
+  if (saving) return;
+
+  var localRaw = localStorage.getItem("appData");
+  var localData = localRaw ? JSON.parse(localRaw) : {};
+  var logo = localData.logo;
+  Object.assign(localData, cloudData);
+  if (logo && !localData.logo) localData.logo = logo;
+  localStorage.setItem("appData", JSON.stringify(localData));
+  console.log("⚡ Firebase: تحديث من جهاز آخر - إعادة تحميل");
+  location.reload();
 });
 
-console.log("🔥 Firebase v7 - Real-time sync!");
+console.log("🔥 Firebase v8 - Real-time!");
