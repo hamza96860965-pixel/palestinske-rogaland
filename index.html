@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<script type="module" src="firebase-preload.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>الجالية الفلسطينية في روغالاند</title>
@@ -9,6 +8,13 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css"/>
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import{getFirestore,doc,getDoc,setDoc}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+var a=initializeApp({apiKey:"AIzaSyB2vd10mZBfvZ9_NxpjzT07ih0m5cOTOgo",authDomain:"palestinske-rogaland.firebaseapp.com",projectId:"palestinske-rogaland",storageBucket:"palestinske-rogaland.firebasestorage.app",messagingSenderId:"228379992371",appId:"1:228379992371:web:56577dc6e553ef39d91e46"});
+var db=getFirestore(a);window._fbREF=doc(db,"appData","main");window._fbSetDoc=setDoc;window._fbGetDoc=getDoc;
+console.log("🔥 Firebase ready");
+</script>
 <style>
 /* ========== Modern Design System V2 ========== */
 :root{
@@ -4927,26 +4933,26 @@ if(!appData.bylaws)appData.bylaws={chapters:[
 function save(){
 appData.adminPass=adminPass;
 localStorage.setItem("appData",JSON.stringify(appData));
-if(USE_CLOUD && JSONBIN_BIN_ID && JSONBIN_API_KEY.length > 20){
-fetch("https://api.jsonbin.io/v3/b/"+JSONBIN_BIN_ID,{
-method:"PUT",
-headers:{"Content-Type":"application/json","X-Master-Key":JSONBIN_API_KEY},
-body:JSON.stringify(appData)
-}).catch(function(e){console.log("Cloud save error:",e);});
+// Firebase save
+if(window._fbREF && window._fbSetDoc){
+var c=JSON.parse(JSON.stringify(appData));
+for(var k in c)if(typeof c[k]==='string'&&c[k].length>900000)delete c[k];
+window._fbSetDoc(window._fbREF,c).then(function(){console.log("✅ Firebase محفوظ");}).catch(function(e){console.error("❌ Firebase:",e);});
 }
 }
 function loadFromCloud(callback){
-if(USE_CLOUD && JSONBIN_BIN_ID && JSONBIN_API_KEY.length > 20){
-fetch("https://api.jsonbin.io/v3/b/"+JSONBIN_BIN_ID+"/latest",{
-headers:{"X-Master-Key":JSONBIN_API_KEY}
-}).then(function(r){return r.json();}).then(function(data){
-if(data.record){
-appData=data.record;
+if(window._fbREF && window._fbGetDoc){
+window._fbGetDoc(window._fbREF).then(function(snap){
+if(snap.exists()){
+var cloud=snap.data();
+var logo=appData.logo;
+Object.keys(cloud).forEach(function(k){appData[k]=cloud[k];});
+if(logo&&!appData.logo)appData.logo=logo;
 if(appData.adminPass)adminPass=appData.adminPass;
 localStorage.setItem("appData",JSON.stringify(appData));
-if(callback)callback();
 }
-}).catch(function(e){console.log("Cloud load error:",e);if(callback)callback();});
+if(callback)callback();
+}).catch(function(e){console.log("Firebase load error:",e);if(callback)callback();});
 }else{if(callback)callback();}
 }
 function toast(m,e){var t=document.getElementById("toast");t.textContent=m;t.className="toast show"+(e?" error":"");setTimeout(function(){t.className="toast";},3000);}
@@ -9271,6 +9277,5 @@ if(localStorage.getItem('pushEnabled')==='true'){
 
 })();
 </script>
-<script src="firebase-patch.js"></script>
 </body>
 </html>
