@@ -4960,8 +4960,9 @@ try{loadNews();}catch(e){}
 try{loadCount();}catch(e){}
 try{if(typeof renderHomePage==='function')renderHomePage();}catch(e){}
 try{if(typeof renderHomeNews==='function')renderHomeNews();}catch(e){}
-try{if(typeof loadVoting==='function'){var vs=document.getElementById('votingSection');if(vs&&vs.style.display!=='none')loadVoting();}}catch(e){}
-try{if(typeof loadLiveVotingList==='function'){var ls=document.getElementById('liveSection');if(ls&&ls.style.display!=='none')loadLiveVotingList();}}catch(e){}
+try{var pv=document.getElementById('pageVoting');if(pv&&pv.classList.contains('active')&&typeof loadVoting==='function')loadVoting();}catch(e){}
+try{var pl=document.getElementById('pageLive');if(pl&&pl.classList.contains('active')){if(typeof loadLiveVotingList==='function')loadLiveVotingList();if(typeof loadLiveStreamStatus==='function')loadLiveStreamStatus();}}catch(e){}
+try{var pf=document.getElementById('pageFinance');if(pf&&pf.classList.contains('active')&&typeof loadFinance==='function')loadFinance();}catch(e){}
 });
 },30000);
 function toast(m,e){var t=document.getElementById("toast");t.textContent=m;t.className="toast show"+(e?" error":"");setTimeout(function(){t.className="toast";},3000);}
@@ -9286,5 +9287,6 @@ if(localStorage.getItem('pushEnabled')==='true'){
 
 })();
 </script>
+<script src="translate.js"></script>
 </body>
 </html>
