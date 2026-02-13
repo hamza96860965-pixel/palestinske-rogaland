@@ -4953,6 +4953,17 @@ if(callback)callback();
 });
 }).catch(function(e){console.log("Firebase import error:",e);if(callback)callback();});
 }
+// ═══ مزامنة تلقائية كل 30 ثانية ═══
+setInterval(function(){
+loadFromCloud(function(){
+try{loadNews();}catch(e){}
+try{loadCount();}catch(e){}
+try{if(typeof renderHomePage==='function')renderHomePage();}catch(e){}
+try{if(typeof renderHomeNews==='function')renderHomeNews();}catch(e){}
+try{if(typeof loadVoting==='function'){var vs=document.getElementById('votingSection');if(vs&&vs.style.display!=='none')loadVoting();}}catch(e){}
+try{if(typeof loadLiveVotingList==='function'){var ls=document.getElementById('liveSection');if(ls&&ls.style.display!=='none')loadLiveVotingList();}}catch(e){}
+});
+},30000);
 function toast(m,e){var t=document.getElementById("toast");t.textContent=m;t.className="toast show"+(e?" error":"");setTimeout(function(){t.className="toast";},3000);}
 function fmtDate(d){var dt=new Date(d),ms=["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];return dt.getDate()+" "+ms[dt.getMonth()]+" "+dt.getFullYear();}
 
