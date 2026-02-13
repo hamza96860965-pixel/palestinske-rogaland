@@ -4930,7 +4930,7 @@ import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(functi
 return import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(function(fsMod){
 var app;try{app=appMod.getApp();}catch(e){app=appMod.initializeApp({apiKey:"AIzaSyB2vd10mZBfvZ9_NxpjzT07ih0m5cOTOgo",authDomain:"palestinske-rogaland.firebaseapp.com",projectId:"palestinske-rogaland",storageBucket:"palestinske-rogaland.firebasestorage.app",messagingSenderId:"228379992371",appId:"1:228379992371:web:56577dc6e553ef39d91e46"});}
 var db=fsMod.getFirestore(app);var ref=fsMod.doc(db,"appData","main");
-var c=JSON.parse(JSON.stringify(appData));for(var k in c)if(typeof c[k]==='string'&&c[k].length>900000)delete c[k];
+var c=JSON.parse(JSON.stringify(appData));delete c.logo;for(var k in c)if(typeof c[k]==='string'&&c[k].length>900000)delete c[k];
 fsMod.setDoc(ref,c).then(function(){console.log("✅ محفوظ");}).catch(function(e){console.error("❌",e);});
 });
 }).catch(function(e){console.error("❌ Firebase:",e);});
@@ -4953,6 +4953,27 @@ if(callback)callback();
 });
 }).catch(function(e){console.log("Firebase import error:",e);if(callback)callback();});
 }
+function saveLogoToCloud(logoData){
+import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(function(appMod){
+return import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(function(fsMod){
+var app;try{app=appMod.getApp();}catch(e){app=appMod.initializeApp({apiKey:"AIzaSyB2vd10mZBfvZ9_NxpjzT07ih0m5cOTOgo",authDomain:"palestinske-rogaland.firebaseapp.com",projectId:"palestinske-rogaland",storageBucket:"palestinske-rogaland.firebasestorage.app",messagingSenderId:"228379992371",appId:"1:228379992371:web:56577dc6e553ef39d91e46"});}
+var db=fsMod.getFirestore(app);var ref=fsMod.doc(db,"appData","logo");
+fsMod.setDoc(ref,{data:logoData}).then(function(){console.log("✅ شعار محفوظ بالسحابة");}).catch(function(e){console.error("❌ logo save:",e);});
+});
+}).catch(function(e){console.error("❌ Firebase logo:",e);});
+}
+function loadLogoFromCloud(callback){
+import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(function(appMod){
+return import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(function(fsMod){
+var app;try{app=appMod.getApp();}catch(e){app=appMod.initializeApp({apiKey:"AIzaSyB2vd10mZBfvZ9_NxpjzT07ih0m5cOTOgo",authDomain:"palestinske-rogaland.firebaseapp.com",projectId:"palestinske-rogaland",storageBucket:"palestinske-rogaland.firebasestorage.app",messagingSenderId:"228379992371",appId:"1:228379992371:web:56577dc6e553ef39d91e46"});}
+var db=fsMod.getFirestore(app);var ref=fsMod.doc(db,"appData","logo");
+fsMod.getDoc(ref).then(function(snap){
+if(snap.exists()&&snap.data().data){appData.logo=snap.data().data;localStorage.setItem("appData",JSON.stringify(appData));loadLogo();console.log("✅ شعار محمّل");}
+if(callback)callback();
+}).catch(function(e){console.log("logo load err:",e);if(callback)callback();});
+});
+}).catch(function(e){console.log("logo import err:",e);if(callback)callback();});
+}
 // ═══ مزامنة تلقائية كل 30 ثانية ═══
 setInterval(function(){
 loadFromCloud(function(){
@@ -4963,6 +4984,7 @@ try{if(typeof renderHomeNews==='function')renderHomeNews();}catch(e){}
 try{var pv=document.getElementById('pageVoting');if(pv&&pv.classList.contains('active')&&typeof loadVoting==='function')loadVoting();}catch(e){}
 try{var pl=document.getElementById('pageLive');if(pl&&pl.classList.contains('active')){if(typeof loadLiveVotingList==='function')loadLiveVotingList();if(typeof loadLiveStreamStatus==='function')loadLiveStreamStatus();}}catch(e){}
 try{var pf=document.getElementById('pageFinance');if(pf&&pf.classList.contains('active')&&typeof loadFinance==='function')loadFinance();}catch(e){}
+try{loadLogoFromCloud();}catch(e){}
 });
 },30000);
 function toast(m,e){var t=document.getElementById("toast");t.textContent=m;t.className="toast show"+(e?" error":"");setTimeout(function(){t.className="toast";},3000);}
@@ -6465,7 +6487,7 @@ document.getElementById('themeToggle').addEventListener('click',toggleTheme);
   }
 })();
 
-loadLogo();loadNews();loadFinance();loadCount();updateVisibility();loadOrgName();renderHomePage();
+loadLogo();loadNews();loadFinance();loadCount();updateVisibility();loadOrgName();renderHomePage();loadLogoFromCloud();
 });
 }
 document.getElementById("btnHome").addEventListener("click",function(){goTo("home");renderHomePage();});document.getElementById("btnNews").addEventListener("click",function(){goTo("news");});
@@ -6538,7 +6560,7 @@ document.getElementById("passInput").addEventListener("keypress",function(e){if(
 document.getElementById("btnChangePass").addEventListener("click",function(){document.getElementById("oldPass").value="";document.getElementById("newPass").value="";document.getElementById("confirmPass").value="";document.getElementById("passModal").classList.add("show");});document.getElementById("closePass").addEventListener("click",function(){document.getElementById("passModal").classList.remove("show");});document.getElementById("cancelPass").addEventListener("click",function(){document.getElementById("passModal").classList.remove("show");});document.getElementById("passModal").addEventListener("click",function(e){if(e.target.id==="passModal")this.classList.remove("show");});
 document.getElementById("confirmPassBtn").addEventListener("click",function(){var o=document.getElementById("oldPass").value,n=document.getElementById("newPass").value,c=document.getElementById("confirmPass").value;var currentPass=appData.adminPass||adminPass||"";if(o!==currentPass){toast("كلمة مرور خاطئة",true);return;}if(n.length<4){toast("4 أحرف على الأقل",true);return;}if(n!==c){toast("غير متطابقة",true);return;}adminPass=n;appData.adminPass=n;save();document.getElementById("passModal").classList.remove("show");toast("تم تغيير كلمة السر ✅");});
 document.getElementById("btnLogout").addEventListener("click",function(){isAdmin=false;hideAdmin();hideBgSwitcher();goTo("home");toast("تم الخروج");});
-document.getElementById("logoUpload").addEventListener("click",function(){document.getElementById("logoFile").click();});document.getElementById("logoFile").addEventListener("change",function(e){var f=e.target.files[0];if(f){var r=new FileReader();r.onload=function(ev){appData.logo=ev.target.result;save();loadLogo();toast("تم");};r.readAsDataURL(f);}});
+document.getElementById("logoUpload").addEventListener("click",function(){document.getElementById("logoFile").click();});document.getElementById("logoFile").addEventListener("change",function(e){var f=e.target.files[0];if(f){var r=new FileReader();r.onload=function(ev){var img=new Image();img.onload=function(){var max=200;var w=img.width,h=img.height;if(w>max||h>max){if(w>h){h=Math.round(h*max/w);w=max;}else{w=Math.round(w*max/h);h=max;}}var c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);var small=c.toDataURL('image/png',0.8);appData.logo=small;save();saveLogoToCloud(small);loadLogo();toast("تم حفظ الشعار ✅");};img.src=ev.target.result;};r.readAsDataURL(f);}});
 document.getElementById("visNews").addEventListener("change",function(){appData.visibility.news=this.value;save();updateVisibility();toast("تم");});document.getElementById("visFinance").addEventListener("change",function(){appData.visibility.finance=this.value;save();updateVisibility();toast("تم");});document.getElementById("visMap").addEventListener("change",function(){appData.visibility.map=this.value;save();updateVisibility();toast("تم");});document.getElementById("visInvitation").addEventListener("change",function(){appData.visibility.invitation=this.value;save();updateVisibility();toast("تم");});document.getElementById("visConfInvite").addEventListener("change",function(){appData.visibility.confInvite=this.value;save();updateVisibility();toast("تم");});document.getElementById("visReports").addEventListener("change",function(){appData.visibility.reports=this.value;save();updateVisibility();toast("تم");});document.getElementById("visBylaws").addEventListener("change",function(){appData.visibility.bylaws=this.value;save();updateVisibility();toast("تم");});document.getElementById("visVoting").addEventListener("change",function(){appData.visibility.voting=this.value;save();updateVisibility();toast("تم");});
 document.getElementById("newsImgsUpload").addEventListener("click",function(){document.getElementById("newsImgsFile").click();});document.getElementById("newsImgsFile").addEventListener("change",function(e){var files=e.target.files;for(var i=0;i<files.length;i++){(function(file){var r=new FileReader();r.onload=function(ev){newsImgs.push(ev.target.result);renderNewsImgs();};r.readAsDataURL(file);})(files[i]);}});
 document.getElementById("btnPublishNews").addEventListener("click",async function(){
