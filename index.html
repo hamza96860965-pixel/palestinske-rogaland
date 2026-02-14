@@ -4983,8 +4983,9 @@ if(callback)callback();
 });
 }).catch(function(e){console.log("logo import err:",e);if(callback)callback();});
 }
-// ═══ مزامنة تلقائية كل 30 ثانية ═══
-setInterval(function(){
+// ═══ مزامنة تلقائية كل 30 ثانية (تتوقف بالخلفية) ═══
+var syncTimer=null;
+function doSync(){
 loadFromCloud(function(){
 try{loadNews();}catch(e){}
 try{loadCount();}catch(e){}
@@ -4996,7 +4997,14 @@ try{var pf=document.getElementById('pageFinance');if(pf&&pf.classList.contains('
 try{loadLogoFromCloud();}catch(e){}
 try{checkForNewContent();}catch(e){}
 });
-},30000);
+}
+function startSync(){if(!syncTimer){syncTimer=setInterval(doSync,30000);}}
+function stopSync(){if(syncTimer){clearInterval(syncTimer);syncTimer=null;}}
+startSync();
+document.addEventListener('visibilitychange',function(){
+if(document.hidden){stopSync();}
+else{doSync();startSync();}
+});
 function toast(m,e){var t=document.getElementById("toast");t.textContent=m;t.className="toast show"+(e?" error":"");setTimeout(function(){t.className="toast";},3000);}
 function fmtDate(d){var dt=new Date(d),ms=["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];return dt.getDate()+" "+ms[dt.getMonth()]+" "+dt.getFullYear();}
 
