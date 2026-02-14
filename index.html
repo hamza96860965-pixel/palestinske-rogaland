@@ -5016,18 +5016,21 @@ if(callback)callback();
 }).catch(function(e){console.log("logo import err:",e);if(callback)callback();});
 }
 // ═══ مزامنة تلقائية كل 30 ثانية (تتوقف بالخلفية) ═══
+// التحديث فقط: البث المباشر، التصويت، طلبات الانتساب، استمارة التسجيل، ادارة التصويت، صندوق الرسائل
 var syncTimer=null;
 function doSync(){
+// فحص إذا الصفحة الحالية تحتاج تحديث
+var needsSync=false;
+var syncPages=['pageVoting','pageLive','pagePending','pageRegister','pageManageVoting','pageInbox'];
+for(var i=0;i<syncPages.length;i++){var pg=document.getElementById(syncPages[i]);if(pg&&pg.classList.contains('active')){needsSync=true;break;}}
+if(!needsSync)return;
 loadFromCloud(function(){
-try{loadNews();}catch(e){}
-try{loadCount();}catch(e){}
-try{if(typeof renderHomePage==='function')renderHomePage();}catch(e){}
-try{if(typeof renderHomeNews==='function')renderHomeNews();}catch(e){}
 try{var pv=document.getElementById('pageVoting');if(pv&&pv.classList.contains('active')&&typeof loadVoting==='function')loadVoting();}catch(e){}
 try{var pl=document.getElementById('pageLive');if(pl&&pl.classList.contains('active')){if(typeof loadLiveVotingList==='function')loadLiveVotingList();if(typeof loadLiveStreamStatus==='function')loadLiveStreamStatus();}}catch(e){}
-try{var pf=document.getElementById('pageFinance');if(pf&&pf.classList.contains('active')&&typeof loadFinance==='function')loadFinance();}catch(e){}
-try{loadLogoFromCloud();}catch(e){}
-try{checkForNewContent();}catch(e){}
+try{var pp=document.getElementById('pagePending');if(pp&&pp.classList.contains('active')&&typeof loadPending==='function')loadPending();}catch(e){}
+try{var mv=document.getElementById('pageManageVoting');if(mv&&mv.classList.contains('active')&&typeof loadAdminVoting==='function')loadAdminVoting();}catch(e){}
+try{var ib=document.getElementById('pageInbox');if(ib&&ib.classList.contains('active')&&typeof loadMessages==='function')loadMessages();}catch(e){}
+try{if(currentLang!=='ar'&&typeof setLanguage==='function')setLanguage(currentLang);}catch(e){}
 });
 }
 function startSync(){if(!syncTimer){syncTimer=setInterval(doSync,30000);}}
