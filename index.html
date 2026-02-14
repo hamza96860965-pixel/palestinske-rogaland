@@ -3,6 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#009639">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="الجالية">
+<link rel="apple-touch-icon" href="icons/icon-192x192.png">
+<meta name="description" content="تطبيق الجالية الفلسطينية في روغالاند - النرويج">
+<meta name="mobile-web-app-capable" content="yes">
 <title>الجالية الفلسطينية في روغالاند</title>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2640,6 +2648,7 @@ html[dir="ltr"] .archive-item{border-right:none;border-left:4px solid var(--gold
 <button class="btn btn-gray btn-lg" onclick="goTo('contact')" id="heroBtn2"><span id="heroBtn2Display">✉️ تواصل معنا</span></button>
 </div>
 <button class="btn btn-gold" onclick="enablePushNotifications()" style="margin-top:12px;font-size:0.85rem;padding:8px 20px;" id="pushNotifBtn">🔔 فعّل الإشعارات</button>
+<button class="btn btn-gold" onclick="installApp()" style="margin-top:8px;font-size:0.85rem;padding:8px 20px;display:none;background:linear-gradient(135deg,#009639,#00c853);" id="installBtn">📲 تثبيت التطبيق</button>
 </div>
 </div>
 
@@ -9308,6 +9317,34 @@ if(localStorage.getItem('pushEnabled')==='true'){
 }
 
 })();
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('./sw.js').then(function(r){
+      console.log('✅ SW registered');
+    }).catch(function(e){console.log('SW error:',e);});
+  });
+}
+// PWA Install prompt
+var deferredPrompt;
+window.addEventListener('beforeinstallprompt',function(e){
+  e.preventDefault();
+  deferredPrompt=e;
+  var btn=document.getElementById('installBtn');
+  if(btn)btn.style.display='inline-flex';
+});
+function installApp(){
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function(r){
+      if(r.outcome==='accepted')console.log('✅ Installed');
+      deferredPrompt=null;
+      var btn=document.getElementById('installBtn');
+      if(btn)btn.style.display='none';
+    });
+  }
+}
 </script>
 <script src="translate.js"></script>
 </body>
