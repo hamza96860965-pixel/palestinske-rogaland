@@ -1764,7 +1764,7 @@ body.light-mode .report-period select,body.light-mode .report-period input{backg
 
 .news-card-home-img{
   width:100%;
-  height:120px;
+  height:140px;
   object-fit:cover;
   background:linear-gradient(135deg, var(--green), var(--red));
   display:flex;
@@ -1774,7 +1774,7 @@ body.light-mode .report-period select,body.light-mode .report-period input{backg
 }
 
 .news-card-home-body{
-  padding:16px;
+  padding:12px;
 }
 
 .news-card-home-date{
@@ -1973,7 +1973,8 @@ body.light-mode .report-period select,body.light-mode .report-period input{backg
   }
   
   .news-grid-home{
-    grid-template-columns:1fr;
+    grid-template-columns:repeat(2, 1fr);
+    gap:10px;
   }
   
   .about-values{
@@ -5189,6 +5190,14 @@ window.renderHomePage = function(){
     
     // Render social links
     renderSocialLinks();
+    
+    // تطبيق الخلفية المحفوظة من Firebase
+    var cloudBg = hs.selectedBg;
+    if(cloudBg){
+        switchBackground(cloudBg);
+        var bgBtns = document.querySelectorAll('.bg-btn');
+        bgBtns.forEach(function(b){b.classList.remove('active');if(b.getAttribute('data-bg')===String(cloudBg))b.classList.add('active');});
+    }
 };
 
 window.renderQuickAccessBtns = function(){
@@ -5266,7 +5275,9 @@ window.renderHomeNews = function(){
     
     var html = '';
     news.forEach(function(n){
-        var img = n.images && n.images.length > 0 ? '<img src="'+n.images[0]+'" class="news-card-home-img">' : '<div class="news-card-home-img">📰</div>';
+        var imgs = n.imgs || n.images || [];
+        if(n.img && imgs.length === 0) imgs = [n.img];
+        var img = imgs.length > 0 ? '<img src="'+imgs[0]+'" class="news-card-home-img">' : '<div class="news-card-home-img">📰</div>';
         html += '<div class="news-card-home" onclick="goTo(\'news\')">';
         html += img;
         html += '<div class="news-card-home-body">';
@@ -6542,6 +6553,16 @@ document.getElementById('themeToggle').addEventListener('click',toggleTheme);
 })();
 
 loadLogo();loadNews();loadFinance();loadCount();updateVisibility();loadOrgName();renderHomePage();loadLogoFromCloud();
+// تطبيق الخلفية من Firebase على الكل
+(function(){
+var cloudBg=appData.homeSettings&&appData.homeSettings.selectedBg;
+if(cloudBg){
+switchBackground(cloudBg);
+localStorage.setItem('selectedBg',cloudBg);
+var bgBtns=document.querySelectorAll('.bg-btn');
+bgBtns.forEach(function(b){b.classList.remove('active');if(b.getAttribute('data-bg')===String(cloudBg))b.classList.add('active');});
+}
+})();
 // Initialize notification counters
 if(localStorage.getItem('pushEnabled')==='true'){
 localStorage.setItem('lastNewsCount',String(appData.news?appData.news.length:0));
@@ -7534,13 +7555,20 @@ document.addEventListener('DOMContentLoaded', function(){
                 bgBtns.forEach(function(b){b.classList.remove('active');});
                 this.classList.add('active');
                 
-                // حفظ الاختيار
+                // حفظ الاختيار محلياً وعلى Firebase
                 localStorage.setItem('selectedBg', bgNum);
+                if(appData.homeSettings){
+                    appData.homeSettings.selectedBg = bgNum;
+                } else {
+                    appData.homeSettings = {selectedBg: bgNum};
+                }
+                try{save();}catch(e){}
             });
         });
         
-        // تحميل الاختيار المحفوظ
-        var savedBg = localStorage.getItem('selectedBg');
+        // تحميل الاختيار من Firebase أولاً ثم localStorage
+        var cloudBg = appData.homeSettings && appData.homeSettings.selectedBg;
+        var savedBg = cloudBg || localStorage.getItem('selectedBg');
         if(savedBg){
             switchBackground(savedBg);
             bgBtns.forEach(function(b){
