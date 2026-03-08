@@ -6870,6 +6870,9 @@ localStorage.setItem('lastVoteCount',String(appData.votes?appData.votes.length:0
 var savedPage=localStorage.getItem('currentPage');
 if(savedPage&&savedPage!=='home'){
 
+
+}
+
 // ═══════════════════════════════════════════
 // 🛍️ نظام المتجر
 // ═══════════════════════════════════════════
@@ -7272,7 +7275,7 @@ if(savedPage==='reports')try{initReports();}catch(e){}
 if(savedPage==='manageLive')try{loadFromCloud(function(){loadAdminLiveVotes();loadLiveStreamStatus();});}catch(e){}
 if(savedPage==='admin')try{loadHomeSettings();}catch(e){}
 if(savedPage==='registrationSheet')try{loadSheet();}catch(e){}
-}
+
 // إظهار الصفحة بعد التجهيز
 document.documentElement.style.opacity='1';
 });
