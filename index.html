@@ -3383,9 +3383,7 @@ html[dir="ltr"] .archive-item{border-right:none;border-left:4px solid var(--gold
 <div class="live-offline-text" data-i18n="noLiveStream">لا يوجد بث مباشر حالياً</div>
 <p data-i18n="checkBackLater" style="font-size:0.85rem;margin-top:10px;">تابعنا للإعلان عن البث القادم</p>
 </div>
-<div id="liveVideoContainer" style="display:none;">
-<iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="" id="liveVideoFrame" referrerpolicy="strict-origin-when-cross-origin" style="width:100%;height:100%;border:none;"></iframe>
-</div>
+<iframe id="liveVideoFrame" style="display:none;position:absolute;top:0;left:0;width:100%;height:100%;border:none;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 </div>
 <div id="liveAlternativeOptions" style="display:none;padding:15px;background:var(--dark);border-radius:0 0 15px 15px;text-align:center;">
 <p style="margin-bottom:10px;color:var(--muted);font-size:0.9rem;">⬆️ إذا لم يظهر الفيديو أعلاه:</p>
@@ -5175,6 +5173,22 @@ fsMod.setDoc(ref,c).then(function(){console.log("✅ محفوظ");}).catch(funct
 });
 }).catch(function(e){console.error("❌ Firebase:",e);});
 }
+// حفظ في Firebase وننتظر التأكيد
+function saveAndWait(){
+appData.adminPass=adminPass;
+lastSaveTime=Date.now();
+localStorage.setItem("appData",JSON.stringify(appData));
+return new Promise(function(resolve){
+import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(function(appMod){
+return import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(function(fsMod){
+var app;try{app=appMod.getApp();}catch(e){app=appMod.initializeApp({apiKey:"AIzaSyB2vd10mZBfvZ9_NxpjzT07ih0m5cOTOgo",authDomain:"palestinske-rogaland.firebaseapp.com",projectId:"palestinske-rogaland",storageBucket:"palestinske-rogaland.firebasestorage.app",messagingSenderId:"228379992371",appId:"1:228379992371:web:56577dc6e553ef39d91e46"});
+}var db=fsMod.getFirestore(app);var ref=fsMod.doc(db,"appData","main");
+var c=JSON.parse(JSON.stringify(appData));delete c.logo;for(var k in c)if(typeof c[k]==='string'&&c[k].length>900000)delete c[k];
+fsMod.setDoc(ref,c).then(function(){console.log("✅ saveAndWait done");resolve();}).catch(function(e){console.error("❌",e);resolve();});
+});}).catch(function(e){console.error("❌ Firebase:",e);resolve();});
+});
+}
+
 function loadFromCloud(callback){
 import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(function(appMod){
 return import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(function(fsMod){
@@ -5183,10 +5197,7 @@ var db=fsMod.getFirestore(app);var ref=fsMod.doc(db,"appData","main");
 fsMod.getDoc(ref).then(function(snap){
 if(snap.exists()){
 var cloud=snap.data();var logo=appData.logo;
-// لو حفظنا مؤخراً نحمي liveStream من التلوث
-var savedLive=(Date.now()-lastSaveTime<15000)?appData.liveStream:null;
 Object.keys(cloud).forEach(function(k){appData[k]=cloud[k];});
-if(savedLive)appData.liveStream=savedLive;
 if(logo&&!appData.logo)appData.logo=logo;
 if(appData.adminPass)adminPass=appData.adminPass;
 localStorage.setItem("appData",JSON.stringify(appData));
@@ -5224,11 +5235,16 @@ function doSync(){
 // فحص إذا الصفحة الحالية تحتاج تحديث
 var needsSync=false;
 var syncPages=['pageVoting','pageLive','pagePending','pageRegister','pageManageVoting','pageInbox'];
+// ملاحظة: pageManageLive مش هنا عن قصد - الأدمن ما يحتاج sync تلقائي
 for(var i=0;i<syncPages.length;i++){var pg=document.getElementById(syncPages[i]);if(pg&&pg.classList.contains('active')){needsSync=true;break;}}
 if(!needsSync)return;
-// لا تعيد التحميل لو حفظنا قبل أقل من 8 ثواني (لتجنب race condition)
-if(Date.now()-lastSaveTime<8000)return;
+// نحفظ liveStream الحالي قبل التحديث - الكاش قد يرجع نسخة قديمة
+var liveBackup=appData.liveStream?JSON.parse(JSON.stringify(appData.liveStream)):null;
 loadFromCloud(function(){
+// لو كنا شغالين بث وFirebase رجّع active:false = كاش قديم → نرجع نسختنا
+if(liveBackup&&liveBackup.active&&appData.liveStream&&!appData.liveStream.active){
+appData.liveStream=liveBackup;
+}
 try{var pv=document.getElementById('pageVoting');if(pv&&pv.classList.contains('active')&&typeof loadVoting==='function')loadVoting();}catch(e){}
 try{var pl=document.getElementById('pageLive');if(pl&&pl.classList.contains('active')){if(typeof loadLiveVotingList==='function')loadLiveVotingList();if(typeof loadLiveStreamStatus==='function')loadLiveStreamStatus();}}catch(e){}
 try{var pp=document.getElementById('pagePending');if(pp&&pp.classList.contains('active')&&typeof loadPending==='function'){window._openFamilyIds=getOpenFamilyCards();loadPending();}}catch(e){}
@@ -7270,7 +7286,7 @@ window.deleteShopProduct=function(id){
 goTo(savedPage);
 // تحميل البيانات اللازمة للصفحة
 if(savedPage==='voting')try{loadFromCloud(loadVoting);}catch(e){}
-if(savedPage==='live')try{loadFromCloud(function(){loadLiveStreamStatus();loadLiveVotingList();});}catch(e){}
+if(savedPage==='live')try{loadLiveStreamStatus();loadLiveVotingList();}catch(e){}
 if(savedPage==='pending')try{loadPending();}catch(e){}
 if(savedPage==='manageVoting')try{loadFromCloud(loadAdminVoting);}catch(e){}
 if(savedPage==='inbox')try{loadFromCloud(loadMessages);}catch(e){}
@@ -7288,7 +7304,7 @@ document.documentElement.style.opacity='1';
 });
 }
 document.getElementById("btnHome").addEventListener("click",function(){goTo("home");renderHomePage();});document.getElementById("btnNews").addEventListener("click",function(){goTo("news");});
-document.getElementById("btnAdmin").addEventListener("click",function(){goTo("admin");loadHomeSettings();});document.getElementById("btnBylaws").addEventListener("click",function(){goTo("bylaws");loadBylaws();});document.getElementById("btnVoting").addEventListener("click",function(){goTo("voting");loadFromCloud(loadVoting);});document.getElementById("btnFinance").addEventListener("click",function(){goTo("finance");});document.getElementById("btnMap").addEventListener("click",function(){goTo("map");});document.getElementById("btnRegister").addEventListener("click",function(){goTo("register");});document.getElementById("btnInvitation").addEventListener("click",function(){goTo("invitation");});document.getElementById("btnConfInvite").addEventListener("click",function(){goTo("confInvite");initConfInv();});document.getElementById("btnReports").addEventListener("click",function(){goTo("reports");initReports();});document.getElementById("btnContact").addEventListener("click",function(){goTo("contact");});document.getElementById("btnLive").addEventListener("click",function(){goTo("live");if(Date.now()-lastSaveTime<10000){loadLiveStreamStatus();loadLiveVotingList();}else{loadFromCloud(function(){loadLiveStreamStatus();loadLiveVotingList();});}});document.getElementById("btnMembers").addEventListener("click",function(){goTo("members");});document.getElementById("btnPending").addEventListener("click",function(){goTo("pending");loadPending();});document.getElementById("btnRegistrationSheet").addEventListener("click",function(){goTo("registrationSheet");loadSheet();});document.getElementById("btnManageTx").addEventListener("click",function(){goTo("manageTx");document.getElementById("txDate").value=new Date().toISOString().split("T")[0];loadAdminTx();});document.getElementById("btnManageNews").addEventListener("click",function(){goTo("manageNews");});document.getElementById("btnManageVoting").addEventListener("click",function(){goTo("manageVoting");loadFromCloud(loadAdminVoting);});document.getElementById("btnInbox").addEventListener("click",function(){goTo("inbox");loadFromCloud(loadMessages);});document.getElementById("btnManageLive").addEventListener("click",function(){goTo("manageLive");if(Date.now()-lastSaveTime<10000){loadAdminLiveVotes();loadLiveStreamStatus();}else{loadFromCloud(function(){loadAdminLiveVotes();loadLiveStreamStatus();});}});
+document.getElementById("btnAdmin").addEventListener("click",function(){goTo("admin");loadHomeSettings();});document.getElementById("btnBylaws").addEventListener("click",function(){goTo("bylaws");loadBylaws();});document.getElementById("btnVoting").addEventListener("click",function(){goTo("voting");loadFromCloud(loadVoting);});document.getElementById("btnFinance").addEventListener("click",function(){goTo("finance");});document.getElementById("btnMap").addEventListener("click",function(){goTo("map");});document.getElementById("btnRegister").addEventListener("click",function(){goTo("register");});document.getElementById("btnInvitation").addEventListener("click",function(){goTo("invitation");});document.getElementById("btnConfInvite").addEventListener("click",function(){goTo("confInvite");initConfInv();});document.getElementById("btnReports").addEventListener("click",function(){goTo("reports");initReports();});document.getElementById("btnContact").addEventListener("click",function(){goTo("contact");});document.getElementById("btnLive").addEventListener("click",function(){goTo("live");loadLiveStreamStatus();loadLiveVotingList();});document.getElementById("btnMembers").addEventListener("click",function(){goTo("members");});document.getElementById("btnPending").addEventListener("click",function(){goTo("pending");loadPending();});document.getElementById("btnRegistrationSheet").addEventListener("click",function(){goTo("registrationSheet");loadSheet();});document.getElementById("btnManageTx").addEventListener("click",function(){goTo("manageTx");document.getElementById("txDate").value=new Date().toISOString().split("T")[0];loadAdminTx();});document.getElementById("btnManageNews").addEventListener("click",function(){goTo("manageNews");});document.getElementById("btnManageVoting").addEventListener("click",function(){goTo("manageVoting");loadFromCloud(loadAdminVoting);});document.getElementById("btnInbox").addEventListener("click",function(){goTo("inbox");loadFromCloud(loadMessages);});document.getElementById("btnManageLive").addEventListener("click",function(){goTo("manageLive");loadAdminLiveVotes();loadLiveStreamStatus();});
 document.getElementById("btnShop").addEventListener("click",function(){goTo("shop");loadFromCloud(loadShop);});
 document.getElementById("btnManageShop").addEventListener("click",function(){goTo("manageShop");loadFromCloud(loadAdminShop);});
 document.getElementById("mobileBtn").addEventListener("click",function(){document.getElementById("sidebar").classList.toggle("open");});
@@ -9435,6 +9451,17 @@ badge.classList.add("hidden");
 // ========== نظام البث المباشر ==========
 if(!appData.liveStream)appData.liveStream={active:false,title:'',url:'',linkedVoteId:null};
 
+function showLiveFallback(url,title){
+var vc=document.getElementById('liveVideoContainer');
+if(!vc)return;
+vc.innerHTML='<div style="width:100%;height:100%;background:#1a1a1a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:20px;text-align:center;">'
++'<div style="font-size:2.5rem;">🔴</div>'
++'<div style="color:white;font-weight:700;font-size:1.1rem;">'+(title||'البث المباشر')+'</div>'
++'<p style="color:#aaa;font-size:0.85rem;">YouTube يمنع التضمين — شاهد البث مباشرة</p>'
++'<a href="'+url+'" target="_blank" style="background:#ff0000;color:white;padding:12px 28px;border-radius:8px;font-weight:700;text-decoration:none;font-size:1rem;">▶ فتح البث على YouTube</a>'
++'</div>';
+}
+
 function initLiveStream(){
 loadLiveStreamStatus();
 loadLiveVotingList();
@@ -9454,11 +9481,10 @@ var directLink=document.getElementById('liveDirectLink');
 var canView=live&&live.active&&live.url&&(live.isPublic||isAdmin);
 
 if(canView){
-// Show live stream
 var embedUrl=convertToEmbedUrl(live.url);
-if(videoFrame&&videoContainer){
+if(videoFrame){
 videoFrame.src=embedUrl;
-videoContainer.style.display='block';
+videoFrame.style.display='block';
 }
 if(offlineMsg)offlineMsg.style.display='none';
 if(alternativeOptions)alternativeOptions.style.display='block';
@@ -9472,8 +9498,7 @@ var eventTitle=document.getElementById('liveEventTitle');
 if(eventTitle&&live.title)eventTitle.textContent=live.title;
 }else{
 // Hide live stream
-if(videoContainer)videoContainer.style.display='none';
-if(videoFrame)videoFrame.src='';
+if(videoFrame){videoFrame.style.display='none';videoFrame.src='';}
 if(offlineMsg)offlineMsg.style.display='flex';
 if(alternativeOptions)alternativeOptions.style.display='none';
 // Show button only for admin or if stream is public and active
@@ -9529,7 +9554,7 @@ if(!url)return'';
 // youtube.com/embed/ID
 var ytMatch=url.match(/(?:youtube\.com\/(?:watch\?v=|live\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]+)/);
 if(ytMatch){
-return'https://www.youtube.com/embed/'+ytMatch[1]+'?autoplay=1&rel=0';
+return'https://www.youtube.com/embed/'+ytMatch[1]+'?autoplay=1&rel=0&mute=0';
 }
 
 // If it's already an embed URL, return as is
@@ -9973,11 +9998,15 @@ isPublic:isPublic,
 startedAt:new Date().toISOString()
 };
 
-save();
+// حفظ محلي فوري + UI فوري
+lastSaveTime=Date.now();
+localStorage.setItem('appData',JSON.stringify(appData));
 loadLiveStreamStatus();
 loadLiveVotingList();
 document.getElementById('btnLive').classList.remove('hidden');
 toast('تم بدء البث المباشر 🔴');
+// Firebase في الخلفية بدون انتظار
+saveAndWait();
 }
 
 window.stopLiveStream=function(){
@@ -9987,10 +10016,12 @@ return;
 }
 
 appData.liveStream.active=false;
-save();
+lastSaveTime=Date.now();
+localStorage.setItem('appData',JSON.stringify(appData));
 loadLiveStreamStatus();
 if(!isAdmin)document.getElementById('btnLive').classList.add('hidden');
 toast('تم إيقاف البث');
+saveAndWait();
 }
 
 window.addEventListener("resize",function(){if(!expandedBylawNode)positionBylawNodes();});
