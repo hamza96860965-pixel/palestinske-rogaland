@@ -2967,6 +2967,19 @@ body.light-mode .translate-panel{background:rgba(0,0,0,0.02);border-color:rgba(0
 <div class="form-group"><label class="form-label">الاسم بالإنجليزي/النرويجي</label><input class="form-input" id="orgNameEn" placeholder="مثال: Det palestinske samfunn i Rogaland"></div>
 <button class="btn btn-green" onclick="saveOrgName()">💾 حفظ الاسم</button>
 </div>
+<!-- مؤشر حجم البيانات -->
+<div class="card" style="grid-column:1/-1;">
+<div class="card-title">📊 حجم البيانات على السحابة</div>
+<p style="color:var(--muted);font-size:0.85rem;margin-bottom:12px;">فايرستور بيقبل بحد أقصى <strong>1 ميجا</strong> للوثيقة. إذا تجاوزت، التحديثات ما رح تنحفظ.</p>
+<div id="dataSizeInfo" style="background:rgba(0,150,57,0.08);padding:14px;border-radius:10px;font-size:0.9rem;line-height:1.8;"></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+<button class="btn btn-gold" onclick="updateDataSizeInfo()">🔄 تحديث القراءة</button>
+<button class="btn btn-red" onclick="cleanupData()">🧹 تنظيف الصور القديمة</button>
+<button class="btn btn-gray" onclick="showLargestItems()">📋 عرض أكبر العناصر</button>
+</div>
+<div id="largestItemsBox" style="margin-top:12px;display:none;"></div>
+</div>
+
 <div class="card"><div class="card-title">🖼️ الشعار</div><div class="upload-box" id="logoUpload">📷 رفع شعار</div><input type="file" id="logoFile" accept="image/*" style="display:none"></div>
 <div class="card"><div class="card-title">🔐 الأمان</div><button class="btn btn-gray" id="btnChangePass" style="width:100%;margin-bottom:8px;">🔑 تغيير كلمة المرور</button><button class="btn btn-red" id="btnLogout" style="width:100%;">🚪 خروج</button></div>
 
@@ -3330,7 +3343,7 @@ body.light-mode .translate-panel{background:rgba(0,0,0,0.02);border-color:rgba(0
 </div>
 <button class="mobile-btn" id="mobileBtn">☰</button>
 <button class="theme-toggle" id="themeToggle" title="تبديل الوضع">🌙</button>
-<div class="modal-bg" id="loginModal"><div class="modal"><div class="modal-head"><h3>🔐 الدخول</h3><button class="modal-close" id="closeLogin">×</button></div><div class="modal-body"><div class="form-group"><label class="form-label">اسم المستخدم</label><input type="text" class="form-input" id="usernameInput" placeholder="admin"></div><div class="form-group"><label class="form-label">كلمة المرور</label><input type="password" class="form-input" id="passInput"></div></div><div class="modal-foot"><button class="btn btn-gray" id="cancelLogin">إلغاء</button><button class="btn btn-green" id="confirmLogin">دخول</button></div></div></div>
+<div class="modal-bg" id="loginModal"><div class="modal"><div class="modal-head"><h3>🔐 دخول المسؤول</h3><button class="modal-close" id="closeLogin">×</button></div><div class="modal-body"><div class="form-group"><label class="form-label">📧 الإيميل</label><input type="email" class="form-input" id="usernameInput" placeholder="admin@example.com" autocomplete="email"></div><div class="form-group"><label class="form-label">🔑 كلمة المرور</label><input type="password" class="form-input" id="passInput" autocomplete="current-password"></div><div style="text-align:left;margin-top:-8px;"><button type="button" class="btn btn-gray btn-sm" id="forgotPassBtn" style="font-size:0.78rem;padding:4px 10px;background:transparent;color:var(--muted);border:none;text-decoration:underline;cursor:pointer;">نسيت كلمة المرور؟</button></div></div><div class="modal-foot"><button class="btn btn-gray" id="cancelLogin">إلغاء</button><button class="btn btn-green" id="confirmLogin">🚪 دخول</button></div></div></div>
 <div class="modal-bg" id="passModal"><div class="modal"><div class="modal-head"><h3>🔑 تغيير كلمة المرور</h3><button class="modal-close" id="closePass">×</button></div><div class="modal-body"><div class="form-group"><label class="form-label">الحالية</label><input type="password" class="form-input" id="oldPass"></div><div class="form-group"><label class="form-label">الجديدة</label><input type="password" class="form-input" id="newPass"></div><div class="form-group"><label class="form-label">تأكيد</label><input type="password" class="form-input" id="confirmPass"></div></div><div class="modal-foot"><button class="btn btn-gray" id="cancelPass">إلغاء</button><button class="btn btn-green" id="confirmPassBtn">حفظ</button></div></div></div>
 <div class="modal-bg" id="memberModal"><div class="modal"><div class="modal-head"><h3 id="memberModalTitle">➕ إضافة عضو</h3><button class="modal-close" id="closeMember">×</button></div><div class="modal-body">
 <input type="hidden" id="memberId">
@@ -4576,17 +4589,355 @@ if(!appData.bylaws)appData.bylaws={chapters:[
 {title:"الضوابط",icon:"⚠️",items:["البحث والتحقق من الخلل","دعوة العضو للمراجعة","النقاش في اجتماع مغلق","إبلاغ العضو بالقرار خطياً"]}
 ]}
 ]};
+// ============== ضغط الصور قبل الحفظ ==============
+// Firestore بيقبل بحد أقصى 1MB للوثيقة، فلازم نضغط الصور
+function compressImage(fileOrDataUrl, maxDim, quality){
+    maxDim = maxDim || 1200;
+    quality = quality || 0.8;
+    return new Promise(function(resolve, reject){
+        var img = new Image();
+        img.onload = function(){
+            var w = img.width, h = img.height;
+            if(w > maxDim || h > maxDim){
+                if(w > h){ h = Math.round(h * maxDim / w); w = maxDim; }
+                else { w = Math.round(w * maxDim / h); h = maxDim; }
+            }
+            var canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            var ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, w, h);
+            ctx.drawImage(img, 0, 0, w, h);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = function(){ reject(new Error('Image load error')); };
+        if(fileOrDataUrl instanceof File || fileOrDataUrl instanceof Blob){
+            var r = new FileReader();
+            r.onload = function(ev){ img.src = ev.target.result; };
+            r.onerror = function(){ reject(new Error('FileReader error')); };
+            r.readAsDataURL(fileOrDataUrl);
+        } else {
+            img.src = fileOrDataUrl; // already base64
+        }
+    });
+}
+
+// قياس حجم البيانات بالميغابايت
+function dataSizeMB(obj){
+    try{
+        var s = JSON.stringify(obj);
+        return (s.length / 1024 / 1024).toFixed(2);
+    }catch(e){ return '?'; }
+}
+
+window.updateDataSizeInfo = function(){
+    var div = document.getElementById('dataSizeInfo');
+    if(!div) return;
+    var c = JSON.parse(JSON.stringify(appData));
+    delete c.logo;
+    var total = parseFloat(dataSizeMB(c));
+    
+    // حساب حجم كل قسم
+    var sections = {};
+    ['news','tx','members','pending','votes','liveVotes','messages','sheet','sheetArchive','contactMsgs','gallery'].forEach(function(k){
+        if(c[k]) sections[k] = parseFloat(dataSizeMB(c[k]));
+    });
+    
+    var color = total > 0.9 ? '#CE1126' : (total > 0.6 ? '#F39C12' : '#009639');
+    var icon = total > 0.9 ? '🚨' : (total > 0.6 ? '⚠️' : '✅');
+    
+    var html = '<div style="font-size:1.2rem;font-weight:700;color:'+color+';margin-bottom:10px;">'+icon+' الحجم الكلي: '+total.toFixed(2)+' MB / 1 MB</div>';
+    html += '<div style="height:10px;background:rgba(255,255,255,0.1);border-radius:5px;overflow:hidden;margin-bottom:14px;"><div style="height:100%;width:'+Math.min(100,total*100)+'%;background:'+color+';transition:width 0.3s;"></div></div>';
+    
+    var names = {news:'📰 الأخبار',tx:'💰 المعاملات',members:'👥 الأعضاء',pending:'⏳ طلبات الانتساب',votes:'🗳️ التصويتات',liveVotes:'📺 تصويتات البث',messages:'📨 الرسائل',sheet:'📋 استمارة التسجيل',sheetArchive:'📦 أرشيف الاستمارات',contactMsgs:'✉️ رسائل التواصل',gallery:'🖼️ المعرض'};
+    Object.keys(sections).sort(function(a,b){return sections[b]-sections[a];}).forEach(function(k){
+        if(sections[k] < 0.001) return;
+        html += '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed rgba(255,255,255,0.05);">'+
+                '<span>'+(names[k]||k)+'</span>'+
+                '<strong>'+sections[k].toFixed(2)+' MB</strong></div>';
+    });
+    
+    if(total > 0.9){
+        html += '<div style="background:rgba(206,17,38,0.15);border:1px solid #CE1126;padding:10px;border-radius:8px;margin-top:12px;color:#CE1126;font-weight:700;">🚨 البيانات تجاوزت الحد! التحديثات الجديدة ما رح تنحفظ على السحابة. احذف صور قديمة أو أخبار قديمة لتوفير مساحة.</div>';
+    }else if(total > 0.6){
+        html += '<div style="background:rgba(243,156,18,0.15);border:1px solid #F39C12;padding:10px;border-radius:8px;margin-top:12px;color:#F39C12;font-weight:600;">⚠️ اقتربت من الحد. فكر بحذف صور قديمة قريباً.</div>';
+    }
+    
+    div.innerHTML = html;
+};
+
+// تنظيف الصور القديمة لتوفير مساحة
+window.cleanupData = function(){
+    if(!confirm("⚠️ هاد الإجراء بيشيل الصور من:\n- الأخبار الأقدم من شهرين\n- المعاملات الأقدم من شهرين\n\nالنصوص رح تظل، بس الصور رح تتشال نهائياً.\nمتأكد؟")) return;
+    
+    var beforeSize = parseFloat(dataSizeMB(appData));
+    var twoMonthsAgo = new Date();
+    twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
+    var cutoff = twoMonthsAgo.toISOString().split('T')[0];
+    var stripped = {news:0, tx:0};
+    
+    if(appData.news){
+        appData.news.forEach(function(n){
+            if(n.date && n.date < cutoff){
+                if(n.imgs && n.imgs.length){ stripped.news++; n.imgs = []; }
+                if(n.img){ stripped.news++; n.img = ''; }
+            }
+        });
+    }
+    
+    if(appData.tx){
+        appData.tx.forEach(function(t){
+            if(t.date && t.date < cutoff){
+                if(t.receipts && t.receipts.length){ stripped.tx++; t.receipts = []; }
+            }
+        });
+    }
+    
+    var afterSize = parseFloat(dataSizeMB(appData));
+    var saved = (beforeSize - afterSize).toFixed(2);
+    
+    save();
+    setTimeout(updateDataSizeInfo, 500);
+    
+    toast("✅ تم التنظيف! تم تحرير "+saved+" MB ("+stripped.news+" خبر + "+stripped.tx+" معاملة)");
+};
+
+// عرض أكبر العناصر للحذف اليدوي
+window.showLargestItems = function(){
+    var box = document.getElementById('largestItemsBox');
+    if(!box) return;
+    
+    var items = [];
+    if(appData.news){
+        appData.news.forEach(function(n,i){
+            items.push({type:'news',idx:i,id:n.id||null,title:n.title||'بدون عنوان',date:n.date||'',size:parseFloat(dataSizeMB(n))});
+        });
+    }
+    if(appData.tx){
+        appData.tx.forEach(function(t,i){
+            items.push({type:'tx',idx:i,id:t.id||null,title:t.desc||'بدون وصف',date:t.date||'',size:parseFloat(dataSizeMB(t))});
+        });
+    }
+    if(appData.pending){
+        appData.pending.forEach(function(p,i){
+            items.push({type:'pending',idx:i,id:p.id||null,title:p.name||'طلب',date:p.date||'',size:parseFloat(dataSizeMB(p))});
+        });
+    }
+    if(appData.members){
+        appData.members.forEach(function(m,i){
+            items.push({type:'member',idx:i,id:m.id||null,title:m.name||'عضو',date:m.approvedDate||'',size:parseFloat(dataSizeMB(m))});
+        });
+    }
+    
+    items.sort(function(a,b){return b.size - a.size;});
+    items = items.slice(0, 20);
+    
+    var html = '<div style="background:rgba(255,255,255,0.03);padding:14px;border-radius:10px;">';
+    html += '<div style="font-weight:700;color:var(--gold);margin-bottom:10px;">📋 أكبر 20 عنصر:</div>';
+    
+    if(items.length === 0){
+        html += '<p style="color:var(--muted);">لا توجد عناصر</p>';
+    } else {
+        items.forEach(function(item){
+            if(item.size < 0.001) return;
+            var icons = {news:'📰',tx:'💰',pending:'⏳',member:'👤'};
+            var labels = {news:'خبر',tx:'معاملة',pending:'طلب',member:'عضو'};
+            var color = item.size > 0.3 ? '#CE1126' : (item.size > 0.1 ? '#F39C12' : '#009639');
+            html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;border-bottom:1px solid rgba(255,255,255,0.05);gap:10px;flex-wrap:wrap;">'+
+                    '<div style="flex:1;min-width:180px;">'+(icons[item.type]||'📦')+' <strong>'+item.title.substring(0,50)+'</strong><br><span style="font-size:0.75rem;color:var(--muted);">'+labels[item.type]+' • '+item.date+'</span></div>'+
+                    '<div style="font-weight:700;color:'+color+';">'+item.size.toFixed(3)+' MB</div>'+
+                    '<button class="btn btn-red btn-sm" onclick="stripItemImages(\''+item.type+'\','+(item.id||'null')+','+item.idx+')">🖼️ شيل الصور</button>'+
+                    '</div>';
+        });
+    }
+    
+    html += '</div>';
+    box.innerHTML = html;
+    box.style.display = 'block';
+};
+
+// شيل صور عنصر معين
+window.stripItemImages = function(type, id, idx){
+    if(!confirm("شيل الصور من هاد العنصر؟ (النص رح يبقى)")) return;
+    var item = null;
+    if(type === 'news' && appData.news){
+        item = id ? appData.news.find(function(x){return (x.id||x._id)===id;}) : appData.news[idx];
+        if(item){ item.imgs=[]; item.img=''; }
+    } else if(type === 'tx' && appData.tx){
+        item = id ? appData.tx.find(function(x){return (x.id||x._id)===id;}) : appData.tx[idx];
+        if(item){ item.receipts=[]; }
+    } else if(type === 'pending' && appData.pending){
+        item = id ? appData.pending.find(function(x){return (x.id||x._id)===id;}) : appData.pending[idx];
+        if(item){ item.img=''; if(item.familyMembers)item.familyMembers.forEach(function(f){f.img='';}); }
+    } else if(type === 'member' && appData.members){
+        item = id ? appData.members.find(function(x){return (x.id||x._id)===id;}) : appData.members[idx];
+        if(item){ item.img=''; if(item.familyMembers)item.familyMembers.forEach(function(f){f.img='';}); }
+    }
+    if(item){
+        save();
+        setTimeout(function(){
+            updateDataSizeInfo();
+            showLargestItems();
+        }, 500);
+        toast("✅ تم شيل الصور");
+    }
+};
+
+// ============== Firebase Authentication ==============
+// مع تفعيل المصادقة، كل المستخدمين بحاجة لتسجيل دخول (إما بإيميل المسؤول أو كزائر anonymous)
+var __fbAuthCache = null;
+var __fbAuthInitPromise = null;
+
+async function getFirebaseAuth(){
+    if(__fbAuthCache) return __fbAuthCache;
+    const appMod = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+    const authMod = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+    let app;
+    try{ app = appMod.getApp(); }
+    catch(e){
+        app = appMod.initializeApp({
+            apiKey:"AIzaSyB2vd10mZBfvZ9_NxpjzT07ih0m5cOTOgo",
+            authDomain:"palestinske-rogaland.firebaseapp.com",
+            projectId:"palestinske-rogaland",
+            storageBucket:"palestinske-rogaland.firebasestorage.app",
+            messagingSenderId:"228379992371",
+            appId:"1:228379992371:web:56577dc6e553ef39d91e46"
+        });
+    }
+    __fbAuthCache = {
+        auth: authMod.getAuth(app),
+        signInWithEmailAndPassword: authMod.signInWithEmailAndPassword,
+        signInAnonymously: authMod.signInAnonymously,
+        signOut: authMod.signOut,
+        onAuthStateChanged: authMod.onAuthStateChanged,
+        sendPasswordResetEmail: authMod.sendPasswordResetEmail
+    };
+    return __fbAuthCache;
+}
+
+// تأكيد إن المستخدم مسجّل دخول (لو لا، يدخل anonymously)
+// إعادة المحاولة عند فشل الشبكة
+async function ensureFirebaseAuth(){
+    var lastErr = null;
+    for(var attempt = 0; attempt < 3; attempt++){
+        try {
+            const fb = await getFirebaseAuth();
+            if(fb.auth.currentUser) return fb.auth.currentUser;
+            const result = await fb.signInAnonymously(fb.auth);
+            return result.user;
+        } catch(e){
+            lastErr = e;
+            // امسح الـ cache عشان نعيد المحاولة من الصفر
+            __fbAuthCache = null;
+            __fbAuthInitPromise = null;
+            // انتظر قليلاً قبل المحاولة الجاية
+            if(attempt < 2) await new Promise(function(r){setTimeout(r, 1000 * (attempt+1));});
+        }
+    }
+    console.error('❌ ensureFirebaseAuth failed after 3 attempts:', lastErr);
+    throw lastErr;
+}
+
+// تهيئة تلقائية عند تحميل الصفحة - مع إعادة محاولة عند فشل الشبكة
+function initFirebaseAuth(){
+    if(__fbAuthInitPromise) return __fbAuthInitPromise;
+    __fbAuthInitPromise = (async()=>{
+        try {
+            const fb = await getFirebaseAuth();
+            // مراقبة تغيير حالة المصادقة
+            fb.onAuthStateChanged(fb.auth, function(user){
+                if(user){
+                    console.log('🔐 Auth: ' + (user.email || 'anonymous-' + user.uid.substring(0,6)));
+                } else {
+                    console.log('🔓 Auth: signed out');
+                }
+            });
+            // لو ما في مستخدم، سجّل دخول كضيف
+            if(!fb.auth.currentUser){
+                await fb.signInAnonymously(fb.auth);
+            }
+            return fb;
+        } catch(e){
+            // امسح الـ cache عشان نقدر نحاول تاني المرة الجاية
+            __fbAuthInitPromise = null;
+            __fbAuthCache = null;
+            if(navigator.onLine === false){
+                console.log('📴 لا يوجد اتصال - سيتم المحاولة عند عودة الاتصال');
+            } else {
+                console.log('⏳ تأخر تحميل Firebase - سيُعاد المحاولة');
+            }
+            throw e;
+        }
+    })();
+    return __fbAuthInitPromise;
+}
+
+// إعادة محاولة عند عودة الاتصال
+window.addEventListener('online', function(){
+    console.log('🌐 الاتصال عاد - إعادة تهيئة Firebase');
+    __fbAuthInitPromise = null;
+    __fbAuthCache = null;
+    initFirebaseAuth().catch(function(){});
+});
+
+// تسجيل دخول المسؤول
+async function signInAdminFirebase(email, password){
+    const fb = await getFirebaseAuth();
+    // اول اشي خروج من anonymous إذا كان موجود
+    if(fb.auth.currentUser && fb.auth.currentUser.isAnonymous){
+        try { await fb.signOut(fb.auth); } catch(e){}
+    }
+    const result = await fb.signInWithEmailAndPassword(fb.auth, email, password);
+    return result.user;
+}
+
+// تسجيل خروج المسؤول
+async function signOutAdminFirebase(){
+    const fb = await getFirebaseAuth();
+    try { await fb.signOut(fb.auth); } catch(e){ console.error(e); }
+    // ارجع سجّل كضيف
+    try { await fb.signInAnonymously(fb.auth); } catch(e){ console.error(e); }
+}
+
+// ابدأ التهيئة فوراً
+initFirebaseAuth();
+
 function save(){
 appData.adminPass=adminPass;
 localStorage.setItem("appData",JSON.stringify(appData));
-import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(function(appMod){
-return import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(function(fsMod){
-var app;try{app=appMod.getApp();}catch(e){app=appMod.initializeApp({apiKey:"AIzaSyB2vd10mZBfvZ9_NxpjzT07ih0m5cOTOgo",authDomain:"palestinske-rogaland.firebaseapp.com",projectId:"palestinske-rogaland",storageBucket:"palestinske-rogaland.firebasestorage.app",messagingSenderId:"228379992371",appId:"1:228379992371:web:56577dc6e553ef39d91e46"});}
-var db=fsMod.getFirestore(app);var ref=fsMod.doc(db,"appData","main");
-var c=JSON.parse(JSON.stringify(appData));delete c.logo;for(var k in c)if(typeof c[k]==='string'&&c[k].length>900000)delete c[k];
-fsMod.setDoc(ref,c).then(function(){console.log("✅ محفوظ");}).catch(function(e){console.error("❌",e);});
+// تأكد من المصادقة قبل الكتابة
+ensureFirebaseAuth().then(function(){
+    return import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(function(appMod){
+        return import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(function(fsMod){
+            var app;try{app=appMod.getApp();}catch(e){app=appMod.initializeApp({apiKey:"AIzaSyB2vd10mZBfvZ9_NxpjzT07ih0m5cOTOgo",authDomain:"palestinske-rogaland.firebaseapp.com",projectId:"palestinske-rogaland",storageBucket:"palestinske-rogaland.firebasestorage.app",messagingSenderId:"228379992371",appId:"1:228379992371:web:56577dc6e553ef39d91e46"});}
+            var db=fsMod.getFirestore(app);var ref=fsMod.doc(db,"appData","main");
+            var c=JSON.parse(JSON.stringify(appData));delete c.logo;for(var k in c)if(typeof c[k]==='string'&&c[k].length>900000)delete c[k];
+            // فحص حجم الوثيقة قبل الإرسال
+            var sizeMB = dataSizeMB(c);
+            if(parseFloat(sizeMB) > 0.95){
+                console.error("❌ الحجم الكلي "+sizeMB+"MB - تجاوز حد فايرستور!");
+                if(typeof toast==='function') toast("⚠️ البيانات كبيرة جداً ("+sizeMB+"MB)! لن تتم المزامنة. حاول حذف صور قديمة.", true);
+            }
+            return fsMod.setDoc(ref,c).then(function(){
+                console.log("✅ محفوظ ("+sizeMB+"MB)");
+            }).catch(function(e){
+                console.error("❌ خطأ الحفظ:",e);
+                var msg = "❌ فشل الحفظ على السحابة";
+                if(e.message && e.message.indexOf('exceed') > -1) msg = "❌ البيانات كبيرة جداً ("+sizeMB+"MB)";
+                else if(e.message && e.message.indexOf('permission') > -1) msg = "❌ خطأ صلاحيات - تأكد من تسجيل الدخول";
+                else if(e.message) msg += ": " + e.message.substring(0,80);
+                if(typeof toast==='function') toast(msg, true);
+            });
+        });
+    }).catch(function(e){
+        console.error("❌ Firebase:",e);
+        if(typeof toast==='function') toast("❌ فشل الاتصال بفايرستور: "+(e.message||''), true);
+    });
+}).catch(function(e){
+    console.error("❌ Auth failed:", e);
+    if(typeof toast==='function') toast("❌ فشل المصادقة. حاول إعادة تحميل الصفحة.", true);
 });
-}).catch(function(e){console.error("❌ Firebase:",e);});
 }
 function loadFromCloud(callback){
 import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(function(appMod){
@@ -6351,78 +6702,97 @@ document.documentElement.style.opacity='1';
 });
 }
 document.getElementById("btnHome").addEventListener("click",function(){goTo("home");renderHomePage();});document.getElementById("btnNews").addEventListener("click",function(){goTo("news");});
-document.getElementById("btnAdmin").addEventListener("click",function(){goTo("admin");loadHomeSettings();});document.getElementById("btnBylaws").addEventListener("click",function(){goTo("bylaws");loadBylaws();});document.getElementById("btnVoting").addEventListener("click",function(){goTo("voting");loadFromCloud(loadVoting);});document.getElementById("btnFinance").addEventListener("click",function(){goTo("finance");});document.getElementById("btnMap").addEventListener("click",function(){goTo("map");});document.getElementById("btnRegister").addEventListener("click",function(){goTo("register");});document.getElementById("btnInvitation").addEventListener("click",function(){goTo("invitation");});document.getElementById("btnConfInvite").addEventListener("click",function(){goTo("confInvite");initConfInv();});document.getElementById("btnReports").addEventListener("click",function(){goTo("reports");initReports();});document.getElementById("btnContact").addEventListener("click",function(){goTo("contact");});document.getElementById("btnLive").addEventListener("click",function(){goTo("live");loadFromCloud(function(){loadLiveStreamStatus();loadLiveVotingList();});});document.getElementById("btnMembers").addEventListener("click",function(){goTo("members");});document.getElementById("btnPending").addEventListener("click",function(){goTo("pending");loadPending();});document.getElementById("btnRegistrationSheet").addEventListener("click",function(){goTo("registrationSheet");loadSheet();});document.getElementById("btnManageTx").addEventListener("click",function(){goTo("manageTx");document.getElementById("txDate").value=new Date().toISOString().split("T")[0];loadAdminTx();});document.getElementById("btnManageNews").addEventListener("click",function(){goTo("manageNews");});document.getElementById("btnManageVoting").addEventListener("click",function(){goTo("manageVoting");loadFromCloud(loadAdminVoting);});document.getElementById("btnInbox").addEventListener("click",function(){goTo("inbox");loadFromCloud(loadMessages);});document.getElementById("btnManageLive").addEventListener("click",function(){goTo("manageLive");loadFromCloud(function(){loadAdminLiveVotes();loadLiveStreamStatus();});});
+document.getElementById("btnAdmin").addEventListener("click",function(){goTo("admin");loadHomeSettings();if(typeof updateDataSizeInfo==='function')updateDataSizeInfo();});document.getElementById("btnBylaws").addEventListener("click",function(){goTo("bylaws");loadBylaws();});document.getElementById("btnVoting").addEventListener("click",function(){goTo("voting");loadFromCloud(loadVoting);});document.getElementById("btnFinance").addEventListener("click",function(){goTo("finance");});document.getElementById("btnMap").addEventListener("click",function(){goTo("map");});document.getElementById("btnRegister").addEventListener("click",function(){goTo("register");});document.getElementById("btnInvitation").addEventListener("click",function(){goTo("invitation");});document.getElementById("btnConfInvite").addEventListener("click",function(){goTo("confInvite");initConfInv();});document.getElementById("btnReports").addEventListener("click",function(){goTo("reports");initReports();});document.getElementById("btnContact").addEventListener("click",function(){goTo("contact");});document.getElementById("btnLive").addEventListener("click",function(){goTo("live");loadFromCloud(function(){loadLiveStreamStatus();loadLiveVotingList();});});document.getElementById("btnMembers").addEventListener("click",function(){goTo("members");});document.getElementById("btnPending").addEventListener("click",function(){goTo("pending");loadPending();});document.getElementById("btnRegistrationSheet").addEventListener("click",function(){goTo("registrationSheet");loadSheet();});document.getElementById("btnManageTx").addEventListener("click",function(){goTo("manageTx");document.getElementById("txDate").value=new Date().toISOString().split("T")[0];loadAdminTx();});document.getElementById("btnManageNews").addEventListener("click",function(){goTo("manageNews");});document.getElementById("btnManageVoting").addEventListener("click",function(){goTo("manageVoting");loadFromCloud(loadAdminVoting);});document.getElementById("btnInbox").addEventListener("click",function(){goTo("inbox");loadFromCloud(loadMessages);});document.getElementById("btnManageLive").addEventListener("click",function(){goTo("manageLive");loadFromCloud(function(){loadAdminLiveVotes();loadLiveStreamStatus();});});
 document.getElementById("mobileBtn").addEventListener("click",function(){document.getElementById("sidebar").classList.toggle("open");});
-document.getElementById("loginBtn").addEventListener("click",function(){if(isAdmin){isAdmin=false;hideAdmin();goTo("home");toast("تم الخروج");}else{document.getElementById("passInput").value="";document.getElementById("loginModal").classList.add("show");}});
+document.getElementById("loginBtn").addEventListener("click",async function(){if(isAdmin){isAdmin=false;currentUser=null;hideAdmin();goTo("home");toast("تم الخروج");try{ await signOutAdminFirebase(); }catch(e){console.error(e);}}else{document.getElementById("passInput").value="";document.getElementById("loginModal").classList.add("show");setTimeout(function(){var u=document.getElementById("usernameInput");if(u){u.value=localStorage.getItem('lastAdminEmail')||'';u.focus();}},100);}});
 document.getElementById("closeLogin").addEventListener("click",function(){document.getElementById("loginModal").classList.remove("show");});document.getElementById("cancelLogin").addEventListener("click",function(){document.getElementById("loginModal").classList.remove("show");});document.getElementById("loginModal").addEventListener("click",function(e){if(e.target.id==="loginModal")this.classList.remove("show");});
 document.getElementById("confirmLogin").addEventListener("click",async function(){
-var username=document.getElementById("usernameInput").value.trim();
+var email=document.getElementById("usernameInput").value.trim();
 var password=document.getElementById("passInput").value;
 
+if(!email){
+    toast("أدخل الإيميل",true);
+    return;
+}
 if(!password){
-toast("أدخل كلمة المرور",true);
-return;
+    toast("أدخل كلمة المرور",true);
+    return;
+}
+if(!email.includes('@')){
+    toast("الإيميل غير صحيح",true);
+    return;
 }
 
-if(USE_BACKEND && window.API){
 try{
-toast("جاري تسجيل الدخول...");
-var result=await window.API.Auth.login(username||'admin',password);
-if(result.success){
-isAdmin=true;
-currentUser=result.user;
-document.getElementById("loginModal").classList.remove("show");
-document.getElementById("usernameInput").value="";
-document.getElementById("passInput").value="";
-showAdmin();
-
-loadDataFromBackend();
-toast("مرحباً "+result.user.name+" ✅");
-}else{
-// لو فشل Backend جرب المحلي
-var currentPass=appData.adminPass||adminPass||'1234';
-if(password===currentPass){
-isAdmin=true;adminPass=currentPass;
-document.getElementById("loginModal").classList.remove("show");
-showAdmin();
-toast("تم الدخول (محلي)");
-}else{
-toast(result.message||"كلمة مرور خاطئة",true);
-}
-}
-}catch(e){
-console.error(e);
-// لو السيرفر ما رد - جرب المحلي
-var currentPass=appData.adminPass||adminPass||'1234';
-if(password===currentPass){
-isAdmin=true;adminPass=currentPass;
-document.getElementById("loginModal").classList.remove("show");
-showAdmin();
-toast("تم الدخول (محلي)");
-}else{
-toast("كلمة مرور خاطئة",true);
-}
-}
-}else{
-// Local password
-var currentPass=appData.adminPass||adminPass||'1234';
-if(password===currentPass){
-isAdmin=true;adminPass=currentPass;
-document.getElementById("loginModal").classList.remove("show");
-showAdmin();
-toast("تم الدخول");
-}else{
-toast("كلمة مرور خاطئة",true);
-}
+    toast("⏳ جاري تسجيل الدخول...");
+    var user = await signInAdminFirebase(email, password);
+    
+    // نجح الدخول!
+    isAdmin = true;
+    currentUser = {email: user.email, uid: user.uid};
+    localStorage.setItem('lastAdminEmail', email);
+    document.getElementById("loginModal").classList.remove("show");
+    document.getElementById("usernameInput").value="";
+    document.getElementById("passInput").value="";
+    showAdmin();
+    toast("مرحباً "+email+" ✅");
+    
+    // حمّل البيانات من السحابة
+    if(typeof loadFromCloud === 'function') loadFromCloud(function(){
+        if(typeof renderHomePage === 'function') renderHomePage();
+        if(typeof loadNews === 'function') loadNews();
+        if(typeof loadFinance === 'function') loadFinance();
+    });
+} catch(err){
+    console.error('Login error:', err);
+    var msg = "❌ خطأ في تسجيل الدخول";
+    var code = err.code || '';
+    if(code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found'){
+        msg = "❌ الإيميل أو كلمة المرور خطأ";
+    } else if(code === 'auth/invalid-email'){
+        msg = "❌ الإيميل غير صحيح";
+    } else if(code === 'auth/too-many-requests'){
+        msg = "❌ محاولات كثيرة جداً. حاول بعد قليل";
+    } else if(code === 'auth/network-request-failed'){
+        msg = "❌ خطأ بالاتصال - تحقق من الإنترنت";
+    } else if(err.message){
+        msg += ": " + err.message.substring(0, 80);
+    }
+    toast(msg, true);
 }
 });
 document.getElementById("passInput").addEventListener("keypress",function(e){if(e.key==="Enter")document.getElementById("confirmLogin").click();});
+// زر "نسيت كلمة المرور"
+var forgotBtn = document.getElementById("forgotPassBtn");
+if(forgotBtn){
+    forgotBtn.addEventListener("click", async function(){
+        var email = document.getElementById("usernameInput").value.trim();
+        if(!email || !email.includes('@')){
+            toast("اكتب الإيميل أولاً", true);
+            return;
+        }
+        if(!confirm("بدك ترسل رابط إعادة تعيين كلمة المرور للإيميل: " + email + "؟")) return;
+        try {
+            toast("⏳ جاري الإرسال...");
+            const fb = await getFirebaseAuth();
+            await fb.sendPasswordResetEmail(fb.auth, email);
+            toast("✅ تم إرسال رابط إعادة التعيين على إيميلك");
+        } catch(err){
+            console.error('Reset error:', err);
+            var msg = "❌ فشل الإرسال";
+            if(err.code === 'auth/user-not-found') msg = "❌ ما في حساب بهذا الإيميل";
+            else if(err.code === 'auth/invalid-email') msg = "❌ الإيميل غير صحيح";
+            else if(err.message) msg += ": " + err.message.substring(0, 80);
+            toast(msg, true);
+        }
+    });
+}
 document.getElementById("btnChangePass").addEventListener("click",function(){document.getElementById("oldPass").value="";document.getElementById("newPass").value="";document.getElementById("confirmPass").value="";document.getElementById("passModal").classList.add("show");});document.getElementById("closePass").addEventListener("click",function(){document.getElementById("passModal").classList.remove("show");});document.getElementById("cancelPass").addEventListener("click",function(){document.getElementById("passModal").classList.remove("show");});document.getElementById("passModal").addEventListener("click",function(e){if(e.target.id==="passModal")this.classList.remove("show");});
 document.getElementById("confirmPassBtn").addEventListener("click",function(){var o=document.getElementById("oldPass").value,n=document.getElementById("newPass").value,c=document.getElementById("confirmPass").value;var currentPass=appData.adminPass||adminPass||"";if(o!==currentPass){toast("كلمة مرور خاطئة",true);return;}if(n.length<4){toast("4 أحرف على الأقل",true);return;}if(n!==c){toast("غير متطابقة",true);return;}adminPass=n;appData.adminPass=n;save();document.getElementById("passModal").classList.remove("show");toast("تم تغيير كلمة السر ✅");});
 document.getElementById("btnLogout").addEventListener("click",function(){isAdmin=false;hideAdmin();goTo("home");toast("تم الخروج");});
 document.getElementById("logoUpload").addEventListener("click",function(){document.getElementById("logoFile").click();});document.getElementById("logoFile").addEventListener("change",function(e){var f=e.target.files[0];if(f){var r=new FileReader();r.onload=function(ev){var img=new Image();img.onload=function(){var max=200;var w=img.width,h=img.height;if(w>max||h>max){if(w>h){h=Math.round(h*max/w);w=max;}else{w=Math.round(w*max/h);h=max;}}var c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);var small=c.toDataURL('image/png',0.8);appData.logo=small;save();saveLogoToCloud(small);loadLogo();toast("تم حفظ الشعار ✅");};img.src=ev.target.result;};r.readAsDataURL(f);}});
 document.getElementById("visNews").addEventListener("change",function(){appData.visibility.news=this.value;save();updateVisibility();toast("تم");});document.getElementById("visFinance").addEventListener("change",function(){appData.visibility.finance=this.value;save();updateVisibility();toast("تم");});document.getElementById("visMap").addEventListener("change",function(){appData.visibility.map=this.value;save();updateVisibility();toast("تم");});document.getElementById("visInvitation").addEventListener("change",function(){appData.visibility.invitation=this.value;save();updateVisibility();toast("تم");});document.getElementById("visConfInvite").addEventListener("change",function(){appData.visibility.confInvite=this.value;save();updateVisibility();toast("تم");});document.getElementById("visReports").addEventListener("change",function(){appData.visibility.reports=this.value;save();updateVisibility();toast("تم");});document.getElementById("visBylaws").addEventListener("change",function(){appData.visibility.bylaws=this.value;save();updateVisibility();toast("تم");});document.getElementById("visVoting").addEventListener("change",function(){appData.visibility.voting=this.value;save();updateVisibility();toast("تم");});
-document.getElementById("newsImgsUpload").addEventListener("click",function(){document.getElementById("newsImgsFile").click();});document.getElementById("newsImgsFile").addEventListener("change",function(e){var files=e.target.files;for(var i=0;i<files.length;i++){(function(file){var r=new FileReader();r.onload=function(ev){newsImgs.push(ev.target.result);renderNewsImgs();};r.readAsDataURL(file);})(files[i]);}});
+document.getElementById("newsImgsUpload").addEventListener("click",function(){document.getElementById("newsImgsFile").click();});document.getElementById("newsImgsFile").addEventListener("change",function(e){var files=e.target.files;if(files.length>0)toast("⏳ جاري ضغط الصور...");for(var i=0;i<files.length;i++){(function(file){compressImage(file,1200,0.78).then(function(data){newsImgs.push(data);renderNewsImgs();}).catch(function(err){console.error('compress err',err);var r=new FileReader();r.onload=function(ev){newsImgs.push(ev.target.result);renderNewsImgs();};r.readAsDataURL(file);});})(files[i]);}});
 document.getElementById("btnPublishNews").addEventListener("click",async function(){
 var t=document.getElementById("newNewsTitle").value.trim();
 var c=document.getElementById("newNewsContent").value.trim();
@@ -6472,7 +6842,7 @@ toast("تم النشر");
 sendLocalNotification('📰 خبر جديد - الجالية الفلسطينية', t);
 }
 });
-document.getElementById("txReceiptsUpload").addEventListener("click",function(){document.getElementById("txReceiptsFile").click();});document.getElementById("txReceiptsFile").addEventListener("change",function(e){var files=e.target.files;for(var i=0;i<files.length;i++){(function(file){var r=new FileReader();r.onload=function(ev){txReceipts.push(ev.target.result);renderTxReceipts();};r.readAsDataURL(file);})(files[i]);}});
+document.getElementById("txReceiptsUpload").addEventListener("click",function(){document.getElementById("txReceiptsFile").click();});document.getElementById("txReceiptsFile").addEventListener("change",function(e){var files=e.target.files;if(files.length>0)toast("⏳ جاري ضغط الصور...");for(var i=0;i<files.length;i++){(function(file){compressImage(file,1200,0.78).then(function(data){txReceipts.push(data);renderTxReceipts();}).catch(function(err){console.error('compress err',err);var r=new FileReader();r.onload=function(ev){txReceipts.push(ev.target.result);renderTxReceipts();};r.readAsDataURL(file);});})(files[i]);}});
 document.getElementById("btnSaveTx").addEventListener("click",async function(){
 var tp=document.getElementById("txType").value;
 var ds=document.getElementById("txDesc").value.trim();
@@ -6521,13 +6891,13 @@ renderTxTranslationPanels();
 toast("تم الحفظ");
 }
 });
-document.getElementById("editTxReceiptsUpload").addEventListener("click",function(){document.getElementById("editTxReceiptsFile").click();});document.getElementById("editTxReceiptsFile").addEventListener("change",function(e){var files=e.target.files;for(var i=0;i<files.length;i++){(function(file){var r=new FileReader();r.onload=function(ev){editTxReceipts.push(ev.target.result);renderEditTxReceipts();};r.readAsDataURL(file);})(files[i]);}});
+document.getElementById("editTxReceiptsUpload").addEventListener("click",function(){document.getElementById("editTxReceiptsFile").click();});document.getElementById("editTxReceiptsFile").addEventListener("change",function(e){var files=e.target.files;if(files.length>0)toast("⏳ جاري ضغط الصور...");for(var i=0;i<files.length;i++){(function(file){compressImage(file,1200,0.78).then(function(data){editTxReceipts.push(data);renderEditTxReceipts();}).catch(function(err){var r=new FileReader();r.onload=function(ev){editTxReceipts.push(ev.target.result);renderEditTxReceipts();};r.readAsDataURL(file);});})(files[i]);}});
 document.getElementById("closeEditTx").addEventListener("click",function(){document.getElementById("editTxModal").classList.remove("show");});document.getElementById("cancelEditTx").addEventListener("click",function(){document.getElementById("editTxModal").classList.remove("show");});document.getElementById("editTxModal").addEventListener("click",function(e){if(e.target.id==="editTxModal")this.classList.remove("show");});
 document.getElementById("saveEditTx").addEventListener("click",function(){var id=String(document.getElementById("editTxId").value);var tp=document.getElementById("editTxType").value;var ds=document.getElementById("editTxDesc").value;var am=parseFloat(document.getElementById("editTxAmount").value);var dt=document.getElementById("editTxDate").value;var trDesc=readTranslations('editTxDesc');if(!ds||!am){toast("املأ الحقول",true);return;}var t=appData.tx.find(function(x){return String(x.id||x._id)===id;});if(t){t.type=tp;t.desc=ds;t.desc_en=trDesc.en;t.desc_no=trDesc.no;t.amount=am;if(dt)t.date=dt;t.receipts=editTxReceipts.slice();}save();loadFinance();loadAdminTx();document.getElementById("editTxModal").classList.remove("show");toast("تم حفظ التعديلات ✅");});
-document.getElementById("editNewsImgsUpload").addEventListener("click",function(){document.getElementById("editNewsImgsFile").click();});document.getElementById("editNewsImgsFile").addEventListener("change",function(e){var files=e.target.files;for(var i=0;i<files.length;i++){(function(file){var r=new FileReader();r.onload=function(ev){editNewsImgs.push(ev.target.result);renderEditNewsImgs();};r.readAsDataURL(file);})(files[i]);}});
+document.getElementById("editNewsImgsUpload").addEventListener("click",function(){document.getElementById("editNewsImgsFile").click();});document.getElementById("editNewsImgsFile").addEventListener("change",function(e){var files=e.target.files;if(files.length>0)toast("⏳ جاري ضغط الصور...");for(var i=0;i<files.length;i++){(function(file){compressImage(file,1200,0.78).then(function(data){editNewsImgs.push(data);renderEditNewsImgs();}).catch(function(err){var r=new FileReader();r.onload=function(ev){editNewsImgs.push(ev.target.result);renderEditNewsImgs();};r.readAsDataURL(file);});})(files[i]);}});
 document.getElementById("closeEditNews").addEventListener("click",function(){document.getElementById("editNewsModal").classList.remove("show");});document.getElementById("cancelEditNews").addEventListener("click",function(){document.getElementById("editNewsModal").classList.remove("show");});document.getElementById("editNewsModal").addEventListener("click",function(e){if(e.target.id==="editNewsModal")this.classList.remove("show");});
 document.getElementById("saveEditNews").addEventListener("click",function(){var id=String(document.getElementById("editNewsId").value);var t=document.getElementById("editNewsTitle").value;var c=document.getElementById("editNewsContent").value;var trTitle=readTranslations('editNewsTitle');var trContent=readTranslations('editNewsContent');if(!t||!c){toast("املأ الحقول",true);return;}var n=appData.news.find(function(x){return String(x.id||x._id)===id;});if(n){n.title=t;n.content=c;n.title_en=trTitle.en;n.title_no=trTitle.no;n.content_en=trContent.en;n.content_no=trContent.no;n.imgs=editNewsImgs.slice();}save();loadNews();loadAdminNews();document.getElementById("editNewsModal").classList.remove("show");toast("تم حفظ التعديلات ✅");});
-document.getElementById("memberImgUpload").addEventListener("click",function(){document.getElementById("memberImgFile").click();});document.getElementById("memberImgFile").addEventListener("change",function(e){var f=e.target.files[0];if(f){var r=new FileReader();r.onload=function(ev){memberImg=ev.target.result;document.getElementById("memberImgPreview").src=memberImg;document.getElementById("memberImgPreview").style.display="block";};r.readAsDataURL(f);}});
+document.getElementById("memberImgUpload").addEventListener("click",function(){document.getElementById("memberImgFile").click();});document.getElementById("memberImgFile").addEventListener("change",function(e){var f=e.target.files[0];if(f){compressImage(f,600,0.8).then(function(data){memberImg=data;document.getElementById("memberImgPreview").src=memberImg;document.getElementById("memberImgPreview").style.display="block";}).catch(function(err){var r=new FileReader();r.onload=function(ev){memberImg=ev.target.result;document.getElementById("memberImgPreview").src=memberImg;document.getElementById("memberImgPreview").style.display="block";};r.readAsDataURL(f);});}});
 document.getElementById("btnSearchAddress").addEventListener("click",function(){var a=document.getElementById("memberAddressSearch").value.trim();if(!a){toast("أدخل عنوان",true);return;}toast("جاري البحث...");searchAddress(a,function(err,r){if(err){toast(err,true);return;}document.getElementById("memberLat").value=r.lat.toFixed(6);document.getElementById("memberLng").value=r.lng.toFixed(6);document.getElementById("locationText").innerHTML="✅ "+r.display;document.getElementById("locationResult").classList.add("show");toast("تم");});});
 document.getElementById("btnResetMap").addEventListener("click",function(){if(myMap)myMap.setView([58.97,5.73],9);});document.getElementById("btnMyLoc").addEventListener("click",function(){if(navigator.geolocation&&myMap){navigator.geolocation.getCurrentPosition(function(p){myMap.setView([p.coords.latitude,p.coords.longitude],14);L.marker([p.coords.latitude,p.coords.longitude]).addTo(myMap).bindPopup("📍 موقعك").openPopup();},function(){toast("تعذر",true);});}});
 // أزرار تبديل الخريطة (نرويج / فلسطين)
@@ -8643,25 +9013,31 @@ if(canView){
 // Show live stream
 var embedUrl=convertToEmbedUrl(live.url);
 if(videoFrame&&videoContainer){
-videoFrame.src=embedUrl;
-videoContainer.style.display='block';
+// 🔧 لا تعيد تحميل الـ iframe إذا الرابط نفسه (يمنع تجدد البث والإعلانات)
+if(videoFrame.src !== embedUrl){
+    videoFrame.src=embedUrl;
 }
-if(offlineMsg)offlineMsg.style.display='none';
-if(alternativeOptions)alternativeOptions.style.display='block';
-if(directLink)directLink.href=live.url;
+if(videoContainer.style.display !== 'block'){
+    videoContainer.style.display='block';
+}
+}
+if(offlineMsg&&offlineMsg.style.display!=='none')offlineMsg.style.display='none';
+if(alternativeOptions&&alternativeOptions.style.display!=='block')alternativeOptions.style.display='block';
+if(directLink&&directLink.href!==live.url)directLink.href=live.url;
 if(liveBtn)liveBtn.classList.remove('hidden');
 
 var titleEl=document.getElementById('liveStreamTitle');
-if(titleEl&&live.title)titleEl.textContent=live.title;
+if(titleEl&&live.title&&titleEl.textContent!==live.title)titleEl.textContent=live.title;
 
 var eventTitle=document.getElementById('liveEventTitle');
-if(eventTitle&&live.title)eventTitle.textContent=live.title;
+if(eventTitle&&live.title&&eventTitle.textContent!==live.title)eventTitle.textContent=live.title;
 }else{
 // Hide live stream
-if(videoContainer)videoContainer.style.display='none';
-if(videoFrame)videoFrame.src='';
-if(offlineMsg)offlineMsg.style.display='flex';
-if(alternativeOptions)alternativeOptions.style.display='none';
+if(videoContainer&&videoContainer.style.display!=='none')videoContainer.style.display='none';
+// 🔧 نمسح src فقط إذا كان يحتوي على شي (يمنع reload فارغ بدون فايدة)
+if(videoFrame&&videoFrame.src&&videoFrame.src!=='about:blank')videoFrame.src='';
+if(offlineMsg&&offlineMsg.style.display!=='flex')offlineMsg.style.display='flex';
+if(alternativeOptions&&alternativeOptions.style.display!=='none')alternativeOptions.style.display='none';
 // Show button only for admin or if stream is public and active
 if(liveBtn){
 if(isAdmin||(live&&live.active&&live.isPublic)){
@@ -9425,9 +9801,134 @@ if('serviceWorker' in navigator){
   window.addEventListener('load',function(){
     navigator.serviceWorker.register('./sw.js').then(function(r){
       console.log('✅ SW registered');
+      // تحديث فوري كل مرة الصفحة تتفتح
+      r.update();
     }).catch(function(e){console.log('SW error:',e);});
   });
 }
+
+// ============== نظام كشف التحديثات التلقائي ==============
+// بيفحص كل دقيقة إذا كان في نسخة جديدة من التطبيق على السيرفر
+(function setupAutoUpdate(){
+    if(window.location.protocol === 'file:') return; // skip locally
+    
+    var currentHash = null;
+    var updateBannerShown = false;
+    
+    function hashString(str){
+        var h = 0;
+        for(var i = 0; i < str.length; i++){
+            h = ((h << 5) - h) + str.charCodeAt(i);
+            h |= 0;
+        }
+        return h;
+    }
+    
+    function fetchAppHash(){
+        return fetch(window.location.pathname + '?_=' + Date.now(), {
+            cache: 'no-store',
+            credentials: 'same-origin'
+        })
+        .then(function(r){ return r.text(); })
+        .then(function(html){ return hashString(html); })
+        .catch(function(){ return null; });
+    }
+    
+    function showUpdateBanner(){
+        if(updateBannerShown) return;
+        if(document.getElementById('appUpdateBanner')) return;
+        updateBannerShown = true;
+        
+        var banner = document.createElement('div');
+        banner.id = 'appUpdateBanner';
+        banner.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#009639,#00b048);color:white;padding:14px 22px;border-radius:14px;box-shadow:0 10px 40px rgba(0,150,57,0.5);z-index:99999;font-weight:700;display:flex;align-items:center;gap:12px;animation:slideUpBanner 0.4s cubic-bezier(0.4,0,0.2,1);max-width:90vw;flex-wrap:wrap;justify-content:center;';
+        banner.innerHTML = '<span>🎉 تحديث جديد متوفر!</span><button id="btnAppUpdateNow" style="background:white;color:#009639;border:none;padding:8px 18px;border-radius:10px;font-weight:700;cursor:pointer;font-size:0.95rem;font-family:inherit;">⬇️ تحديث الآن</button><button id="btnAppUpdateLater" style="background:transparent;color:white;border:1px solid rgba(255,255,255,0.4);padding:8px 14px;border-radius:10px;cursor:pointer;font-size:0.85rem;font-family:inherit;">لاحقاً</button>';
+        document.body.appendChild(banner);
+        
+        // أضف الانيميشن
+        if(!document.getElementById('appUpdateBannerStyle')){
+            var style = document.createElement('style');
+            style.id = 'appUpdateBannerStyle';
+            style.textContent = '@keyframes slideUpBanner{from{transform:translate(-50%,150%);opacity:0}to{transform:translate(-50%,0);opacity:1}}';
+            document.head.appendChild(style);
+        }
+        
+        document.getElementById('btnAppUpdateNow').onclick = function(){
+            this.textContent = '⏳ جاري التحديث...';
+            this.disabled = true;
+            forceUpdate();
+        };
+        document.getElementById('btnAppUpdateLater').onclick = function(){
+            banner.remove();
+            updateBannerShown = false;
+            // بيظهر تاني بعد 5 دقائق
+            setTimeout(function(){
+                fetchAppHash().then(function(h){
+                    if(h && h !== currentHash) showUpdateBanner();
+                });
+            }, 5 * 60 * 1000);
+        };
+    }
+    
+    function forceUpdate(){
+        var promises = [];
+        // إلغاء كل Service Workers
+        if('serviceWorker' in navigator){
+            promises.push(
+                navigator.serviceWorker.getRegistrations().then(function(regs){
+                    return Promise.all(regs.map(function(r){ return r.unregister(); }));
+                })
+            );
+        }
+        // مسح كل الكاش
+        if('caches' in window){
+            promises.push(
+                caches.keys().then(function(keys){
+                    return Promise.all(keys.map(function(k){ return caches.delete(k); }));
+                })
+            );
+        }
+        Promise.all(promises).then(function(){
+            // إعادة تحميل بدون كاش
+            window.location.href = window.location.pathname + '?v=' + Date.now();
+        }).catch(function(){
+            window.location.reload(true);
+        });
+    }
+    
+    // فحص أولي بعد 3 ثواني (إعطاء الصفحة وقت تحمل)
+    setTimeout(function(){
+        fetchAppHash().then(function(h){
+            if(h) currentHash = h;
+        });
+    }, 3000);
+    
+    // فحص دوري كل 60 ثانية
+    setInterval(function(){
+        if(updateBannerShown) return;
+        if(document.hidden) return; // ما نفحص إذا التبويبة بالخلفية
+        fetchAppHash().then(function(h){
+            if(!h) return;
+            if(currentHash === null){
+                currentHash = h;
+                return;
+            }
+            if(h !== currentHash){
+                console.log('🆕 تحديث جديد متوفر');
+                showUpdateBanner();
+            }
+        });
+    }, 60000);
+    
+    // فحص إضافي لما المستخدم يرجع للصفحة بعد ما كانت بالخلفية
+    document.addEventListener('visibilitychange', function(){
+        if(!document.hidden && !updateBannerShown){
+            fetchAppHash().then(function(h){
+                if(h && currentHash && h !== currentHash) showUpdateBanner();
+            });
+        }
+    });
+})();
 // PWA Install prompt
 var deferredPrompt;
 var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
