@@ -2970,12 +2970,17 @@ body.light-mode .translate-panel{background:rgba(0,0,0,0.02);border-color:rgba(0
 <!-- مؤشر حجم البيانات -->
 <div class="card" style="grid-column:1/-1;">
 <div class="card-title">📊 حجم البيانات على السحابة</div>
-<p style="color:var(--muted);font-size:0.85rem;margin-bottom:12px;">فايرستور بيقبل بحد أقصى <strong>1 ميجا</strong> للوثيقة. إذا تجاوزت، التحديثات ما رح تنحفظ.</p>
+<p style="color:var(--muted);font-size:0.85rem;margin-bottom:12px;">نظام Collections: كل عنصر بوثيقة منفصلة (1MB لكل وثيقة). السعة الإجمالية: <strong>1 GB مجاني</strong>.</p>
 <div id="dataSizeInfo" style="background:rgba(0,150,57,0.08);padding:14px;border-radius:10px;font-size:0.9rem;line-height:1.8;"></div>
 <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
 <button class="btn btn-gold" onclick="updateDataSizeInfo()">🔄 تحديث القراءة</button>
 <button class="btn btn-red" onclick="cleanupData()">🧹 تنظيف الصور القديمة</button>
 <button class="btn btn-gray" onclick="showLargestItems()">📋 عرض أكبر العناصر</button>
+</div>
+<div style="margin-top:12px;padding:12px;background:rgba(255,209,102,0.08);border:1px solid rgba(255,209,102,0.2);border-radius:10px;">
+<div style="font-weight:700;margin-bottom:6px;">🔄 هجرة البيانات القديمة</div>
+<p style="color:var(--muted);font-size:0.82rem;margin-bottom:8px;">إذا كانت بياناتك محفوظة بالنظام القديم (وثيقة واحدة)، اضغط هنا لنقلها للنظام الجديد (collections). <strong>يُنصح بعمل نسخة احتياطية أولاً.</strong></p>
+<button class="btn btn-gold" onclick="migrateToCollections()" style="width:100%;">🚀 تشغيل الهجرة</button>
 </div>
 <div id="largestItemsBox" style="margin-top:12px;display:none;"></div>
 </div>
@@ -4640,28 +4645,65 @@ window.updateDataSizeInfo = function(){
     
     // حساب حجم كل قسم
     var sections = {};
-    ['news','tx','members','pending','votes','liveVotes','messages','sheet','sheetArchive','contactMsgs','gallery'].forEach(function(k){
+    var collectionKeys = ['news','tx','members','pending','votes','messages','gallery','approved'];
+    var mainKeys = ['sheet','sheetArchive'];
+    
+    collectionKeys.concat(mainKeys).forEach(function(k){
         if(c[k]) sections[k] = parseFloat(dataSizeMB(c[k]));
     });
     
-    var color = total > 0.9 ? '#CE1126' : (total > 0.6 ? '#F39C12' : '#009639');
-    var icon = total > 0.9 ? '🚨' : (total > 0.6 ? '⚠️' : '✅');
+    // حساب حجم الإعدادات الرئيسية (main doc)
+    var mainData = {};
+    MAIN_SETTINGS_KEYS.forEach(function(k){ if(c[k]!==undefined) mainData[k]=c[k]; });
+    var mainSize = parseFloat(dataSizeMB(mainData));
+    var mainColor = mainSize > 0.9 ? '#CE1126' : (mainSize > 0.6 ? '#F39C12' : '#009639');
+    var mainIcon = mainSize > 0.9 ? '🚨' : (mainSize > 0.6 ? '⚠️' : '✅');
     
-    var html = '<div style="font-size:1.2rem;font-weight:700;color:'+color+';margin-bottom:10px;">'+icon+' الحجم الكلي: '+total.toFixed(2)+' MB / 1 MB</div>';
-    html += '<div style="height:10px;background:rgba(255,255,255,0.1);border-radius:5px;overflow:hidden;margin-bottom:14px;"><div style="height:100%;width:'+Math.min(100,total*100)+'%;background:'+color+';transition:width 0.3s;"></div></div>';
-    
-    var names = {news:'📰 الأخبار',tx:'💰 المعاملات',members:'👥 الأعضاء',pending:'⏳ طلبات الانتساب',votes:'🗳️ التصويتات',liveVotes:'📺 تصويتات البث',messages:'📨 الرسائل',sheet:'📋 استمارة التسجيل',sheetArchive:'📦 أرشيف الاستمارات',contactMsgs:'✉️ رسائل التواصل',gallery:'🖼️ المعرض'};
-    Object.keys(sections).sort(function(a,b){return sections[b]-sections[a];}).forEach(function(k){
-        if(sections[k] < 0.001) return;
-        html += '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed rgba(255,255,255,0.05);">'+
-                '<span>'+(names[k]||k)+'</span>'+
-                '<strong>'+sections[k].toFixed(2)+' MB</strong></div>';
+    // فحص أكبر عنصر في كل collection (كل وثيقة حد أقصى 1MB)
+    var largestItems = {};
+    var hasOversized = false;
+    collectionKeys.forEach(function(k){
+        var items = c[k] || [];
+        var maxItemSize = 0;
+        items.forEach(function(item){
+            var s = parseFloat(dataSizeMB(item));
+            if(s > maxItemSize) maxItemSize = s;
+        });
+        largestItems[k] = maxItemSize;
+        if(maxItemSize > 0.9) hasOversized = true;
     });
     
-    if(total > 0.9){
-        html += '<div style="background:rgba(206,17,38,0.15);border:1px solid #CE1126;padding:10px;border-radius:8px;margin-top:12px;color:#CE1126;font-weight:700;">🚨 البيانات تجاوزت الحد! التحديثات الجديدة ما رح تنحفظ على السحابة. احذف صور قديمة أو أخبار قديمة لتوفير مساحة.</div>';
-    }else if(total > 0.6){
-        html += '<div style="background:rgba(243,156,18,0.15);border:1px solid #F39C12;padding:10px;border-radius:8px;margin-top:12px;color:#F39C12;font-weight:600;">⚠️ اقتربت من الحد. فكر بحذف صور قديمة قريباً.</div>';
+    var html = '<div style="font-size:1.2rem;font-weight:700;color:#009639;margin-bottom:10px;">✅ نظام Collections مفعّل</div>';
+    html += '<div style="font-size:0.85rem;color:var(--muted);margin-bottom:12px;">كل عنصر (خبر/معاملة/عضو) بوثيقة منفصلة = 1MB لكل عنصر</div>';
+    
+    // حجم main
+    html += '<div style="background:rgba(255,255,255,0.05);padding:10px;border-radius:10px;margin-bottom:12px;">';
+    html += '<div style="font-weight:700;margin-bottom:5px;">'+mainIcon+' الإعدادات (main): '+mainSize.toFixed(3)+' MB / 1 MB</div>';
+    html += '<div style="height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;"><div style="height:100%;width:'+Math.min(100,mainSize*100)+'%;background:'+mainColor+';transition:width 0.3s;"></div></div>';
+    html += '</div>';
+    
+    // حجم كل collection
+    var names = {news:'📰 الأخبار',tx:'💰 المعاملات',members:'👥 الأعضاء',pending:'⏳ طلبات الانتساب',votes:'🗳️ التصويتات',messages:'📨 الرسائل',sheet:'📋 استمارة التسجيل',sheetArchive:'📦 أرشيف الاستمارات',gallery:'🖼️ المعرض',approved:'✅ عائلات معتمدة'};
+    
+    Object.keys(sections).sort(function(a,b){return sections[b]-sections[a];}).forEach(function(k){
+        if(sections[k] < 0.001) return;
+        var count = Array.isArray(c[k]) ? c[k].length : '-';
+        var isCollection = collectionKeys.indexOf(k) > -1;
+        var maxItem = largestItems[k] || 0;
+        var itemWarning = maxItem > 0.9 ? ' 🚨' : (maxItem > 0.5 ? ' ⚠️' : '');
+        
+        html += '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed rgba(255,255,255,0.05);">'+
+                '<span>'+(names[k]||k)+' <small style="color:var(--muted);">('+count+')</small></span>'+
+                '<strong>'+sections[k].toFixed(2)+' MB'+itemWarning+'</strong></div>';
+    });
+    
+    html += '<div style="margin-top:10px;font-size:0.85rem;color:var(--muted);">إجمالي البيانات: '+total.toFixed(2)+' MB | السعة: 1 GB (مجاني)</div>';
+    
+    if(mainSize > 0.9){
+        html += '<div style="background:rgba(206,17,38,0.15);border:1px solid #CE1126;padding:10px;border-radius:8px;margin-top:12px;color:#CE1126;font-weight:700;">🚨 وثيقة الإعدادات كبيرة جداً! احذف بيانات من الاستمارة أو الأرشيف.</div>';
+    }
+    if(hasOversized){
+        html += '<div style="background:rgba(243,156,18,0.15);border:1px solid #F39C12;padding:10px;border-radius:8px;margin-top:12px;color:#F39C12;font-weight:600;">⚠️ بعض العناصر قريبة من حد 1MB. قلل الصور في هذه العناصر.</div>';
     }
     
     div.innerHTML = html;
@@ -4903,60 +4945,286 @@ async function signOutAdminFirebase(){
 // ابدأ التهيئة فوراً
 initFirebaseAuth();
 
-function save(){
-appData.adminPass=adminPass;
-localStorage.setItem("appData",JSON.stringify(appData));
-// تأكد من المصادقة قبل الكتابة
-ensureFirebaseAuth().then(function(){
+// ═══════════════════════════════════════════════════════════
+// ═══ نظام Firestore المُقسّم - Collections Architecture ═══
+// ═══════════════════════════════════════════════════════════
+
+// خريطة المجموعات: مفتاح appData ← اسم الـ collection في Firestore
+var COLLECTIONS_MAP = {
+    news: 'news',
+    tx: 'transactions',
+    members: 'members',
+    pending: 'pending',
+    votes: 'votes',
+    gallery: 'gallery',
+    messages: 'messages',
+    approved: 'approved'
+};
+
+// المفاتيح اللي تبقى في appData/main (إعدادات صغيرة)
+var MAIN_SETTINGS_KEYS = ['adminPass','homeSettings','orgName','bylaws','liveStream','visibility','invLogo','jsonBinId','sheet','sheetArchive'];
+
+// قائمة الحذف المعلّقة - تُنفّذ مع أقرب عملية حفظ
+var _pendingDeletes = [];
+
+// Debounce timer
+var _saveDebounceTimer = null;
+var _isSaving = false;
+
+// دالة مساعدة: الحصول على Firebase instances
+function _getFirebaseDB(){
     return import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(function(appMod){
         return import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(function(fsMod){
             var app;try{app=appMod.getApp();}catch(e){app=appMod.initializeApp({apiKey:"AIzaSyB2vd10mZBfvZ9_NxpjzT07ih0m5cOTOgo",authDomain:"palestinske-rogaland.firebaseapp.com",projectId:"palestinske-rogaland",storageBucket:"palestinske-rogaland.firebasestorage.app",messagingSenderId:"228379992371",appId:"1:228379992371:web:56577dc6e553ef39d91e46"});}
-            var db=fsMod.getFirestore(app);var ref=fsMod.doc(db,"appData","main");
-            var c=JSON.parse(JSON.stringify(appData));delete c.logo;for(var k in c)if(typeof c[k]==='string'&&c[k].length>900000)delete c[k];
-            // فحص حجم الوثيقة قبل الإرسال
-            var sizeMB = dataSizeMB(c);
-            if(parseFloat(sizeMB) > 0.95){
-                console.error("❌ الحجم الكلي "+sizeMB+"MB - تجاوز حد فايرستور!");
-                if(typeof toast==='function') toast("⚠️ البيانات كبيرة جداً ("+sizeMB+"MB)! لن تتم المزامنة. حاول حذف صور قديمة.", true);
+            var db=fsMod.getFirestore(app);
+            return {fsMod:fsMod, db:db};
+        });
+    });
+}
+
+// ═══ حذف وثيقة من collection في Firestore ═══
+function deleteCollectionDoc(appDataKey, itemId){
+    var collName = COLLECTIONS_MAP[appDataKey];
+    if(collName && itemId){
+        _pendingDeletes.push({collection:collName, id:String(itemId)});
+    }
+}
+
+// ═══ دالة الحفظ الرئيسية (مع debounce) ═══
+function save(){
+    appData.adminPass=adminPass;
+    localStorage.setItem("appData",JSON.stringify(appData));
+    // Debounce: انتظر 1.5 ثانية قبل الكتابة الفعلية
+    if(_saveDebounceTimer) clearTimeout(_saveDebounceTimer);
+    _saveDebounceTimer = setTimeout(function(){ _doFirebaseSave(); }, 1500);
+}
+
+// ═══ الحفظ الفوري (بدون debounce) - للعمليات الحرجة ═══
+function saveNow(){
+    appData.adminPass=adminPass;
+    localStorage.setItem("appData",JSON.stringify(appData));
+    if(_saveDebounceTimer) clearTimeout(_saveDebounceTimer);
+    _doFirebaseSave();
+}
+
+// ═══ الحفظ الفعلي على Firestore ═══
+async function _doFirebaseSave(){
+    if(_isSaving){ 
+        // لو الحفظ شغال، أعد الجدولة
+        _saveDebounceTimer = setTimeout(function(){ _doFirebaseSave(); }, 2000);
+        return;
+    }
+    _isSaving = true;
+    try{
+        await ensureFirebaseAuth();
+        var fb = await _getFirebaseDB();
+        var fsMod = fb.fsMod, db = fb.db;
+
+        // ═══ 1. حفظ الإعدادات الرئيسية في appData/main ═══
+        var mainData = {_migrated:true};
+        MAIN_SETTINGS_KEYS.forEach(function(k){
+            if(appData[k] !== undefined) mainData[k] = appData[k];
+        });
+        // تنظيف بيانات كبيرة من main
+        for(var k in mainData){
+            if(typeof mainData[k]==='string' && mainData[k].length>900000) delete mainData[k];
+        }
+
+        var mainSizeMB = dataSizeMB(mainData);
+        await fsMod.setDoc(fsMod.doc(db,"appData","main"), mainData);
+
+        // ═══ 2. حفظ كل collection ═══
+        var allOps = []; // {type:'set'|'delete', ref, data}
+        
+        // جمع كل عمليات الكتابة
+        for(var appKey in COLLECTIONS_MAP){
+            var collName = COLLECTIONS_MAP[appKey];
+            var items = appData[appKey] || [];
+            for(var i=0; i<items.length; i++){
+                var item = items[i];
+                var docId = String(item.id || item._id || ('auto_'+Date.now()+'_'+Math.random().toString(36).substr(2,6)));
+                // تأكد إن الـ item عنده id
+                if(!item.id && !item._id) item.id = docId;
+                var cleanItem = JSON.parse(JSON.stringify(item));
+                // تنظيف undefined values
+                for(var ck in cleanItem){ if(cleanItem[ck]===undefined) delete cleanItem[ck]; }
+                allOps.push({type:'set', ref:fsMod.doc(db,collName,docId), data:cleanItem});
             }
-            return fsMod.setDoc(ref,c).then(function(){
-                console.log("✅ محفوظ ("+sizeMB+"MB)");
-            }).catch(function(e){
-                console.error("❌ خطأ الحفظ:",e);
-                var msg = "❌ فشل الحفظ على السحابة";
-                if(e.message && e.message.indexOf('exceed') > -1) msg = "❌ البيانات كبيرة جداً ("+sizeMB+"MB)";
-                else if(e.message && e.message.indexOf('permission') > -1) msg = "❌ خطأ صلاحيات - تأكد من تسجيل الدخول";
-                else if(e.message) msg += ": " + e.message.substring(0,80);
-                if(typeof toast==='function') toast(msg, true);
-            });
+        }
+
+        // جمع عمليات الحذف المعلّقة
+        var deletes = _pendingDeletes.splice(0, _pendingDeletes.length);
+        for(var d=0; d<deletes.length; d++){
+            allOps.push({type:'delete', ref:fsMod.doc(db,deletes[d].collection,deletes[d].id)});
+        }
+
+        // تنفيذ بالدفعات (max 490 per batch)
+        var batchSize = 490;
+        for(var start=0; start<allOps.length; start+=batchSize){
+            var batch = fsMod.writeBatch(db);
+            var end = Math.min(start+batchSize, allOps.length);
+            for(var j=start; j<end; j++){
+                if(allOps[j].type==='set') batch.set(allOps[j].ref, allOps[j].data);
+                else batch.delete(allOps[j].ref);
+            }
+            await batch.commit();
+        }
+
+        console.log("✅ محفوظ (main:"+mainSizeMB+"MB, docs:"+allOps.length+")");
+
+    }catch(e){
+        console.error("❌ خطأ الحفظ:",e);
+        // أعد عمليات الحذف الفاشلة
+        if(_pendingDeletes.length===0 && arguments[0]){
+            _pendingDeletes = arguments[0];
+        }
+        var msg="❌ فشل الحفظ على السحابة";
+        if(e.message && e.message.indexOf('permission')>-1) msg="❌ خطأ صلاحيات - تأكد من تسجيل الدخول";
+        else if(e.message) msg += ": "+e.message.substring(0,80);
+        if(typeof toast==='function') toast(msg,true);
+    }finally{
+        _isSaving = false;
+    }
+}
+
+// ═══ تحميل البيانات من السحابة (يدعم البنيتين: القديمة والجديدة) ═══
+function loadFromCloud(callback){
+    _getFirebaseDB().then(function(fb){
+        var fsMod=fb.fsMod, db=fb.db;
+        var mainRef = fsMod.doc(db,"appData","main");
+        
+        fsMod.getDoc(mainRef).then(function(snap){
+            if(!snap.exists()){
+                if(callback) callback();
+                return;
+            }
+            var cloud = snap.data();
+            var logo = appData.logo;
+
+            // فحص هل البيانات مهاجرة لـ collections
+            if(cloud._migrated){
+                // ═══ البنية الجديدة: إعدادات من main + بيانات من collections ═══
+                MAIN_SETTINGS_KEYS.forEach(function(k){
+                    if(cloud[k] !== undefined) appData[k] = cloud[k];
+                });
+                if(cloud.adminPass) adminPass = cloud.adminPass;
+
+                // تحميل كل collection
+                var collectionPromises = [];
+                for(var appKey in COLLECTIONS_MAP){
+                    (function(key, collName){
+                        var p = fsMod.getDocs(fsMod.collection(db, collName)).then(function(querySnap){
+                            appData[key] = querySnap.docs.map(function(d){
+                                var data = d.data();
+                                data.id = d.id;
+                                if(!data._id) data._id = d.id;
+                                return data;
+                            });
+                        }).catch(function(e){
+                            console.warn("⚠️ خطأ تحميل "+collName+":", e);
+                        });
+                        collectionPromises.push(p);
+                    })(appKey, COLLECTIONS_MAP[appKey]);
+                }
+
+                Promise.all(collectionPromises).then(function(){
+                    if(logo && !appData.logo) appData.logo = logo;
+                    localStorage.setItem("appData",JSON.stringify(appData));
+                    if(callback) callback();
+                }).catch(function(e){
+                    console.error("خطأ تحميل collections:",e);
+                    if(callback) callback();
+                });
+
+            } else {
+                // ═══ البنية القديمة: كل شي في main ═══
+                Object.keys(cloud).forEach(function(k){ appData[k]=cloud[k]; });
+                if(logo && !appData.logo) appData.logo = logo;
+                if(appData.adminPass) adminPass = appData.adminPass;
+                localStorage.setItem("appData",JSON.stringify(appData));
+                if(callback) callback();
+            }
+
+        }).catch(function(e){
+            console.log("Firebase load error:",e);
+            if(callback) callback();
         });
     }).catch(function(e){
-        console.error("❌ Firebase:",e);
-        if(typeof toast==='function') toast("❌ فشل الاتصال بفايرستور: "+(e.message||''), true);
+        console.log("Firebase import error:",e);
+        if(callback) callback();
     });
-}).catch(function(e){
-    console.error("❌ Auth failed:", e);
-    if(typeof toast==='function') toast("❌ فشل المصادقة. حاول إعادة تحميل الصفحة.", true);
-});
 }
-function loadFromCloud(callback){
-import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(function(appMod){
-return import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(function(fsMod){
-var app;try{app=appMod.getApp();}catch(e){app=appMod.initializeApp({apiKey:"AIzaSyB2vd10mZBfvZ9_NxpjzT07ih0m5cOTOgo",authDomain:"palestinske-rogaland.firebaseapp.com",projectId:"palestinske-rogaland",storageBucket:"palestinske-rogaland.firebasestorage.app",messagingSenderId:"228379992371",appId:"1:228379992371:web:56577dc6e553ef39d91e46"});}
-var db=fsMod.getFirestore(app);var ref=fsMod.doc(db,"appData","main");
-fsMod.getDoc(ref).then(function(snap){
-if(snap.exists()){
-var cloud=snap.data();var logo=appData.logo;
-Object.keys(cloud).forEach(function(k){appData[k]=cloud[k];});
-if(logo&&!appData.logo)appData.logo=logo;
-if(appData.adminPass)adminPass=appData.adminPass;
-localStorage.setItem("appData",JSON.stringify(appData));
+
+// ═══ دالة هجرة البيانات من البنية القديمة للجديدة ═══
+async function migrateToCollections(){
+    try{
+        await ensureFirebaseAuth();
+        var fb = await _getFirebaseDB();
+        var fsMod=fb.fsMod, db=fb.db;
+
+        // اقرأ البيانات القديمة
+        var mainSnap = await fsMod.getDoc(fsMod.doc(db,"appData","main"));
+        if(!mainSnap.exists()){
+            console.log("لا توجد بيانات للهجرة");
+            if(typeof toast==='function') toast("لا توجد بيانات للهجرة");
+            return;
+        }
+        var data = mainSnap.data();
+        
+        // لو مهاجرة مسبقاً
+        if(data._migrated){
+            console.log("البيانات مهاجرة مسبقاً ✅");
+            if(typeof toast==='function') toast("البيانات مهاجرة مسبقاً ✅");
+            return;
+        }
+
+        if(typeof toast==='function') toast("جاري الهجرة...");
+        
+        var allOps = [];
+        var migratedCounts = {};
+
+        // هجرة كل collection
+        for(var appKey in COLLECTIONS_MAP){
+            var collName = COLLECTIONS_MAP[appKey];
+            var items = data[appKey] || [];
+            migratedCounts[appKey] = items.length;
+            
+            for(var i=0; i<items.length; i++){
+                var item = items[i];
+                var docId = String(item.id || item._id || ('migrated_'+Date.now()+'_'+i));
+                if(!item.id) item.id = docId;
+                allOps.push({ref:fsMod.doc(db,collName,docId), data:JSON.parse(JSON.stringify(item))});
+            }
+        }
+
+        // تنفيذ بالدفعات
+        var batchSize = 490;
+        for(var start=0; start<allOps.length; start+=batchSize){
+            var batch = fsMod.writeBatch(db);
+            var end = Math.min(start+batchSize, allOps.length);
+            for(var j=start; j<end; j++){
+                batch.set(allOps[j].ref, allOps[j].data);
+            }
+            await batch.commit();
+        }
+
+        // تنظيف main: احذف بيانات الـ collections واحتفظ بالإعدادات
+        var cleanMain = {_migrated:true};
+        MAIN_SETTINGS_KEYS.forEach(function(k){
+            if(data[k] !== undefined) cleanMain[k] = data[k];
+        });
+        await fsMod.setDoc(fsMod.doc(db,"appData","main"), cleanMain);
+
+        var summary = Object.keys(migratedCounts).map(function(k){return k+':'+migratedCounts[k];}).join(', ');
+        console.log("✅ تمت الهجرة بنجاح! "+summary);
+        if(typeof toast==='function') toast("✅ تمت الهجرة بنجاح! ("+allOps.length+" وثيقة)");
+
+    }catch(e){
+        console.error("❌ خطأ الهجرة:",e);
+        if(typeof toast==='function') toast("❌ فشلت الهجرة: "+(e.message||''),true);
+    }
 }
-if(callback)callback();
-}).catch(function(e){console.log("Firebase load error:",e);if(callback)callback();});
-});
-}).catch(function(e){console.log("Firebase import error:",e);if(callback)callback();});
-}
+window.migrateToCollections = migrateToCollections;
 function saveLogoToCloud(logoData){
 import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(function(appMod){
 return import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(function(fsMod){
@@ -6118,6 +6386,7 @@ toast("تم حفظ التعديلات ✅");
 window.deleteFamily=function(id){
 id=String(id);
 if(confirm("هل تريد حذف هذه العائلة؟")){
+deleteCollectionDoc('approved', id);
 appData.approved=appData.approved.filter(function(f){return String(f.id||f._id)!==id;});
 save();
 loadPending();
@@ -6305,6 +6574,7 @@ appData.members.push(familyMember);
 }
 
 appData.pending=appData.pending.filter(function(x){return String(x.id||x._id)!==String(id);});
+deleteCollectionDoc('pending', id);
 save();
 loadPending();
 loadCount();
@@ -6325,12 +6595,14 @@ toast(result.message||"حدث خطأ",true);
 }catch(err){
 console.error(err);
 // Fallback to local
+deleteCollectionDoc('pending', id);
 appData.pending=appData.pending.filter(function(x){return String(x.id||x._id)!==id;});
 save();
 loadPending();
 toast("تم رفض الطلب محلياً");
 }
 }else{
+deleteCollectionDoc('pending', id);
 appData.pending=appData.pending.filter(function(x){return String(x.id||x._id)!==id;});
 save();
 loadPending();
@@ -6943,12 +7215,15 @@ document.getElementById("deleteModal").classList.remove("show");
 function deleteLocally(id, type){
 id = String(id);
 if(type==="member"){
+deleteCollectionDoc('members', id);
 appData.members=appData.members.filter(function(m){return String(m.id||m._id)!==id;});
 loadMembers();loadCount();loadMarkers();
 }else if(type==="tx"){
+deleteCollectionDoc('tx', id);
 appData.tx=appData.tx.filter(function(t){return String(t.id||t._id)!==id;});
 loadFinance();loadAdminTx();
 }else if(type==="news"){
+deleteCollectionDoc('news', id);
 appData.news=appData.news.filter(function(n){return String(n.id||n._id)!==id;});
 loadNews();loadAdminNews();
 }
@@ -8545,6 +8820,7 @@ if(result.success){toast("تم الحذف");await loadDataFromBackend();}
 else{toast(result.message||"خطأ",true);}
 }catch(e){toast(e.message||"خطأ",true);}
 }else{
+deleteCollectionDoc('votes', voteId);
 appData.votes=appData.votes.filter(function(v){return v.id!==voteId&&v.id!=voteId;});
 save();loadAdminVoting();toast("تم الحذف");
 }
@@ -8818,6 +9094,7 @@ id = String(id);
 if(!confirm("هل تريد حذف هذه الرسالة؟"))return;
 
 // Delete locally first
+deleteCollectionDoc('messages', id);
 appData.messages=appData.messages.filter(function(m){return String(m.id||m._id)!==id;});
 
 // Store deletion in localStorage to persist across backend reloads
@@ -8912,6 +9189,7 @@ if(!confirm("هل تريد حذف هذه الرسالة؟"))return;
 var id = String(currentMessageId);
 
 // Delete locally first
+deleteCollectionDoc('messages', id);
 appData.messages=appData.messages.filter(function(m){return String(m.id||m._id)!==id;});
 
 // Store deletion in localStorage
@@ -9679,6 +9957,8 @@ function loadAdminGallery(){
 
 window.deleteAlbum=function(idx){
     if(!confirm('حذف هذا الألبوم؟'))return;
+    var album = appData.gallery[idx];
+    if(album) deleteCollectionDoc('gallery', album.id || album._id);
     appData.gallery.splice(idx,1);
     save();loadGallery();loadAdminGallery();
     toast('تم حذف الألبوم');
