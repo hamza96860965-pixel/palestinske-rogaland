@@ -2491,6 +2491,8 @@ body.light-mode .translate-panel{background:rgba(0,0,0,0.02);border-color:rgba(0
 <div class="admin-stats">
 <div class="admin-stat"><div class="admin-stat-num" id="pendingCount">0</div><div class="admin-stat-label">طلب معلق</div></div>
 <div class="admin-stat"><div class="admin-stat-num" id="approvedCount">0</div><div class="admin-stat-label">عائلة مقبولة</div></div>
+<div class="admin-stat"><div class="admin-stat-num" id="totalMembersCount">0</div><div class="admin-stat-label">إجمالي الأعضاء</div></div>
+<div class="admin-stat"><div class="admin-stat-num" id="minorsCount" style="color:#F39C12;">0</div><div class="admin-stat-label">🔒 تحت 18</div></div>
 </div>
 <div class="card">
 <div class="card-title">📥 الطلبات المعلقة</div>
@@ -5007,6 +5009,30 @@ function saveNow(){
     _doFirebaseSave();
 }
 
+// ═══ تنظيف عميق للبيانات قبل الحفظ على Firestore ═══
+// Firestore ما بيقبل undefined نهائياً، حتى في nested objects
+function _deepClean(value){
+    if(value === undefined) return undefined;
+    if(value === null) return null;
+    if(typeof value === 'function') return undefined;
+    if(typeof value === 'number' && !isFinite(value)) return null; // NaN, Infinity
+    if(typeof value !== 'object') return value;
+    if(value instanceof Date) return value;
+    if(Array.isArray(value)){
+        return value.map(function(v){
+            var c = _deepClean(v);
+            return c === undefined ? null : c;
+        });
+    }
+    var out = {};
+    for(var k in value){
+        if(!Object.prototype.hasOwnProperty.call(value, k)) continue;
+        var cleaned = _deepClean(value[k]);
+        if(cleaned !== undefined) out[k] = cleaned;
+    }
+    return out;
+}
+
 // ═══ الحفظ الفعلي على Firestore ═══
 async function _doFirebaseSave(){
     if(_isSaving){ 
@@ -5023,7 +5049,9 @@ async function _doFirebaseSave(){
         // ═══ 1. حفظ الإعدادات الرئيسية في appData/main ═══
         var mainData = {_migrated:true};
         MAIN_SETTINGS_KEYS.forEach(function(k){
-            if(appData[k] !== undefined) mainData[k] = appData[k];
+            if(appData[k] === undefined || appData[k] === null) return;
+            var cleaned = _deepClean(appData[k]);
+            if(cleaned !== undefined) mainData[k] = cleaned;
         });
         // تنظيف بيانات كبيرة من main
         for(var k in mainData){
@@ -5042,44 +5070,48 @@ async function _doFirebaseSave(){
             var items = appData[appKey] || [];
             for(var i=0; i<items.length; i++){
                 var item = items[i];
+                if(!item || typeof item !== 'object') continue;
                 var docId = String(item.id || item._id || ('auto_'+Date.now()+'_'+Math.random().toString(36).substr(2,6)));
                 // تأكد إن الـ item عنده id
                 if(!item.id && !item._id) item.id = docId;
-                var cleanItem = JSON.parse(JSON.stringify(item));
-                // تنظيف undefined values
-                for(var ck in cleanItem){ if(cleanItem[ck]===undefined) delete cleanItem[ck]; }
+                var cleanItem = _deepClean(item);
+                if(!cleanItem || typeof cleanItem !== 'object') continue;
                 allOps.push({type:'set', ref:fsMod.doc(db,collName,docId), data:cleanItem});
             }
         }
 
-        // جمع عمليات الحذف المعلّقة
-        var deletes = _pendingDeletes.splice(0, _pendingDeletes.length);
-        for(var d=0; d<deletes.length; d++){
-            allOps.push({type:'delete', ref:fsMod.doc(db,deletes[d].collection,deletes[d].id)});
+        // جمع عمليات الحذف المعلّقة - احفظهم احتياط لو فشل
+        var deletesBackup = _pendingDeletes.slice();
+        _pendingDeletes.length = 0;
+        for(var d=0; d<deletesBackup.length; d++){
+            allOps.push({type:'delete', ref:fsMod.doc(db,deletesBackup[d].collection,deletesBackup[d].id)});
         }
 
         // تنفيذ بالدفعات (max 490 per batch)
         var batchSize = 490;
-        for(var start=0; start<allOps.length; start+=batchSize){
-            var batch = fsMod.writeBatch(db);
-            var end = Math.min(start+batchSize, allOps.length);
-            for(var j=start; j<end; j++){
-                if(allOps[j].type==='set') batch.set(allOps[j].ref, allOps[j].data);
-                else batch.delete(allOps[j].ref);
+        try{
+            for(var start=0; start<allOps.length; start+=batchSize){
+                var batch = fsMod.writeBatch(db);
+                var end = Math.min(start+batchSize, allOps.length);
+                for(var j=start; j<end; j++){
+                    if(allOps[j].type==='set') batch.set(allOps[j].ref, allOps[j].data);
+                    else batch.delete(allOps[j].ref);
+                }
+                await batch.commit();
             }
-            await batch.commit();
+        }catch(batchErr){
+            // فشل الـ batch - رجّع عمليات الحذف للقائمة
+            _pendingDeletes = deletesBackup.concat(_pendingDeletes);
+            throw batchErr;
         }
 
         console.log("✅ محفوظ (main:"+mainSizeMB+"MB, docs:"+allOps.length+")");
 
     }catch(e){
         console.error("❌ خطأ الحفظ:",e);
-        // أعد عمليات الحذف الفاشلة
-        if(_pendingDeletes.length===0 && arguments[0]){
-            _pendingDeletes = arguments[0];
-        }
         var msg="❌ فشل الحفظ على السحابة";
         if(e.message && e.message.indexOf('permission')>-1) msg="❌ خطأ صلاحيات - تأكد من تسجيل الدخول";
+        else if(e.message && e.message.indexOf('undefined')>-1) msg="❌ بيانات تالفة - أعد تحميل الصفحة";
         else if(e.message) msg += ": "+e.message.substring(0,80);
         if(typeof toast==='function') toast(msg,true);
     }finally{
@@ -5191,9 +5223,12 @@ async function migrateToCollections(){
             
             for(var i=0; i<items.length; i++){
                 var item = items[i];
+                if(!item || typeof item !== 'object') continue;
                 var docId = String(item.id || item._id || ('migrated_'+Date.now()+'_'+i));
                 if(!item.id) item.id = docId;
-                allOps.push({ref:fsMod.doc(db,collName,docId), data:JSON.parse(JSON.stringify(item))});
+                var cleanItem = _deepClean(item);
+                if(!cleanItem || typeof cleanItem !== 'object') continue;
+                allOps.push({ref:fsMod.doc(db,collName,docId), data:cleanItem});
             }
         }
 
@@ -5211,7 +5246,9 @@ async function migrateToCollections(){
         // تنظيف main: احذف بيانات الـ collections واحتفظ بالإعدادات
         var cleanMain = {_migrated:true};
         MAIN_SETTINGS_KEYS.forEach(function(k){
-            if(data[k] !== undefined) cleanMain[k] = data[k];
+            if(data[k] === undefined || data[k] === null) return;
+            var cleaned = _deepClean(data[k]);
+            if(cleaned !== undefined) cleanMain[k] = cleaned;
         });
         await fsMod.setDoc(fsMod.doc(db,"appData","main"), cleanMain);
 
@@ -6208,6 +6245,20 @@ var al=document.getElementById("approvedList");
 if(!pl)return;
 document.getElementById("pendingCount").textContent=appData.pending.length;
 document.getElementById("approvedCount").textContent=appData.approved.length;
+
+// ═══ حساب إجمالي الأعضاء والقاصرين ═══
+var totalAdults = 0, totalMinors = 0;
+(appData.approved||[]).forEach(function(fam){
+    totalAdults++; // رب الأسرة
+    (fam.familyMembers||[]).forEach(function(fm){
+        if(fm.isMinor === true) totalMinors++;
+        else totalAdults++;
+    });
+});
+var totalMembersEl = document.getElementById("totalMembersCount");
+var minorsEl = document.getElementById("minorsCount");
+if(totalMembersEl) totalMembersEl.textContent = totalAdults + totalMinors;
+if(minorsEl) minorsEl.textContent = totalMinors;
 pl.innerHTML="";
 if(appData.pending.length===0){
 pl.innerHTML='<p style="text-align:center;color:var(--muted);padding:20px;">لا توجد طلبات معلقة 🎉</p>';
@@ -6216,11 +6267,16 @@ for(var i=0;i<appData.pending.length;i++){
 var p=appData.pending[i];
 var familyHtml='';
 if(p.familyMembers&&p.familyMembers.length>0){
-familyHtml='<div class="pending-family-section"><div class="pending-family-title">👨‍👩‍👧‍👦 '+t('familyMembers')+' ('+p.familyMembers.length+')</div>';
+var minorsInThis = p.familyMembers.filter(function(fm){return fm.isMinor===true;}).length;
+var pendingFamilyTitle = '👨‍👩‍👧‍👦 '+t('familyMembers')+' ('+p.familyMembers.length+')';
+if(minorsInThis>0) pendingFamilyTitle += ' <span style="color:#F39C12;font-size:0.85rem;">🔒 '+minorsInThis+' تحت 18</span>';
+familyHtml='<div class="pending-family-section"><div class="pending-family-title">'+pendingFamilyTitle+'</div>';
 for(var f=0;f<p.familyMembers.length;f++){
 var fm=p.familyMembers[f];
-familyHtml+='<div class="pending-family-member"><strong>'+fm.name+'</strong>';
+var isMinorMember = fm.isMinor === true;
+familyHtml+='<div class="pending-family-member"'+(isMinorMember?' style="background:rgba(243,156,18,0.06);border-right:3px solid #F39C12;padding-right:10px;"':'')+'><strong>'+(isMinorMember?'🧒 ':'')+fm.name+'</strong>';
 if(fm.relation)familyHtml+=' <span style="color:var(--muted);font-size:0.8rem;">('+fm.relation+')</span>';
+if(isMinorMember)familyHtml+=' <span style="background:rgba(243,156,18,0.2);color:#F39C12;padding:2px 8px;border-radius:6px;font-size:0.75rem;margin-right:5px;">🔒 تحت 18 - لا يصوّت</span>';
 if(fm.phone)familyHtml+='<br><span style="font-size:0.85rem;">📱 '+fm.phone+'</span>';
 if(fm.email)familyHtml+='<br><span style="font-size:0.85rem;">📧 '+fm.email+'</span>';
 // عرض إعدادات الخصوصية لفرد العائلة
@@ -6250,7 +6306,14 @@ var membersHtml='<div class="family-member-row head"><div class="family-member-a
 if(fam.familyMembers&&fam.familyMembers.length>0){
 for(var k=0;k<fam.familyMembers.length;k++){
 var member=fam.familyMembers[k];
-membersHtml+='<div class="family-member-row"><div class="family-member-avatar">👤</div><div class="family-member-info"><h4>'+member.name+'</h4><p>'+(member.relation?member.relation:'')+(member.phone?' | 📱 '+member.phone:'')+'</p></div></div>';
+var isMinor = member.isMinor === true;
+var ageBadge = isMinor 
+    ? '<div class="family-member-badge" style="background:rgba(243,156,18,0.2);color:#F39C12;border:1px solid #F39C12;">🔒 تحت 18</div>'
+    : '<div class="family-member-badge" style="background:rgba(0,150,57,0.2);color:#009639;border:1px solid #009639;">✅ عضو</div>';
+var promoteBtn = isMinor 
+    ? '<button class="btn btn-gold btn-sm" style="margin-right:8px;font-size:0.75rem;padding:4px 10px;" onclick="promoteToAdult(\''+famId+'\','+k+')">🎂 صار فوق 18</button>'
+    : '';
+membersHtml+='<div class="family-member-row"'+(isMinor?' style="background:rgba(243,156,18,0.05);border-right:3px solid #F39C12;"':'')+'><div class="family-member-avatar">'+(isMinor?'🧒':'👤')+'</div><div class="family-member-info"><h4>'+member.name+'</h4><p>'+(member.relation?member.relation:'')+(member.phone?' | 📱 '+member.phone:'')+'</p></div>'+promoteBtn+ageBadge+'</div>';
 }
 }
 al.innerHTML+='<div class="family-card" id="family_'+famId+'" data-famid="'+famId+'"><div class="family-card-header" data-famid="'+famId+'"><h3>🏠 عائلة '+fam.name+' <span class="family-count">'+totalMembers+' أفراد</span></h3><div><span class="family-date">📅 '+(fam.approvedDate||'')+'</span> <span class="expand-icon">▼</span></div></div><div class="family-card-body"><div style="margin-bottom:10px;padding:10px;background:rgba(255,255,255,0.03);border-radius:8px;"><span style="color:var(--muted);font-size:0.85rem;">📍 '+(fam.city||'')+(fam.originCity?' | 🇵🇸 '+fam.originCity:'')+'</span></div>'+membersHtml+'<div class="family-actions"><button class="btn btn-gray btn-sm family-edit-btn" data-famid="'+famId+'">✏️ تعديل</button><button class="btn btn-red btn-sm family-delete-btn" data-famid="'+famId+'">🗑️ حذف</button></div></div></div>';
@@ -6393,6 +6456,42 @@ loadPending();
 toast("تم الحذف");
 }
 };
+
+// ═══ تحويل قاصر إلى عضو راشد (لما يصير فوق 18) ═══
+window.promoteToAdult = function(familyId, memberIndex){
+    var fam = appData.approved.find(function(f){return String(f.id||f._id)===String(familyId);});
+    if(!fam || !fam.familyMembers || !fam.familyMembers[memberIndex]) return;
+    var fm = fam.familyMembers[memberIndex];
+    if(!confirm('هل أصبح '+fm.name+' فوق 18 سنة؟\n\nسيتم إضافته لقائمة الأعضاء ويصبح بإمكانه التصويت.'))return;
+    // حدّث حالة العضو في العائلة
+    fm.isMinor = false;
+    // أضفه لقائمة الأعضاء (إذا مش موجود)
+    var alreadyMember = appData.members.find(function(m){return m.name===fm.name;});
+    if(!alreadyMember){
+        appData.members.push({
+            id: Date.now()+Math.floor(Math.random()*1000),
+            name: fm.name,
+            phone: fm.phone||"",
+            email: fm.email||"",
+            addressText: (fam.city||'')+(fam.address?' - '+fam.address:''),
+            lat: fam.lat||null,
+            lng: fam.lng||null,
+            showMap: fm.showMap||false,
+            showPhone: fm.showPhone||false,
+            showEmail: fm.showEmail||false,
+            notes: fm.relation||"",
+            img: "",
+            voteCode: generateMemberCode(),
+            familyId: familyId
+        });
+    }
+    save();
+    loadPending();
+    if(typeof loadMembers==='function') loadMembers();
+    if(typeof loadCount==='function') loadCount();
+    if(typeof loadMarkers==='function') loadMarkers();
+    toast('✅ '+fm.name+' أصبح عضواً يحق له التصويت');
+};
 window.toggleApproved=function(){var al=document.getElementById("approvedList");al.style.display=al.style.display==="none"?"block":"none";};
 window.viewPending=function(id){for(var i=0;i<appData.pending.length;i++){if(appData.pending[i].id===id){var p=appData.pending[i];currentPendingId=id;var html='<div style="text-align:center;margin-bottom:20px;"><div style="font-size:2rem;">🇵🇸</div><div style="font-weight:700;font-size:1.1rem;">'+p.name+'</div></div>';html+='<div style="background:var(--dark);padding:15px;border-radius:10px;margin-bottom:15px;">';html+='<div style="margin-bottom:8px;"><strong>📱 الهاتف:</strong> '+p.phone+'</div>';if(p.email)html+='<div style="margin-bottom:8px;"><strong>📧 البريد:</strong> '+p.email+'</div>';html+='<div style="margin-bottom:8px;"><strong>📍 المدينة:</strong> '+p.city+'</div>';if(p.address)html+='<div style="margin-bottom:8px;"><strong>🏠 العنوان:</strong> '+p.address+'</div>';if(p.originCity)html+='<div style="margin-bottom:8px;"><strong>🇵🇸 البلد الأصلي:</strong> '+p.originCity+'</div>';if(p.familySize)html+='<div style="margin-bottom:8px;"><strong>👨‍👩‍👧‍👦 عدد الأسرة:</strong> '+p.familySize+'</div>';if(p.notes)html+='<div style="margin-bottom:8px;"><strong>📝 ملاحظات:</strong> '+p.notes+'</div>';html+='</div>';document.getElementById("pendingDetails").innerHTML=html;document.getElementById("pendingModal").classList.add("show");break;}}};
 window.approvePendingDirect=async function(id){
@@ -6483,10 +6582,12 @@ familyId:id
 appData.members.push(newMember);
 }
 
-// إضافة كل أفراد العائلة للأعضاء
+// إضافة كل أفراد العائلة للأعضاء (باستثناء القاصرين تحت 18)
 if(p.familyMembers&&p.familyMembers.length>0){
 for(var f=0;f<p.familyMembers.length;f++){
 var fm=p.familyMembers[f];
+// ═══ القاصرون (تحت 18) لا يُضافون لقائمة الأعضاء ولا يقدرون يصوتوا ═══
+if(fm.isMinor === true) continue;
 var memberExists = appData.members.find(function(m){return m.name===fm.name;});
 if(!memberExists){
 var familyMember={
@@ -7296,16 +7397,21 @@ var fn=card.querySelector('input[name="fm_name_'+idx+'"]');
 var fp=card.querySelector('input[name="fm_phone_'+idx+'"]');
 var fe=card.querySelector('input[name="fm_email_'+idx+'"]');
 var fr=card.querySelector('select[name="fm_relation_'+idx+'"]');
+var fMinor=card.querySelector('select[name="fm_isMinor_'+idx+'"]');
 var fShowMap=card.querySelector('input[name="fm_showMap_'+idx+'"]');
 var fShowPhone=card.querySelector('input[name="fm_showPhone_'+idx+'"]');
 var fShowEmail=card.querySelector('input[name="fm_showEmail_'+idx+'"]');
 
 if(fn&&fn.value.trim()){
+var relVal = fr?fr.value:"";
+var canBeMinor = ['ابن','ابنة','أخ','أخت'].indexOf(relVal) > -1;
+var isMinor = canBeMinor && fMinor && fMinor.value === 'true';
 familyMembers.push({
 name:fn.value.trim(),
 phone:fp?fp.value.trim():"",
 email:fe?fe.value.trim():"",
-relation:fr?fr.value:"",
+relation:relVal,
+isMinor: isMinor,
 showMap:fShowMap?fShowMap.checked:true,
 showPhone:fShowPhone?fShowPhone.checked:false,
 showEmail:fShowEmail?fShowEmail.checked:false
@@ -7542,8 +7648,15 @@ card.innerHTML='<button type="button" class="remove-family" onclick="this.parent
 '<div class="family-member-title">👤 '+t('familyMember')+' '+(idx+1)+'</div>'+
 '<div class="form-group"><label class="form-label">'+t('fullName')+' *</label><input type="text" class="form-input" name="fm_name_'+idx+'" placeholder="'+t('familyMemberName')+'"></div>'+
 '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">'+
-'<div class="form-group"><label class="form-label">'+t('relation')+'</label><select class="form-select" name="fm_relation_'+idx+'"><option value="">'+t('choose')+'...</option><option value="زوج/زوجة">'+t('spouse')+'</option><option value="ابن">'+t('son')+'</option><option value="ابنة">'+t('daughter')+'</option><option value="أب">'+t('father')+'</option><option value="أم">'+t('mother')+'</option><option value="أخ">'+t('brother')+'</option><option value="أخت">'+t('sister')+'</option><option value="آخر">'+t('other')+'</option></select></div>'+
+'<div class="form-group"><label class="form-label">'+t('relation')+'</label><select class="form-select" name="fm_relation_'+idx+'" onchange="toggleAgeField('+idx+')"><option value="">'+t('choose')+'...</option><option value="زوج/زوجة">'+t('spouse')+'</option><option value="ابن">'+t('son')+'</option><option value="ابنة">'+t('daughter')+'</option><option value="أب">'+t('father')+'</option><option value="أم">'+t('mother')+'</option><option value="أخ">'+t('brother')+'</option><option value="أخت">'+t('sister')+'</option><option value="آخر">'+t('other')+'</option></select></div>'+
 '<div class="form-group"><label class="form-label">'+t('phone')+'</label><input type="tel" class="form-input" name="fm_phone_'+idx+'" placeholder="+47"></div>'+
+'</div>'+
+'<div class="form-group" id="fm_ageWrap_'+idx+'" style="display:none;padding:10px;background:rgba(255,209,102,0.08);border:1px solid rgba(255,209,102,0.25);border-radius:8px;">'+
+'<label class="form-label" style="color:var(--gold);">🎂 العمر <span style="color:var(--muted);font-size:0.8rem;">(لتحديد حق التصويت)</span></label>'+
+'<select class="form-select" name="fm_isMinor_'+idx+'">'+
+'<option value="false">✅ فوق 18 سنة (عضو يحق له التصويت)</option>'+
+'<option value="true">🔒 تحت 18 سنة (مسجّل للإحصاء فقط)</option>'+
+'</select>'+
 '</div>'+
 '<div class="form-group"><label class="form-label">'+t('email')+'</label><input type="email" class="form-input" name="fm_email_'+idx+'" placeholder="example@email.com"></div>'+
 '<div style="margin-top:10px;padding:10px;background:rgba(0,0,0,0.2);border-radius:8px;">'+
@@ -7554,6 +7667,15 @@ card.innerHTML='<button type="button" class="remove-family" onclick="this.parent
 '</div>';
 container.appendChild(card);
 });
+
+// ═══ إظهار/إخفاء حقل العمر حسب صلة القرابة ═══
+window.toggleAgeField = function(idx){
+    var sel = document.querySelector('select[name="fm_relation_'+idx+'"]');
+    var wrap = document.getElementById('fm_ageWrap_'+idx);
+    if(!sel || !wrap) return;
+    var needsAge = ['ابن','ابنة','أخ','أخت'].indexOf(sel.value) > -1;
+    wrap.style.display = needsAge ? 'block' : 'none';
+};
 if(!appData.sheet)appData.sheet=[];
 function loadSheet(){
 var tbody=document.getElementById("regSheetBody");
