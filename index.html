@@ -135,6 +135,129 @@ body{
   -webkit-font-smoothing:antialiased;
 }
 
+/* ═══ خلفية فلسطين الرسومية ═══ */
+#palestineBg{
+  position:fixed;
+  inset:0;
+  z-index:0;
+  overflow:hidden;
+  pointer-events:none;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(0,210,106,0.10), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(230,57,70,0.08), transparent 70%),
+    linear-gradient(180deg, #07140e 0%, #0a1a12 35%, #0a0f0c 70%, #060807 100%);
+}
+body.light-mode #palestineBg, .light-mode #palestineBg{
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(0,150,57,0.12), transparent 70%),
+    linear-gradient(180deg, #eef3ef 0%, #e3ebe5 60%, #dfe6e0 100%);
+}
+.pbg-stars{
+  position:absolute; inset:0;
+  background-image:
+    radial-gradient(1.5px 1.5px at 12% 18%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(1.5px 1.5px at 28% 8%, rgba(255,255,255,0.35), transparent),
+    radial-gradient(2px 2px at 47% 22%, rgba(255,209,102,0.55), transparent),
+    radial-gradient(1.5px 1.5px at 65% 12%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(1.5px 1.5px at 82% 25%, rgba(255,255,255,0.3), transparent),
+    radial-gradient(2px 2px at 92% 9%, rgba(255,209,102,0.45), transparent),
+    radial-gradient(1.5px 1.5px at 35% 35%, rgba(255,255,255,0.25), transparent),
+    radial-gradient(1.5px 1.5px at 73% 40%, rgba(255,255,255,0.22), transparent);
+  animation:pbgTwinkle 6s ease-in-out infinite alternate;
+}
+@keyframes pbgTwinkle{ from{opacity:0.5;} to{opacity:1;} }
+
+/* قبة الصخرة في الأسفل */
+.pbg-aqsa{
+  position:absolute;
+  left:0; right:0; bottom:0;
+  width:100%;
+  height:min(42vh,360px);
+  opacity:0.22;
+  filter:drop-shadow(0 0 30px rgba(255,209,102,0.25));
+}
+.light-mode .pbg-aqsa{ opacity:0.16; }
+
+/* قلب فلسطين */
+.pbg-heart{
+  position:absolute;
+  top:7%;
+  left:50%;
+  transform:translateX(-50%);
+  width:min(34vw,260px);
+  height:auto;
+  opacity:0.28;
+  animation:pbgHeartBeat 3.4s ease-in-out infinite;
+  filter:drop-shadow(0 0 24px rgba(0,210,106,0.35));
+}
+.pbg-heart-outline{ fill:none; stroke:rgba(255,255,255,0.7); stroke-width:3; }
+@keyframes pbgHeartBeat{
+  0%,100%{ transform:translateX(-50%) scale(1); opacity:0.26; }
+  50%{ transform:translateX(-50%) scale(1.06); opacity:0.36; }
+}
+
+/* الكلمات المتحركة */
+.pbg-words{ position:absolute; inset:0; }
+.pbg-word{
+  position:absolute;
+  white-space:nowrap;
+  font-weight:700;
+  color:rgba(255,255,255,0.5);
+  opacity:0;
+  will-change:transform,opacity;
+}
+.light-mode .pbg-word{ color:rgba(0,80,40,0.6); }
+.pbg-word.gold{ color:rgba(255,209,102,0.58); }
+.pbg-word.green{ color:rgba(0,210,106,0.52); }
+.pbg-word.red{ color:rgba(230,90,100,0.52); }
+
+/* الحركة: تبدأ مخفية ← تظهر تدريجياً وهي واقفة ← تنتظر ← تتحرك ← تختفي */
+@keyframes pbgFloatLeft{
+  0%{transform:translate(0,0);opacity:0;}
+  9%{opacity:var(--maxOp,0.5);}
+  22%{transform:translate(0,0);opacity:var(--maxOp,0.5);}
+  93%{opacity:var(--maxOp,0.5);}
+  100%{transform:translate(-160vw,0);opacity:0;}
+}
+@keyframes pbgFloatRight{
+  0%{transform:translate(0,0);opacity:0;}
+  9%{opacity:var(--maxOp,0.5);}
+  22%{transform:translate(0,0);opacity:var(--maxOp,0.5);}
+  93%{opacity:var(--maxOp,0.5);}
+  100%{transform:translate(160vw,0);opacity:0;}
+}
+@keyframes pbgFloatUp{
+  0%{transform:translate(0,0);opacity:0;}
+  9%{opacity:var(--maxOp,0.5);}
+  22%{transform:translate(0,0);opacity:var(--maxOp,0.5);}
+  93%{opacity:var(--maxOp,0.5);}
+  100%{transform:translate(0,-150vh);opacity:0;}
+}
+@keyframes pbgFloatDown{
+  0%{transform:translate(0,0);opacity:0;}
+  9%{opacity:var(--maxOp,0.5);}
+  22%{transform:translate(0,0);opacity:var(--maxOp,0.5);}
+  93%{opacity:var(--maxOp,0.5);}
+  100%{transform:translate(0,150vh);opacity:0;}
+}
+@keyframes pbgFloatDiag{
+  0%{transform:translate(0,0);opacity:0;}
+  9%{opacity:var(--maxOp,0.5);}
+  22%{transform:translate(0,0);opacity:var(--maxOp,0.5);}
+  93%{opacity:var(--maxOp,0.5);}
+  100%{transform:translate(-160vw,-130vh);opacity:0;}
+}
+
+@media (max-width:768px){
+  .pbg-heart{ width:48vw; top:5%; }
+  .pbg-aqsa{ height:30vh; opacity:0.2; }
+  .pbg-word{ font-size:0.95rem !important; }
+}
+@media (prefers-reduced-motion:reduce){
+  .pbg-word{ animation:none !important; opacity:0.12 !important; }
+  .pbg-heart,.pbg-stars{ animation:none !important; }
+}
+
 .app{display:flex;min-height:100vh;min-height:100dvh;position:relative;z-index:1}
 
 /* ========== Sidebar - محسّن ========== */
@@ -2096,6 +2219,80 @@ body.light-mode .translate-panel{background:rgba(0,0,0,0.02);border-color:rgba(0
 </style>
 </head>
 <body>
+
+<!-- ═══ خلفية فلسطين الرسومية ═══ -->
+<div id="palestineBg" aria-hidden="true">
+  <div class="pbg-stars"></div>
+  <!-- قلب فلسطين -->
+  <svg class="pbg-heart" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <clipPath id="heartClip">
+        <path d="M100 175 C 40 130, 10 90, 10 55 C 10 25, 35 10, 60 10 C 80 10, 95 25, 100 40 C 105 25, 120 10, 140 10 C 165 10, 190 25, 190 55 C 190 90, 160 130, 100 175 Z"/>
+      </clipPath>
+      <linearGradient id="palGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#000000"/>
+        <stop offset="34%" stop-color="#000000"/>
+        <stop offset="34%" stop-color="#ffffff"/>
+        <stop offset="67%" stop-color="#ffffff"/>
+        <stop offset="67%" stop-color="#009639"/>
+        <stop offset="100%" stop-color="#009639"/>
+      </linearGradient>
+    </defs>
+    <g clip-path="url(#heartClip)">
+      <rect x="0" y="0" width="200" height="200" fill="url(#palGrad)"/>
+      <polygon points="0,0 88,90 0,180" fill="#E63946"/>
+    </g>
+    <path class="pbg-heart-outline" d="M100 175 C 40 130, 10 90, 10 55 C 10 25, 35 10, 60 10 C 80 10, 95 25, 100 40 C 105 25, 120 10, 140 10 C 165 10, 190 25, 190 55 C 190 90, 160 130, 100 175 Z"/>
+  </svg>
+  <!-- المسجد الأقصى / قبة الصخرة (silhouette رسومي) -->
+  <svg class="pbg-aqsa" viewBox="0 0 1200 360" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="domeGold" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#FFE08A"/>
+        <stop offset="100%" stop-color="#C9962E"/>
+      </linearGradient>
+    </defs>
+    <!-- سور أساس -->
+    <rect x="0" y="300" width="1200" height="60" fill="#0c3b24"/>
+    <g opacity="0.9">
+      <!-- قبة الصخرة في المنتصف -->
+      <g transform="translate(600,0)">
+        <rect x="-110" y="200" width="220" height="100" fill="#16573a"/>
+        <path d="M-110 200 L-110 150 Q-110 130 -95 128 L95 128 Q110 130 110 150 L110 200 Z" fill="#1d6e49"/>
+        <path d="M-95 128 Q0 -10 95 128 Z" fill="url(#domeGold)"/>
+        <rect x="-6" y="-44" width="12" height="60" fill="url(#domeGold)"/>
+        <circle cx="0" cy="-52" r="12" fill="url(#domeGold)"/>
+        <!-- نوافذ -->
+        <rect x="-78" y="165" width="20" height="35" rx="10" fill="#0c3b24"/>
+        <rect x="-38" y="165" width="20" height="35" rx="10" fill="#0c3b24"/>
+        <rect x="2" y="165" width="20" height="35" rx="10" fill="#0c3b24"/>
+        <rect x="42" y="165" width="20" height="35" rx="10" fill="#0c3b24"/>
+      </g>
+      <!-- مآذن جانبية -->
+      <g transform="translate(230,0)">
+        <rect x="-22" y="150" width="44" height="150" fill="#16573a"/>
+        <path d="M-22 150 L0 95 L22 150 Z" fill="#1d6e49"/>
+        <rect x="-7" y="60" width="14" height="40" fill="#1d6e49"/>
+        <circle cx="0" cy="52" r="9" fill="url(#domeGold)"/>
+      </g>
+      <g transform="translate(970,0)">
+        <rect x="-22" y="150" width="44" height="150" fill="#16573a"/>
+        <path d="M-22 150 L0 95 L22 150 Z" fill="#1d6e49"/>
+        <rect x="-7" y="60" width="14" height="40" fill="#1d6e49"/>
+        <circle cx="0" cy="52" r="9" fill="url(#domeGold)"/>
+      </g>
+      <!-- أقواس المسجد القبلي -->
+      <g transform="translate(600,0)" fill="#16573a">
+        <path d="M-430 300 L-430 230 Q-380 200 -330 230 L-330 300 Z"/>
+        <path d="M330 300 L330 230 Q380 200 430 230 L430 300 Z"/>
+        <path d="M-330 300 L-330 245 Q-300 222 -270 245 L-270 300 Z"/>
+        <path d="M270 300 L270 245 Q300 222 330 245 L330 300 Z"/>
+      </g>
+    </g>
+  </svg>
+  <!-- كلمات متحركة -->
+  <div class="pbg-words" id="pbgWords"></div>
+</div>
 
 <div class="app">
 <aside class="sidebar" id="sidebar">
@@ -10382,6 +10579,159 @@ if(isIOS && !isInStandalone && !localStorage.getItem('iosInstallShown')){
     localStorage.setItem('iosInstallShown','true');
   },3000);
 }
+</script>
+<script>
+/* ═══ كلمات فلسطين المتحركة في الخلفية ═══ */
+(function(){
+  // 100 عبارة: نثر وطني عام + أمثال شعبية فلسطينية تراثية (غير منسوبة لمؤلف محمي)
+  var phrases = [
+    'القدس عاصمة فلسطين الأبدية ولن تكون إلا كذلك مهما طال الزمن',
+    'من يافا إلى القدس ومن غزة إلى الجليل فلسطين واحدة لا تتجزأ',
+    'يافا عروس البحر وحيفا وعكا جواهر الساحل الفلسطيني الجميل',
+    'نابلس والخليل وجنين مدن الإباء والشموخ والصمود الفلسطيني',
+    'الناصرة وصفد وبيسان وطبريا حاضرة في الذاكرة والوجدان',
+    'بيت لحم مهد المسيح ومدينة السلام في قلب فلسطين الخالدة',
+    'رام الله وطولكرم وقلقيلية وأريحا مدن تنبض بالحياة والأمل',
+    'غزة هاشم بوابة فلسطين الجنوبية وأرض الرباط والصمود',
+    'القدس القديمة بأسوارها وأبوابها شاهدة على آلاف السنين',
+    'أرض فلسطين من البحر المتوسط إلى نهر الأردن وطن واحد',
+    'سهل مرج ابن عامر وجبال نابلس وسواحل يافا لوحة فلسطين',
+    'اللد والرملة وعسقلان وبئر السبع مدن لا تغيب عن البال',
+    'القدس فيها المسجد الأقصى وكنيسة القيامة رمز التعايش',
+    'وادي الأردن وبحيرة طبريا والبحر الميت كنوز فلسطين الطبيعية',
+    'كل قرية في فلسطين لها اسم وحكاية وأهل ينتظرون العودة',
+    'شجرة الزيتون جذورها في الأرض كما جذورنا في فلسطين الحبيبة',
+    'الزيتون الفلسطيني يعمّر مئات السنين شاهداً على أصالة الأرض',
+    'موسم قطف الزيتون عيد فلسطيني تجتمع فيه العائلة على الخير',
+    'زيت الزيتون الفلسطيني بركة المائدة وهدية الأرض لأهلها',
+    'الأرض التي يزرعها الفلاح الفلسطيني تبقى له ولأبنائه',
+    'سهول القمح وبساتين البرتقال عطر فلسطين الذي لا ينسى',
+    'برتقال يافا اشتهر في العالم كله وحمل اسم فلسطين بعيداً',
+    'التين والعنب والصبّار من ثمار أرض فلسطين المباركة',
+    'من يزرع شجرة في فلسطين يزرع أملاً ووعداً بالبقاء',
+    'الأرض أمانة في أعناقنا نحفظها للأجيال القادمة',
+    'حق العودة مقدّس لا يسقط بالتقادم ولا يُمحى من الذاكرة',
+    'أطفال فلسطين يحملون مفاتيح العودة ووعد الرجوع إلى الديار',
+    'مفتاح البيت يتوارثه الأبناء جيلاً بعد جيل حتى يوم العودة',
+    'ذاكرة الوطن لا تُمحى وهوية الشعب الفلسطيني لا تُسرق',
+    'اللاجئ الفلسطيني يحمل وطنه في قلبه أينما حلّ وارتحل',
+    'من جيل إلى جيل نورّث حب فلسطين والتمسك بالأرض والهوية',
+    'صور القرى القديمة محفورة في قلوب من هُجّروا منها',
+    'لا نسيان لقرية هُدمت ولا تنازل عن أرض وُرثت عن الأجداد',
+    'الجدّ يحكي لحفيده عن البيت والبئر وشجرة التوت في الدار',
+    'العودة ليست حلماً بل حقٌّ كفلته كل شرائع الأرض والسماء',
+    'كل عائلة فلسطينية تحفظ اسم بلدتها الأصلية كاسمها تماماً',
+    'الذاكرة الجماعية للشعب الفلسطيني سور يحمي الهوية من الضياع',
+    'ما ضاع حقٌّ وراءه مطالب وما نُسي وطنٌ يسكن القلوب',
+    'الوطن يبقى في الحكاية والأغنية واسم يُعطى للمولود الجديد',
+    'نزرع في أبنائنا حب فلسطين كما نزرع البذرة في الأرض',
+    'غزة الصمود والكرامة لا تركع ولا تنكسر مهما اشتد الحصار',
+    'الكوفية رمز الصمود وراية الكرامة التي يحملها كل فلسطيني',
+    'الشعب الفلسطيني علّم العالم معنى الصبر والثبات على الحق',
+    'الصمود الفلسطيني درس في الكرامة يقرأه أحرار العالم',
+    'البيت الفلسطيني يُبنى من جديد كلما هُدم لأن الإرادة أقوى',
+    'الفلسطيني يزرع الأمل في الأرض القاحلة ويصنع الحياة',
+    'الكرامة لا تُشترى ولا تُباع وهي تاج على رأس كل حر',
+    'الصبر مفتاح الفرج والثبات على الحق طريق النصر',
+    'من رحم المعاناة يولد الأمل ومن الصبر تُقطف ثمار الحرية',
+    'الجبال لا تهزّها الرياح والشعوب الحرة لا يكسرها الظلم',
+    'الثوب الفلسطيني المطرّز يحكي تاريخ كل مدينة وقرية',
+    'التطريز الفلسطيني فنٌّ تتوارثه الأمهات والبنات بفخر',
+    'الدبكة الفلسطينية نبض الأرض وفرح يجمع القلوب',
+    'العتابا والميجانا والدلعونا ألوان من تراث فلسطين الغني',
+    'الأمثال الشعبية الفلسطينية حكمة الأجداد وميراث الأجيال',
+    'المطبخ الفلسطيني من المسخّن إلى المقلوبة نكهة الوطن',
+    'الكوفية البيضاء والسوداء صارت رمزاً يعرفه العالم كله',
+    'اللهجة الفلسطينية بكل تنوّعها جزء من هويتنا التي نعتز بها',
+    'الأهازيج والأغاني الشعبية ذاكرة حية لأفراح فلسطين وأتراحها',
+    'حكايات الجدّات قبل النوم نقلت حب الوطن لقلوب الصغار',
+    'مثل فلسطيني: اللي إلو أول إلو تالي',
+    'مثل فلسطيني: الدار دار أبونا وإجو الغرب طردونا',
+    'مثل فلسطيني: يا غريب كن أديب',
+    'مثل فلسطيني: الإيد الواحدة ما بتصفّق',
+    'مثل فلسطيني: العين بصيرة والإيد قصيرة',
+    'مثل فلسطيني: الصبر مفتاح الفرج',
+    'مثل فلسطيني: من جدّ وجد ومن زرع حصد',
+    'مثل فلسطيني: الجار قبل الدار',
+    'مثل فلسطيني: اللي بزرع الخير بحصد الخير',
+    'مثل فلسطيني: تجوّز من حارتك وقول لأهلك راعوني',
+    'مثل فلسطيني: البيت بيت أبونا والغريب يطلّعنا منّو',
+    'مثل فلسطيني: إيد على إيد بتساعد',
+    'مثل فلسطيني: اللي ما إلو كبير يشتري إلو كبير',
+    'مثل فلسطيني: العقل زينة',
+    'مثل فلسطيني: الكلمة الطيبة بتطفّي نار',
+    'الجالية الفلسطينية في المهجر تحمل وطنها في القلب والوجدان',
+    'أينما حلّ الفلسطيني يبني ويعطي ويظل وفياً لجذوره',
+    'وحدة أبناء الجالية قوة تحفظ الهوية وتنقلها للأجيال',
+    'في الغربة يجتمع الفلسطينيون حول حب الوطن وذكرى الأرض',
+    'المدرسة العربية تزرع اللغة والهوية في قلوب أبناء المهجر',
+    'الفعاليات الثقافية جسر يصل أبناءنا في المهجر بتراث الوطن',
+    'تعليم الأبناء لغتهم العربية وحفاظهم على دينهم أمانة',
+    'الجالية الواحدة كالبنيان يشدّ بعضه بعضاً في الخير',
+    'العمل التطوعي خدمة للجالية ووفاء للوطن البعيد القريب',
+    'نجتمع في الأعياد والمناسبات لنبقى عائلة واحدة في الغربة',
+    'التكافل بين أبناء الجالية يحوّل الغربة إلى وطن صغير',
+    'نورّث أبناءنا في المهجر حب فلسطين كما ورثناه عن آبائنا',
+    'الهوية الفلسطينية تُصان بالعمل الجماعي والوعي والمحبة',
+    'كل فلسطيني سفير لوطنه يحمل صورته الجميلة أينما ذهب',
+    'بالوحدة والتعاون تكبر الجالية وتقوى وتحفظ تراثها',
+    'فلسطين أرض الأنبياء والرسالات ومهد السلام للبشرية',
+    'أرض الإسراء والمعراج تبقى عربية فلسطينية إلى يوم الدين',
+    'سلام على القدس وأهلها وسلام على فلسطين أرض المحبة',
+    'فلسطين قضية كل الأحرار في العالم ونبض كل ضمير حي',
+    'علم فلسطين يرفرف عالياً فوق كل بيت وفي كل قلب حر',
+    'الأمل لا يموت ما دام في الأرض زيتونة وفي القلب وطن',
+    'غداً تشرق شمس فلسطين على أرضٍ يعمّها العدل والسلام',
+    'فلسطين أرض الأجداد ووطن الأحفاد حرة من البحر إلى النهر',
+    'يدٌ تبني ويدٌ تزرع وقلبٌ يحب فلسطين هذا طريق الغد',
+    'تحيا فلسطين حرة أبية ويحيا شعبها كريماً عزيزاً'
+  ];
+  // خلط العبارات عشوائياً
+  for(var s=phrases.length-1;s>0;s--){ var r=Math.floor(Math.random()*(s+1)); var tmp=phrases[s]; phrases[s]=phrases[r]; phrases[r]=tmp; }
+
+  var animations = ['pbgFloatLeft','pbgFloatRight','pbgFloatUp','pbgFloatDown','pbgFloatDiag'];
+  var colors = ['','gold','green','red'];
+  var container = document.getElementById('pbgWords');
+  if(!container) return;
+
+  function rand(min,max){ return Math.random()*(max-min)+min; }
+
+  function spawnWord(i){
+    var el = document.createElement('div');
+    el.className = 'pbg-word ' + colors[Math.floor(Math.random()*colors.length)];
+    el.textContent = phrases[i % phrases.length];
+    var anim = animations[Math.floor(Math.random()*animations.length)];
+    var size = rand(0.85,1.7);
+
+    // موضع ثابت مرئي على الشاشة (تبدأ واقفة هنا)
+    if(anim==='pbgFloatUp'||anim==='pbgFloatDown'){
+      el.style.left = rand(4,90)+'%';
+      el.style.top = rand(10,75)+'%';
+      el.style.writingMode = 'vertical-rl';
+      size = rand(0.8,1.3);
+    } else {
+      el.style.top = rand(4,93)+'%';
+      el.style.left = rand(2,55)+'%';
+    }
+    el.style.fontSize = size.toFixed(2)+'rem';
+
+    // الشفافية القصوى لكل عبارة (تُستخدم داخل keyframes)
+    var maxOp = rand(0.4,0.85);
+    el.style.setProperty('--maxOp', maxOp.toFixed(2));
+
+    // المدة: بطيئة جداً عشان تظهر تدريجياً ← تقف ← تتحرك ببطء
+    var duration = rand(48,95);
+    // تأخير عشوائي: أول ما تفتح الصفحة الكلمات مخفية وتبدأ تظهر وحدة وحدة
+    var delay = rand(0.5, 14);
+
+    el.style.animation = anim+' '+duration.toFixed(1)+'s linear '+delay.toFixed(1)+'s infinite';
+    container.appendChild(el);
+  }
+
+  // عدد العبارات الظاهرة في نفس الوقت
+  var count = window.innerWidth < 768 ? 14 : 26;
+  for(var i=0;i<count;i++) spawnWord(i);
+})();
 </script>
 <script src="translate.js"></script>
 </body>
