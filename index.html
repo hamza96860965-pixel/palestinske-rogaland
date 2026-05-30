@@ -213,38 +213,33 @@ body.light-mode #palestineBg, .light-mode #palestineBg{
 
 /* الحركة: تبدأ مخفية ← تظهر تدريجياً وهي واقفة ← تنتظر ← تتحرك ← تختفي */
 @keyframes pbgFloatLeft{
-  0%{transform:translate(0,0);opacity:0;}
-  9%{opacity:var(--maxOp,0.5);}
-  22%{transform:translate(0,0);opacity:var(--maxOp,0.5);}
-  93%{opacity:var(--maxOp,0.5);}
+  0%{transform:translate(110vw,0);opacity:0;}
+  10%{opacity:var(--maxOp,0.5);}
+  90%{opacity:var(--maxOp,0.5);}
   100%{transform:translate(-160vw,0);opacity:0;}
 }
 @keyframes pbgFloatRight{
-  0%{transform:translate(0,0);opacity:0;}
-  9%{opacity:var(--maxOp,0.5);}
-  22%{transform:translate(0,0);opacity:var(--maxOp,0.5);}
-  93%{opacity:var(--maxOp,0.5);}
+  0%{transform:translate(-110vw,0);opacity:0;}
+  10%{opacity:var(--maxOp,0.5);}
+  90%{opacity:var(--maxOp,0.5);}
   100%{transform:translate(160vw,0);opacity:0;}
 }
 @keyframes pbgFloatUp{
-  0%{transform:translate(0,0);opacity:0;}
-  9%{opacity:var(--maxOp,0.5);}
-  22%{transform:translate(0,0);opacity:var(--maxOp,0.5);}
-  93%{opacity:var(--maxOp,0.5);}
+  0%{transform:translate(0,110vh);opacity:0;}
+  10%{opacity:var(--maxOp,0.5);}
+  90%{opacity:var(--maxOp,0.5);}
   100%{transform:translate(0,-150vh);opacity:0;}
 }
 @keyframes pbgFloatDown{
-  0%{transform:translate(0,0);opacity:0;}
-  9%{opacity:var(--maxOp,0.5);}
-  22%{transform:translate(0,0);opacity:var(--maxOp,0.5);}
-  93%{opacity:var(--maxOp,0.5);}
+  0%{transform:translate(0,-110vh);opacity:0;}
+  10%{opacity:var(--maxOp,0.5);}
+  90%{opacity:var(--maxOp,0.5);}
   100%{transform:translate(0,150vh);opacity:0;}
 }
 @keyframes pbgFloatDiag{
-  0%{transform:translate(0,0);opacity:0;}
-  9%{opacity:var(--maxOp,0.5);}
-  22%{transform:translate(0,0);opacity:var(--maxOp,0.5);}
-  93%{opacity:var(--maxOp,0.5);}
+  0%{transform:translate(110vw,110vh);opacity:0;}
+  10%{opacity:var(--maxOp,0.5);}
+  90%{opacity:var(--maxOp,0.5);}
   100%{transform:translate(-160vw,-130vh);opacity:0;}
 }
 
@@ -2299,7 +2294,7 @@ body.light-mode .translate-panel{background:rgba(0,0,0,0.02);border-color:rgba(0
 <div class="sidebar-header">
 <div class="logo" id="logoContainer">🇵🇸</div>
 <div class="org-name">الجالية الفلسطينية في روغالاند</div>
-<div class="org-sub">Det palestinske samfunn i Rogaland</div>
+<div class="org-sub">Den palestinske forening i Rogaland</div>
 </div>
 <nav class="nav">
 <div class="nav-title" data-i18n="publicPages">الصفحات العامة</div>
@@ -2310,6 +2305,7 @@ body.light-mode .translate-panel{background:rgba(0,0,0,0.02);border-color:rgba(0
 <button class="nav-btn" id="btnFinance">💰 <span data-i18n="finance">المحاسبة</span></button>
 <button class="nav-btn" id="btnMap">🗺️ <span data-i18n="map">خارطة المنتسبين</span></button>
 <button class="nav-btn" id="btnRegister">📝 <span data-i18n="register">استمارة الانتساب</span></button>
+<button class="nav-btn" id="btnDonate">💝 <span data-i18n="donate">التبرع للجالية</span></button>
 <button class="nav-btn" id="btnInvitation">📨 <span data-i18n="invitations">محرر الدعوات</span></button>
 <button class="nav-btn" id="btnConfInvite">🏛️ <span>دعوة المؤتمر</span></button>
 <button class="nav-btn" id="btnReports">📊 <span>التقارير والإحصائيات</span></button>
@@ -2327,6 +2323,7 @@ body.light-mode .translate-panel{background:rgba(0,0,0,0.02);border-color:rgba(0
 <button class="nav-btn hidden" id="btnInbox">📬 <span data-i18n="inbox">صندوق الرسائل</span> <span class="inbox-badge hidden" id="inboxBadge">0</span></button>
 <button class="nav-btn hidden" id="btnManageLive">🎬 <span data-i18n="manageLive">إدارة البث المباشر</span></button>
 <button class="nav-btn hidden" id="btnManageGallery">🖼️ <span>إدارة معرض الصور</span></button>
+<button class="nav-btn hidden" id="btnManageDonate">💝 <span>إدارة صفحة التبرع</span></button>
 </nav>
 <div class="sidebar-footer">
 <div class="lang-switcher">
@@ -2653,6 +2650,26 @@ body.light-mode .translate-panel{background:rgba(0,0,0,0.02);border-color:rgba(0
 </div>
 </div>
 </div>
+
+<!-- ═══ قسم المؤهلات واللغات ═══ -->
+<div class="reg-section">
+<div class="reg-section-title">🎓 <span data-i18n="qualifications">المؤهلات والمهارات</span></div>
+<div class="form-group">
+<label class="form-label" data-i18n="education">المؤهل العلمي</label>
+<input type="text" class="form-input" id="regEducation" placeholder="مثال: بكالوريوس هندسة، ثانوية عامة، ماجستير...">
+</div>
+<div class="form-group">
+<label class="form-label" data-i18n="skills">المهارات والخبرات</label>
+<textarea class="form-textarea" id="regSkills" placeholder="اكتب مهاراتك وخبراتك (مثال: تدريس، طب، برمجة، نجارة، طبخ...)"></textarea>
+</div>
+<div class="form-group">
+<label class="form-label">🗣️ <span data-i18n="languages">اللغات</span></label>
+<p style="color:var(--muted);font-size:0.85rem;margin-bottom:8px;">أضف اللغات التي تتقنها مع مستوى إجادتك لكل لغة</p>
+<div id="languagesContainer"></div>
+<button type="button" class="btn btn-gold btn-sm" id="addLanguageBtn" style="margin-top:8px;">➕ إضافة لغة</button>
+</div>
+</div>
+
 <div class="reg-section">
 <div class="reg-section-title">👨‍👩‍👧‍👦 <span data-i18n="familyMembers">أفراد العائلة</span></div>
 <div class="form-group"><label class="form-label" data-i18n="familySize">عدد أفراد الأسرة (بما فيهم أنت)</label><input type="number" class="form-input" id="regFamilySize" min="1" value="1"></div>
@@ -2725,7 +2742,7 @@ body.light-mode .translate-panel{background:rgba(0,0,0,0.02);border-color:rgba(0
 <div class="reg-sheet-header">
 <div class="sheet-logo">🇵🇸</div>
 <h2 contenteditable="true" id="sheetTitle">الجالية الفلسطينية في روغالاند</h2>
-<p contenteditable="true" id="sheetSubtitle">Det palestinske samfunn i Rogaland - استمارة تسجيل الأعضاء</p>
+<p contenteditable="true" id="sheetSubtitle">Den palestinske forening i Rogaland - استمارة تسجيل الأعضاء</p>
 <p class="sheet-year" contenteditable="true" id="sheetYear">2025</p>
 </div>
 <div class="reg-sheet-table-wrapper">
@@ -3163,7 +3180,7 @@ body.light-mode .translate-panel{background:rgba(0,0,0,0.02);border-color:rgba(0
 <div class="card">
 <div class="card-title">🏷️ اسم المنظمة</div>
 <div class="form-group"><label class="form-label">الاسم بالعربي</label><input class="form-input" id="orgNameAr" placeholder="مثال: الجالية الفلسطينية في روغالاند"></div>
-<div class="form-group"><label class="form-label">الاسم بالإنجليزي/النرويجي</label><input class="form-input" id="orgNameEn" placeholder="مثال: Det palestinske samfunn i Rogaland"></div>
+<div class="form-group"><label class="form-label">الاسم بالإنجليزي/النرويجي</label><input class="form-input" id="orgNameEn" placeholder="مثال: Den palestinske forening i Rogaland"></div>
 <button class="btn btn-green" onclick="saveOrgName()">💾 حفظ الاسم</button>
 </div>
 <!-- مؤشر حجم البيانات -->
@@ -3331,7 +3348,7 @@ body.light-mode .translate-panel{background:rgba(0,0,0,0.02);border-color:rgba(0
 <div class="header"><h1>👥 إدارة الأعضاء</h1><p>إجمالي الأعضاء المسجلين: <span id="totalMembersCount" style="color:var(--gold);font-weight:bold;">0</span></p></div>
 <div class="card">
 <div class="card-title"><span>قائمة الأعضاء</span><div style="display:flex;gap:10px;"><button class="btn btn-gold btn-sm" onclick="regenerateAllCodes()">🔄 تغيير رموز التصويت</button><button class="btn btn-green btn-sm" id="btnAddMember">➕ إضافة</button></div></div>
-<div class="form-group" style="margin-bottom:15px;"><input type="text" class="form-input" id="memberSearchInput" placeholder="🔍 ابحث بالاسم أو رقم الهاتف..." oninput="searchMembers()"></div>
+<div class="form-group" style="margin-bottom:15px;"><input type="text" class="form-input" id="memberSearchInput" placeholder="🔍 ابحث بالاسم، الهاتف، البريد، المهارات، المؤهل، اللغة... (مثلاً: مدرس)" oninput="searchMembers()"></div>
 <div id="membersList"></div>
 </div>
 </div>
@@ -3393,6 +3410,101 @@ body.light-mode .translate-panel{background:rgba(0,0,0,0.02);border-color:rgba(0
 <button class="btn btn-green" onclick="saveAlbum()">💾 حفظ الألبوم</button>
 </div>
 <div class="card"><div class="card-title">📋 الألبومات</div><div id="adminAlbumList"></div></div>
+</div>
+
+<!-- ═══ صفحة التبرع (عامة) ═══ -->
+<div class="page" id="pageDonate">
+<div class="header" style="background:linear-gradient(135deg,rgba(0,210,106,0.15),rgba(255,209,102,0.15));border:1px solid rgba(255,209,102,0.3);">
+<h1>💝 <span data-i18n="donate">التبرع للجالية</span></h1>
+<p data-i18n="donateSubtitle">دعمكم يصنع الفرق · ادعمنا لاستمرار رسالتنا</p>
+</div>
+
+<div class="donate-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+<!-- العمود الأيمن: الصورة/QR والرقم -->
+<div class="card" style="text-align:center;">
+<div class="card-title">📱 <span data-i18n="howToDonate">كيف تتبرع</span></div>
+<div id="donateImageWrap" style="margin:15px auto;max-width:320px;">
+<img id="donateImage" src="" alt="QR" style="width:100%;border-radius:12px;background:#fff;padding:10px;display:none;">
+<div id="donateImagePlaceholder" style="padding:50px 20px;background:rgba(255,255,255,0.04);border:2px dashed var(--border);border-radius:12px;color:var(--muted);">📷 لم يتم إضافة صورة QR بعد</div>
+</div>
+<div id="donateVippsWrap" style="margin-top:16px;display:none;">
+<a id="donateVippsBtn" href="#" style="display:inline-flex;align-items:center;gap:10px;padding:14px 28px;background:#ff5b24;color:#fff;font-weight:800;border-radius:50px;text-decoration:none;font-size:1.1rem;box-shadow:0 6px 20px rgba(255,91,36,0.35);">
+<span style="font-size:1.4rem;">📱</span> Vipps: <span id="donateVippsNumber"></span>
+</a>
+<div style="margin-top:8px;color:var(--muted);font-size:0.85rem;" data-i18n="vippsHint">اضغط الزر لفتح تطبيق Vipps مباشرة</div>
+</div>
+<div id="donateAccountWrap" style="margin-top:14px;display:none;padding:14px;background:rgba(0,150,57,0.08);border-radius:10px;">
+<div style="color:var(--muted);font-size:0.85rem;margin-bottom:4px;" data-i18n="bankAccount">رقم الحساب البنكي</div>
+<div id="donateAccountNumber" style="font-weight:800;font-size:1.2rem;letter-spacing:1px;"></div>
+</div>
+</div>
+
+<!-- العمود الأيسر: المعلومات والشكر -->
+<div class="card">
+<div class="card-title">🇵🇸 <span data-i18n="whyDonate">لماذا التبرع</span></div>
+<div id="donateInfoText" style="line-height:1.9;color:var(--text);font-size:0.95rem;">
+<p>دعمكم يُمكّننا من:</p>
+<ul style="padding-right:20px;margin-top:10px;">
+<li>تنظيم الفعاليات الثقافية والوطنية</li>
+<li>دعم المدرسة العربية لأبنائنا</li>
+<li>تقديم المساعدات للأسر المحتاجة</li>
+<li>الحفاظ على هويتنا الفلسطينية في المهجر</li>
+</ul>
+<p style="margin-top:14px;color:var(--gold);font-weight:600;">شكراً لكل قلب يدعم مسيرتنا 💚</p>
+</div>
+</div>
+</div>
+
+<style>
+@media(max-width:768px){.donate-grid{grid-template-columns:1fr !important;}}
+</style>
+</div>
+
+<!-- ═══ صفحة إدارة التبرع (للأدمن) ═══ -->
+<div class="page" id="pageManageDonate">
+<div class="header"><h1>💝 إدارة صفحة التبرع</h1><p>إعدادات التبرع والـ Vipps والـ QR</p></div>
+
+<div class="card">
+<div class="card-title">📱 طرق الدفع</div>
+<div class="form-group">
+<label class="form-label">رقم Vipps (النرويجي)</label>
+<input class="form-input" id="dnVippsNumber" placeholder="مثال: 123456" inputmode="numeric">
+<div style="color:var(--muted);font-size:0.8rem;margin-top:4px;">سيُنشأ زر تلقائي يفتح تطبيق Vipps</div>
+</div>
+<div class="form-group">
+<label class="form-label">رقم الحساب البنكي (اختياري)</label>
+<input class="form-input" id="dnAccountNumber" placeholder="مثال: 1234 56 78901">
+</div>
+<div class="form-group">
+<label class="form-label">صورة QR Code للتبرع (اختياري)</label>
+<div id="dnImageUploadArea" style="padding:30px 20px;background:rgba(255,255,255,0.04);border:2px dashed var(--border);border-radius:12px;text-align:center;cursor:pointer;color:var(--muted);">📷 اضغط لرفع صورة QR</div>
+<input type="file" id="dnImageFile" accept="image/*" style="display:none">
+<div id="dnImagePreview" style="margin-top:10px;text-align:center;display:none;">
+<img id="dnImagePreviewImg" style="max-width:200px;border-radius:8px;background:#fff;padding:8px;">
+<button type="button" class="btn btn-red btn-sm" id="dnImageRemoveBtn" style="display:block;margin:8px auto 0;">🗑️ إزالة الصورة</button>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-title">📝 نص "لماذا التبرع" (مع الترجمة)</div>
+<div class="form-group">
+<label class="form-label">🇵🇸 بالعربية (يدعم HTML بسيط)</label>
+<textarea class="form-textarea" id="dnInfoAr" rows="8" placeholder="اكتب أهمية التبرع..."></textarea>
+</div>
+<div class="form-group">
+<label class="form-label">🇬🇧 بالإنجليزية (اختياري)</label>
+<textarea class="form-textarea" id="dnInfoEn" rows="6" placeholder="Why donate..."></textarea>
+</div>
+<div class="form-group">
+<label class="form-label">🇳🇴 بالنرويجية (اختياري)</label>
+<textarea class="form-textarea" id="dnInfoNo" rows="6" placeholder="Hvorfor donere..."></textarea>
+</div>
+</div>
+
+<div class="card" style="text-align:center;">
+<button class="btn btn-green" id="dnSaveBtn" style="padding:14px 40px;font-size:1.05rem;">💾 حفظ إعدادات التبرع</button>
+</div>
 </div>
 
 <!-- صفحة سياسة الخصوصية -->
@@ -3471,7 +3583,7 @@ body.light-mode .translate-panel{background:rgba(0,0,0,0.02);border-color:rgba(0
 <div class="privacy-lang" id="privacyNo">
 <div class="privacy-card">
 <h2>🏛️ Hvem er vi</h2>
-<p>Det palestinske samfunn i Rogaland er en frivillig organisasjon registrert i Norge. Vi forplikter oss til å beskytte personvernet til våre medlemmer og besøkende på vår nettside i samsvar med den norske personopplysningsloven og EUs personvernforordning (GDPR).</p>
+<p>Den palestinske forening i Rogaland er en frivillig organisasjon registrert i Norge. Vi forplikter oss til å beskytte personvernet til våre medlemmer og besøkende på vår nettside i samsvar med den norske personopplysningsloven og EUs personvernforordning (GDPR).</p>
 </div>
 
 <div class="privacy-card">
@@ -3496,7 +3608,7 @@ body.light-mode .translate-panel{background:rgba(0,0,0,0.02);border-color:rgba(0
 <li><strong>Medlemsadministrasjon:</strong> Registrering av medlemmer og kommunikasjon om arrangementer og aktiviteter</li>
 <li><strong>Kommunikasjon:</strong> Besvare henvendelser og meldinger</li>
 <li><strong>Avstemning:</strong> Administrasjon av interne avstemninger</li>
-<li><strong>Statistikk:</strong> Forstå størrelsen på samfunnet og forbedre våre tjenester</li>
+<li><strong>Statistikk:</strong> Forstå størrelsen på foreningen og forbedre våre tjenester</li>
 </ul>
 <p>Det rettslige grunnlaget for behandling av personopplysninger er <strong>samtykke</strong> (artikkel 6(1)(a) i GDPR) som du gir ved registrering.</p>
 </div>
@@ -3591,6 +3703,54 @@ body.light-mode .translate-panel{background:rgba(0,0,0,0.02);border-color:rgba(0
 </div>
 <div class="form-group"><label class="form-label">📝 ملاحظات</label><textarea class="form-textarea" id="editFamilyNotes" rows="2"></textarea></div>
 </div><div class="modal-foot"><button class="btn btn-gray" onclick="document.getElementById('editFamilyModal').classList.remove('show')">إلغاء</button><button class="btn btn-green" onclick="saveFamilyEdit()">💾 حفظ التعديلات</button></div></div></div>
+
+<!-- ═══ Modal تعديل فرد من العائلة ═══ -->
+<div class="modal-bg" id="editFmModal">
+<div class="modal" style="max-width:500px;">
+<div class="modal-head"><span id="editFmTitle">✏️ تعديل بيانات الفرد</span><button class="modal-close" onclick="document.getElementById('editFmModal').classList.remove('show')">×</button></div>
+<div class="modal-body">
+<input type="hidden" id="editFmFamilyId"><input type="hidden" id="editFmMemberIdx">
+<div class="form-group"><label class="form-label">الاسم الكامل *</label><input class="form-input" id="editFmName"></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+<div class="form-group"><label class="form-label">صلة القرابة</label>
+<select class="form-select" id="editFmRelation" onchange="editFmToggleAge()">
+<option value="">اختر...</option>
+<option value="زوج/زوجة">زوج/زوجة</option>
+<option value="ابن">ابن</option>
+<option value="ابنة">ابنة</option>
+<option value="أب">أب</option>
+<option value="أم">أم</option>
+<option value="أخ">أخ</option>
+<option value="أخت">أخت</option>
+<option value="آخر">آخر</option>
+</select>
+</div>
+<div class="form-group"><label class="form-label">📱 الهاتف</label><input class="form-input" id="editFmPhone" placeholder="+47"></div>
+</div>
+<div class="form-group"><label class="form-label">📧 البريد الإلكتروني</label><input class="form-input" id="editFmEmail" placeholder="example@email.com"></div>
+
+<!-- العمر - يظهر للأبناء والإخوة فقط -->
+<div class="form-group" id="editFmAgeWrap" style="display:none;padding:10px;background:rgba(255,209,102,0.08);border:1px solid rgba(255,209,102,0.25);border-radius:8px;">
+<label class="form-label" style="color:var(--gold);">🎂 العمر</label>
+<select class="form-select" id="editFmIsMinor" onchange="editFmToggleGrade()">
+<option value="false">✅ فوق 18 سنة (عضو يحق له التصويت)</option>
+<option value="true">🔒 تحت 18 سنة (مسجّل للإحصاء فقط)</option>
+</select>
+<div id="editFmGradeWrap" style="display:none;margin-top:10px;">
+<label class="form-label" style="font-size:0.85rem;">🏫 الصف الدراسي / العمر</label>
+<input type="text" class="form-input" id="editFmGrade" placeholder="مثلاً: الصف الخامس، 10 سنوات، روضة">
+</div>
+</div>
+
+<div style="margin-top:10px;padding:10px;background:rgba(0,0,0,0.2);border-radius:8px;">
+<div style="font-size:0.85rem;color:var(--gold);margin-bottom:8px;">🔒 إعدادات الخصوصية</div>
+<div class="checkbox-row" style="margin-bottom:5px;"><input type="checkbox" id="editFmShowMap"><label for="editFmShowMap" style="font-size:0.85rem;">إظهار على الخارطة</label></div>
+<div class="checkbox-row" style="margin-bottom:5px;"><input type="checkbox" id="editFmShowPhone"><label for="editFmShowPhone" style="font-size:0.85rem;">إظهار الهاتف للأعضاء</label></div>
+<div class="checkbox-row"><input type="checkbox" id="editFmShowEmail"><label for="editFmShowEmail" style="font-size:0.85rem;">إظهار البريد للأعضاء</label></div>
+</div>
+</div>
+<div class="modal-foot"><button class="btn btn-gray" onclick="document.getElementById('editFmModal').classList.remove('show')">إلغاء</button><button class="btn btn-green" onclick="saveFamilyMemberEdit()">💾 حفظ</button></div>
+</div></div>
 
 <!-- Modal محرر استمارة الطباعة -->
 <div class="modal-bg" id="printFormModal">
@@ -4613,7 +4773,7 @@ if(typeof loadAdminTx === 'function') loadAdminTx();
 function updatePageTitles() {
 // Update organization name in header
 var orgName = appData.orgName ? appData.orgName.ar : 'الجالية الفلسطينية في روغالاند';
-var orgNameEn = appData.orgName ? appData.orgName.en : 'Det palestinske samfunn i Rogaland';
+var orgNameEn = appData.orgName ? appData.orgName.en : 'Den palestinske forening i Rogaland';
 
 if(currentLang === 'ar') {
 document.querySelector('.org-name').textContent = orgName;
@@ -4724,7 +4884,7 @@ if(!appData.visibility)appData.visibility={news:"all",finance:"all",map:"all",in
 if(!appData.pending)appData.pending=[];
 if(!appData.approved)appData.approved=[];
 if(!appData.sheet)appData.sheet=[];
-if(!appData.orgName)appData.orgName={ar:"الجالية الفلسطينية في روغالاند",en:"Det palestinske samfunn i Rogaland"};
+if(!appData.orgName)appData.orgName={ar:"الجالية الفلسطينية في روغالاند",en:"Den palestinske forening i Rogaland"};
 if(!appData.sheetArchive)appData.sheetArchive=[];
 if(!appData.homeSettings){
   appData.homeSettings={
@@ -5950,6 +6110,13 @@ return appData.tx.filter(function(t){return t.date&&new Date(t.date).getFullYear
 window.loadFinance = function(){populateYearFilter('financeYearFilter');var filtered=getFilteredTx('financeYearFilter');var inc=0,exp=0;for(var i=0;i<filtered.length;i++){if(filtered[i].type==="income")inc+=filtered[i].amount;else exp+=filtered[i].amount;}var bal=inc-exp;var statBal=document.getElementById("statBalance");var statInc=document.getElementById("statIncome");var statExp=document.getElementById("statExpense");if(statBal)statBal.textContent=bal.toLocaleString()+" NOK";if(statInc)statInc.textContent=inc.toLocaleString()+" NOK";if(statExp)statExp.textContent=exp.toLocaleString()+" NOK";var sel=document.getElementById('financeYearFilter');var yearLabel=sel&&sel.value!=='all'?' ('+sel.value+')':'';var lbl1=document.getElementById('finBalanceLabel');var lbl2=document.getElementById('finIncomeLabel');var lbl3=document.getElementById('finExpenseLabel');if(lbl1)lbl1.textContent='الرصيد'+yearLabel;if(lbl2)lbl2.textContent='الإيرادات'+yearLabel;if(lbl3)lbl3.textContent='المصروفات'+yearLabel;var list=document.getElementById("txList");if(list){list.innerHTML="";if(filtered.length===0){list.innerHTML='<p style="color:var(--muted);text-align:center;padding:20px;">لا توجد معاملات</p>';return;}for(var j=0;j<filtered.length;j++){var t=filtered[j];var rh="";if(t.receipts&&t.receipts.length>0){rh='<div class="tx-receipts">';for(var k=0;k<t.receipts.length;k++)rh+='<img src="'+t.receipts[k]+'" class="tx-receipt-img" onclick="showLightbox(\''+t.receipts[k]+'\')">';rh+='</div>';}list.innerHTML+='<div class="tx-item"><div class="tx-icon '+(t.type==="income"?"inc":"exp")+'">'+(t.type==="income"?"📥":"📤")+'</div><div class="tx-info"><div class="tx-title">'+tr(t,'desc')+'</div><div class="tx-date">'+fmtDate(t.date)+'</div></div><div class="tx-amount '+(t.type==="income"?"inc":"exp")+'">'+(t.type==="income"?"+":"-")+t.amount.toLocaleString()+' NOK</div>'+rh+'</div>';}}}
 window.loadAdminTx = function(){populateYearFilter('adminTxYearFilter');var filtered=getFilteredTx('adminTxYearFilter');var list=document.getElementById("adminTxList");list.innerHTML="";if(filtered.length===0){list.innerHTML='<p style="color:var(--muted);text-align:center;">لا توجد معاملات</p>';return;}for(var j=0;j<filtered.length;j++){var t=filtered[j];var txId=t.id||t._id;var rh="";if(t.receipts&&t.receipts.length>0){rh='<div class="tx-receipts">';for(var k=0;k<t.receipts.length;k++)rh+='<img src="'+t.receipts[k]+'" class="tx-receipt-img" onclick="showLightbox(\''+t.receipts[k]+'\')">';rh+='</div>';}list.innerHTML+='<div class="tx-item" data-txid="'+txId+'"><div class="tx-icon '+(t.type==="income"?"inc":"exp")+'">'+(t.type==="income"?"📥":"📤")+'</div><div class="tx-info"><div class="tx-title">'+tr(t,'desc')+'</div><div class="tx-date">'+fmtDate(t.date)+'</div></div><div class="tx-amount '+(t.type==="income"?"inc":"exp")+'">'+(t.type==="income"?"+":"-")+t.amount.toLocaleString()+' NOK</div><div class="tx-actions"><button class="btn btn-gray btn-sm tx-edit-btn" data-txid="'+txId+'">✏️</button><button class="btn btn-red btn-sm tx-delete-btn" data-txid="'+txId+'">🗑️</button></div>'+rh+'</div>';}attachTxListeners();}
 function loadCount(){updateHomeStats();}
+// ═══ بحث الأعضاء (شامل: اسم، هاتف، بريد، مهارات، مؤهل، لغات، ملاحظات) ═══
+window.searchMembers = function(){
+    var input = document.getElementById('memberSearchInput');
+    if(!input) return;
+    loadMembers(input.value);
+};
+
 function loadMembers(filter){
 var l=document.getElementById("membersList");
 var countEl=document.getElementById("totalMembersCount");
@@ -5963,10 +6130,25 @@ if(!appData.members||appData.members.length===0){l.innerHTML='<p style="text-ali
 var filtered=appData.members;
 if(filter&&filter.trim()){
 var search=filter.trim().toLowerCase();
+// تطبيع النص العربي
+var searchAr = search.replace(/[إأآا]/g,'ا').replace(/[ةه]/g,'ه').replace(/[ىي]/g,'ي').replace(/[ؤو]/g,'و');
 filtered=appData.members.filter(function(m){
-return (m.name&&m.name.toLowerCase().indexOf(search)>-1)||
-(m.phone&&m.phone.indexOf(search)>-1)||
-(m.voteCode&&m.voteCode.toLowerCase().indexOf(search)>-1);
+    function norm(s){ if(!s) return ''; return String(s).toLowerCase().replace(/[إأآا]/g,'ا').replace(/[ةه]/g,'ه').replace(/[ىي]/g,'ي').replace(/[ؤو]/g,'و'); }
+    // ابحث في كل الحقول النصية: الاسم، الهاتف، البريد، الرمز، الملاحظات، المهنة، المهارات، المؤهل، اللغات، العنوان
+    if(norm(m.name).indexOf(searchAr)>-1) return true;
+    if(m.phone && m.phone.indexOf(search)>-1) return true;
+    if(norm(m.email).indexOf(search)>-1) return true;
+    if(norm(m.voteCode).indexOf(search)>-1) return true;
+    if(norm(m.notes).indexOf(searchAr)>-1) return true;
+    if(norm(m.skills).indexOf(searchAr)>-1) return true;
+    if(norm(m.education).indexOf(searchAr)>-1) return true;
+    if(norm(m.addressText).indexOf(searchAr)>-1) return true;
+    if(m.languages && m.languages.length){
+        for(var li=0; li<m.languages.length; li++){
+            if(norm(m.languages[li].name).indexOf(searchAr)>-1) return true;
+        }
+    }
+    return false;
 });
 }
 
@@ -6241,8 +6423,8 @@ function updConfAgI(i,v){confAg[i]=v;renderConfAgPrev();}
 function printConfCard(){var p=document.getElementById('confCardPrev');if(!p)return;var w=window.open('','_blank');w.document.write('<html dir="rtl"><head><title>دعوة المؤتمر</title><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box;font-family:"Tajawal",sans-serif}body{padding:20px}</style></head><body>'+p.outerHTML+'</body></html>');w.document.close();w.onload=function(){w.print();};}
 function dlConfImg(){var p=document.getElementById('confCardPrev');if(!p)return;if(typeof html2canvas==='undefined'){toast('جاري تحميل...');var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';s.onload=function(){dlConfImg();};document.head.appendChild(s);return;}html2canvas(p,{scale:2,useCORS:true,backgroundColor:'#fff'}).then(function(c){var a=document.createElement('a');a.download='conference-invitation.png';a.href=c.toDataURL('image/png');a.click();toast('تم تحميل الصورة ✅');});}
 function dlConfPDF(){var p=document.getElementById('confCardPrev');if(!p)return;if(typeof html2canvas==='undefined'||typeof jspdf==='undefined'){toast('جاري تحميل...');var s1=document.createElement('script');s1.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';s1.onload=function(){var s2=document.createElement('script');s2.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';s2.onload=function(){dlConfPDF();};document.head.appendChild(s2);};document.head.appendChild(s1);return;}html2canvas(p,{scale:2,useCORS:true,backgroundColor:'#fff'}).then(function(c){var img=c.toDataURL('image/png'),pdf=new jspdf.jsPDF('p','mm','a4'),w=190,h=(c.height*w)/c.width;pdf.addImage(img,'PNG',10,10,w,h);pdf.save('conference-invitation.pdf');toast('تم تحميل PDF ✅');});}
-function showAdmin(){var el;el=document.getElementById("visitorBox");if(el)el.classList.remove("hidden");el=document.getElementById("adminTitle");if(el)el.classList.remove("hidden");el=document.getElementById("btnAdmin");if(el)el.classList.remove("hidden");el=document.getElementById("btnMembers");if(el)el.classList.remove("hidden");el=document.getElementById("btnPending");if(el)el.classList.remove("hidden");el=document.getElementById("btnRegistrationSheet");if(el)el.classList.remove("hidden");el=document.getElementById("btnManageTx");if(el)el.classList.remove("hidden");el=document.getElementById("btnManageNews");if(el)el.classList.remove("hidden");el=document.getElementById("btnManageVoting");if(el)el.classList.remove("hidden");el=document.getElementById("btnInbox");if(el)el.classList.remove("hidden");el=document.getElementById("btnManageLive");if(el)el.classList.remove("hidden");el=document.getElementById("btnManageGallery");if(el)el.classList.remove("hidden");el=document.getElementById("btnLive");if(el)el.classList.remove("hidden");el=document.getElementById("btnEditBylaws");if(el)el.classList.remove("hidden");el=document.getElementById("loginBtn");if(el){el.textContent="🚪 خروج";el.classList.add("logout");}updateVisibility();}
-function hideAdmin(){var el;el=document.getElementById("visitorBox");if(el)el.classList.add("hidden");el=document.getElementById("adminTitle");if(el)el.classList.add("hidden");el=document.getElementById("btnAdmin");if(el)el.classList.add("hidden");el=document.getElementById("btnMembers");if(el)el.classList.add("hidden");el=document.getElementById("btnPending");if(el)el.classList.add("hidden");el=document.getElementById("btnRegistrationSheet");if(el)el.classList.add("hidden");el=document.getElementById("btnManageTx");if(el)el.classList.add("hidden");el=document.getElementById("btnManageNews");if(el)el.classList.add("hidden");el=document.getElementById("btnManageVoting");if(el)el.classList.add("hidden");el=document.getElementById("btnInbox");if(el)el.classList.add("hidden");el=document.getElementById("btnManageLive");if(el)el.classList.add("hidden");el=document.getElementById("btnManageGallery");if(el)el.classList.add("hidden");el=document.getElementById("btnEditBylaws");if(el)el.classList.add("hidden");el=document.getElementById("bylawsEditSection");if(el)el.classList.remove("show");el=document.getElementById("loginBtn");if(el){el.textContent="🔐 دخول المسؤول";el.classList.remove("logout");}updateVisibility();loadLiveStreamStatus();}
+function showAdmin(){var el;el=document.getElementById("visitorBox");if(el)el.classList.remove("hidden");el=document.getElementById("adminTitle");if(el)el.classList.remove("hidden");el=document.getElementById("btnAdmin");if(el)el.classList.remove("hidden");el=document.getElementById("btnMembers");if(el)el.classList.remove("hidden");el=document.getElementById("btnPending");if(el)el.classList.remove("hidden");el=document.getElementById("btnRegistrationSheet");if(el)el.classList.remove("hidden");el=document.getElementById("btnManageTx");if(el)el.classList.remove("hidden");el=document.getElementById("btnManageNews");if(el)el.classList.remove("hidden");el=document.getElementById("btnManageVoting");if(el)el.classList.remove("hidden");el=document.getElementById("btnInbox");if(el)el.classList.remove("hidden");el=document.getElementById("btnManageLive");if(el)el.classList.remove("hidden");el=document.getElementById("btnManageGallery");if(el)el.classList.remove("hidden");el=document.getElementById("btnManageDonate");if(el)el.classList.remove("hidden");el=document.getElementById("btnLive");if(el)el.classList.remove("hidden");el=document.getElementById("btnEditBylaws");if(el)el.classList.remove("hidden");el=document.getElementById("loginBtn");if(el){el.textContent="🚪 خروج";el.classList.add("logout");}updateVisibility();}
+function hideAdmin(){var el;el=document.getElementById("visitorBox");if(el)el.classList.add("hidden");el=document.getElementById("adminTitle");if(el)el.classList.add("hidden");el=document.getElementById("btnAdmin");if(el)el.classList.add("hidden");el=document.getElementById("btnMembers");if(el)el.classList.add("hidden");el=document.getElementById("btnPending");if(el)el.classList.add("hidden");el=document.getElementById("btnRegistrationSheet");if(el)el.classList.add("hidden");el=document.getElementById("btnManageTx");if(el)el.classList.add("hidden");el=document.getElementById("btnManageNews");if(el)el.classList.add("hidden");el=document.getElementById("btnManageVoting");if(el)el.classList.add("hidden");el=document.getElementById("btnInbox");if(el)el.classList.add("hidden");el=document.getElementById("btnManageLive");if(el)el.classList.add("hidden");el=document.getElementById("btnManageGallery");if(el)el.classList.add("hidden");el=document.getElementById("btnManageDonate");if(el)el.classList.add("hidden");el=document.getElementById("btnEditBylaws");if(el)el.classList.add("hidden");el=document.getElementById("bylawsEditSection");if(el)el.classList.remove("show");el=document.getElementById("loginBtn");if(el){el.textContent="🔐 دخول المسؤول";el.classList.remove("logout");}updateVisibility();loadLiveStreamStatus();}
 function openMemberModal(m){document.getElementById("memberModalTitle").textContent=m?"✏️ تعديل":"➕ إضافة";document.getElementById("memberId").value=m?m.id:"";document.getElementById("memberName").value=m?m.name:"";document.getElementById("memberPhone").value=m?m.phone||"":"";document.getElementById("memberEmail").value=m?m.email||"":"";document.getElementById("memberNotes").value=m?m.notes||"":"";document.getElementById("memberLat").value=m?m.lat||"":"";document.getElementById("memberLng").value=m?m.lng||"":"";document.getElementById("memberAddressSearch").value=m?m.addressText||"":"";document.getElementById("memberShowMap").checked=m?m.showMap:true;document.getElementById("memberShowPhone").checked=m?m.showPhone:false;document.getElementById("memberShowEmail").checked=m?m.showEmail:false;memberImg=m?m.img||"":"";if(memberImg){document.getElementById("memberImgPreview").src=memberImg;document.getElementById("memberImgPreview").style.display="block";}else{document.getElementById("memberImgPreview").style.display="none";}document.getElementById("locationResult").classList.remove("show");document.getElementById("memberModal").classList.add("show");}
 async function saveMemberData(){
 var nm=document.getElementById("memberName").value.trim();
@@ -6499,7 +6681,7 @@ for(var j=0;j<appData.approved.length;j++){
 var fam=appData.approved[j];
 var famId = fam.id || fam._id;
 var totalMembers=1+(fam.familyMembers?fam.familyMembers.length:0);
-var membersHtml='<div class="family-member-row head"><div class="family-member-avatar">👤</div><div class="family-member-info"><h4>'+fam.name+'</h4><p>📱 '+(fam.phone||'')+(fam.email?' | 📧 '+fam.email:'')+'</p></div><div class="family-member-badge">رب الأسرة</div></div>';
+var membersHtml='<div class="family-member-row head"><div class="family-member-avatar">👤</div><div class="family-member-info"><h4>'+fam.name+'</h4><p>📱 '+(fam.phone||'')+(fam.email?' | 📧 '+fam.email:'')+'</p></div><button class="btn btn-gray btn-sm" onclick="editFamilyMember(\''+famId+'\',-1)" style="font-size:0.72rem;padding:4px 9px;margin-left:6px;">✏️</button><div class="family-member-badge">رب الأسرة</div></div>';
 if(fam.familyMembers&&fam.familyMembers.length>0){
 for(var k=0;k<fam.familyMembers.length;k++){
 var member=fam.familyMembers[k];
@@ -6508,9 +6690,11 @@ var ageBadge = isMinor
     ? '<div class="family-member-badge" style="background:rgba(243,156,18,0.2);color:#F39C12;border:1px solid #F39C12;">🔒 تحت 18</div>'
     : '<div class="family-member-badge" style="background:rgba(0,150,57,0.2);color:#009639;border:1px solid #009639;">✅ عضو</div>';
 var promoteBtn = isMinor 
-    ? '<button class="btn btn-gold btn-sm" style="margin-right:8px;font-size:0.75rem;padding:4px 10px;" onclick="promoteToAdult(\''+famId+'\','+k+')">🎂 صار فوق 18</button>'
+    ? '<button class="btn btn-gold btn-sm" style="margin-right:6px;font-size:0.72rem;padding:4px 9px;" onclick="promoteToAdult(\''+famId+'\','+k+')">🎂 صار 18</button>'
     : '';
-membersHtml+='<div class="family-member-row"'+(isMinor?' style="background:rgba(243,156,18,0.05);border-right:3px solid #F39C12;"':'')+'><div class="family-member-avatar">'+(isMinor?'🧒':'👤')+'</div><div class="family-member-info"><h4>'+member.name+'</h4><p>'+(member.relation?member.relation:'')+(member.phone?' | 📱 '+member.phone:'')+'</p></div>'+promoteBtn+ageBadge+'</div>';
+var editMemberBtn = '<button class="btn btn-gray btn-sm" onclick="editFamilyMember(\''+famId+'\','+k+')" style="font-size:0.72rem;padding:4px 9px;margin-right:6px;">✏️</button>';
+var gradeLine = (isMinor && member.grade) ? ' | 🏫 '+member.grade : '';
+membersHtml+='<div class="family-member-row"'+(isMinor?' style="background:rgba(243,156,18,0.05);border-right:3px solid #F39C12;"':'')+'><div class="family-member-avatar">'+(isMinor?'🧒':'👤')+'</div><div class="family-member-info"><h4>'+member.name+'</h4><p>'+(member.relation?member.relation:'')+(member.phone?' | 📱 '+member.phone:'')+gradeLine+'</p></div>'+editMemberBtn+promoteBtn+ageBadge+'</div>';
 }
 }
 al.innerHTML+='<div class="family-card" id="family_'+famId+'" data-famid="'+famId+'"><div class="family-card-header" data-famid="'+famId+'"><h3>🏠 عائلة '+fam.name+' <span class="family-count">'+totalMembers+' أفراد</span></h3><div><span class="family-date">📅 '+(fam.approvedDate||'')+'</span> <span class="expand-icon">▼</span></div></div><div class="family-card-body"><div style="margin-bottom:10px;padding:10px;background:rgba(255,255,255,0.03);border-radius:8px;"><span style="color:var(--muted);font-size:0.85rem;">📍 '+(fam.city||'')+(fam.originCity?' | 🇵🇸 '+fam.originCity:'')+'</span></div>'+membersHtml+'<div class="family-actions"><button class="btn btn-gray btn-sm family-edit-btn" data-famid="'+famId+'">✏️ تعديل</button><button class="btn btn-red btn-sm family-delete-btn" data-famid="'+famId+'">🗑️ حذف</button></div></div></div>';
@@ -6655,6 +6839,125 @@ toast("تم الحذف");
 };
 
 // ═══ تحويل قاصر إلى عضو راشد (لما يصير فوق 18) ═══
+// ═══ تعديل فرد من العائلة (يفتح المودال المناسب) ═══
+window.editFamilyMember = function(famId, memberIdx){
+    var fam = appData.approved.find(function(f){return String(f.id||f._id)===String(famId);});
+    if(!fam) return;
+
+    // رب الأسرة (memberIdx == -1) → افتح مودال تعديل العائلة الموجود
+    if(memberIdx < 0){
+        if(typeof window.editFamily === 'function'){
+            window.editFamily(famId);
+        }
+        return;
+    }
+
+    var fm = fam.familyMembers && fam.familyMembers[memberIdx];
+    if(!fm) return;
+
+    document.getElementById('editFmFamilyId').value = famId;
+    document.getElementById('editFmMemberIdx').value = memberIdx;
+    document.getElementById('editFmTitle').textContent = '✏️ تعديل: '+(fm.name||'فرد');
+    document.getElementById('editFmName').value = fm.name || '';
+    document.getElementById('editFmRelation').value = fm.relation || '';
+    document.getElementById('editFmPhone').value = fm.phone || '';
+    document.getElementById('editFmEmail').value = fm.email || '';
+    document.getElementById('editFmIsMinor').value = fm.isMinor === true ? 'true' : 'false';
+    document.getElementById('editFmGrade').value = fm.grade || '';
+    document.getElementById('editFmShowMap').checked = !!fm.showMap;
+    document.getElementById('editFmShowPhone').checked = !!fm.showPhone;
+    document.getElementById('editFmShowEmail').checked = !!fm.showEmail;
+
+    editFmToggleAge();
+    document.getElementById('editFmModal').classList.add('show');
+};
+
+window.editFmToggleAge = function(){
+    var rel = document.getElementById('editFmRelation').value;
+    var wrap = document.getElementById('editFmAgeWrap');
+    var needsAge = ['ابن','ابنة','أخ','أخت'].indexOf(rel) > -1;
+    wrap.style.display = needsAge ? 'block' : 'none';
+    if(needsAge) editFmToggleGrade();
+    else document.getElementById('editFmGradeWrap').style.display = 'none';
+};
+
+window.editFmToggleGrade = function(){
+    var minor = document.getElementById('editFmIsMinor').value === 'true';
+    document.getElementById('editFmGradeWrap').style.display = minor ? 'block' : 'none';
+};
+
+window.saveFamilyMemberEdit = function(){
+    var famId = document.getElementById('editFmFamilyId').value;
+    var idx = parseInt(document.getElementById('editFmMemberIdx').value);
+    var fam = appData.approved.find(function(f){return String(f.id||f._id)===String(famId);});
+    if(!fam || !fam.familyMembers || !fam.familyMembers[idx]) { toast('تعذّر العثور على الفرد', true); return; }
+
+    var fm = fam.familyMembers[idx];
+    var oldName = fm.name;
+    var newName = document.getElementById('editFmName').value.trim();
+    if(!newName){ toast('الاسم مطلوب', true); return; }
+
+    var rel = document.getElementById('editFmRelation').value;
+    var canBeMinor = ['ابن','ابنة','أخ','أخت'].indexOf(rel) > -1;
+    var wasMinor = fm.isMinor === true;
+    var nowMinor = canBeMinor && document.getElementById('editFmIsMinor').value === 'true';
+
+    fm.name = newName;
+    fm.relation = rel;
+    fm.phone = document.getElementById('editFmPhone').value.trim();
+    fm.email = document.getElementById('editFmEmail').value.trim();
+    fm.isMinor = nowMinor;
+    fm.grade = nowMinor ? document.getElementById('editFmGrade').value.trim() : '';
+    fm.showMap = document.getElementById('editFmShowMap').checked;
+    fm.showPhone = document.getElementById('editFmShowPhone').checked;
+    fm.showEmail = document.getElementById('editFmShowEmail').checked;
+
+    // مزامنة مع قائمة الأعضاء حسب التحوّل
+    // إذا كان عضواً (راشد) وكان موجود بالأعضاء → حدّث بياناته
+    var existingMember = appData.members.find(function(m){return m.name===oldName;});
+    if(existingMember){
+        existingMember.name = newName;
+        existingMember.phone = fm.phone;
+        existingMember.email = fm.email;
+        existingMember.showMap = fm.showMap;
+        existingMember.showPhone = fm.showPhone;
+        existingMember.showEmail = fm.showEmail;
+        existingMember.notes = rel;
+        // لو صار قاصراً، شيله من الأعضاء (لا يصوّت)
+        if(nowMinor){
+            deleteCollectionDoc && deleteCollectionDoc('members', existingMember.id || existingMember._id);
+            appData.members = appData.members.filter(function(m){return m!==existingMember;});
+        }
+    } else if(!nowMinor && wasMinor){
+        // كان قاصراً وصار راشداً → أضفه للأعضاء (نفس منطق promoteToAdult)
+        appData.members.push({
+            id: Date.now()+Math.floor(Math.random()*1000),
+            name: newName,
+            phone: fm.phone,
+            email: fm.email,
+            addressText: (fam.city||'')+(fam.address?' - '+fam.address:''),
+            lat: fam.lat||null,
+            lng: fam.lng||null,
+            showMap: fm.showMap,
+            showPhone: fm.showPhone,
+            showEmail: fm.showEmail,
+            notes: rel,
+            img: '',
+            voteCode: (typeof generateMemberCode==='function') ? generateMemberCode() : ('V'+Date.now().toString(36).toUpperCase().slice(-6)),
+            familyId: famId
+        });
+        toast('✅ '+newName+' أصبح عضواً يحق له التصويت');
+    }
+
+    save();
+    document.getElementById('editFmModal').classList.remove('show');
+    loadPending();
+    if(typeof loadMembers==='function') loadMembers();
+    if(typeof loadCount==='function') loadCount();
+    if(typeof loadMarkers==='function') loadMarkers();
+    toast('✅ تم حفظ التعديلات');
+};
+
 window.promoteToAdult = function(familyId, memberIndex){
     var fam = appData.approved.find(function(f){return String(f.id||f._id)===String(familyId);});
     if(!fam || !fam.familyMembers || !fam.familyMembers[memberIndex]) return;
@@ -6751,6 +7054,9 @@ showMap:p.showMap||false,
 showPhone:p.showPhone||false,
 showEmail:p.showEmail||false,
 notes:p.notes||"",
+education: p.education||"",
+skills: p.skills||"",
+languages: p.languages||[],
 familyMembers:p.familyMembers||[],
 approvedDate:new Date().toISOString().split("T")[0]
 };
@@ -6772,6 +7078,9 @@ showMap:p.showMap||false,
 showPhone:p.showPhone||false,
 showEmail:p.showEmail||false,
 notes:"رب الأسرة",
+education: p.education||"",
+skills: p.skills||"",
+languages: p.languages||[],
 img:"",
 voteCode:generateMemberCode(),
 familyId:id
@@ -6827,7 +7136,7 @@ loadPending();
 function approveLocalPending(p){
 var id = p.id || p._id;
 // إضافة للعائلات المقبولة
-var approvedFamily={id:id,name:p.name,phone:p.phone,email:p.email||"",city:p.city,address:p.address||"",originCity:p.originCity||"",originLat:p.originLat||null,originLng:p.originLng||null,lat:p.lat||null,lng:p.lng||null,showMap:p.showMap||false,showPhone:p.showPhone||false,showEmail:p.showEmail||false,notes:p.notes||"",familyMembers:p.familyMembers||[],approvedDate:new Date().toISOString().split("T")[0]};
+var approvedFamily={id:id,name:p.name,phone:p.phone,email:p.email||"",city:p.city,address:p.address||"",originCity:p.originCity||"",originLat:p.originLat||null,originLng:p.originLng||null,lat:p.lat||null,lng:p.lng||null,showMap:p.showMap||false,showPhone:p.showPhone||false,showEmail:p.showEmail||false,notes:p.notes||"",education:p.education||"",skills:p.skills||"",languages:p.languages||[],familyMembers:p.familyMembers||[],approvedDate:new Date().toISOString().split("T")[0]};
 appData.approved.push(approvedFamily);
 
 // إضافة رب الأسرة لإدارة الأعضاء
@@ -7583,6 +7892,18 @@ var lng=parseFloat(document.getElementById("regLng").value)||null;
 var originLat=parseFloat(document.getElementById("regOriginLat").value)||null;
 var originLng=parseFloat(document.getElementById("regOriginLng").value)||null;
 
+// ═══ قراءة المؤهلات واللغات ═══
+var education = document.getElementById("regEducation").value.trim();
+var skills = document.getElementById("regSkills").value.trim();
+var languages = [];
+document.querySelectorAll("#languagesContainer .language-row").forEach(function(row){
+    var nameSel = row.querySelector('select[name^="lang_name_"]');
+    var levelSel = row.querySelector('select[name^="lang_level_"]');
+    if(nameSel && nameSel.value && levelSel){
+        languages.push({name: nameSel.value, level: levelSel.value});
+    }
+});
+
 if(!name||!phone||!city){toast(t('fillRequiredFields'),true);return;}
 var privacyCheck=document.getElementById("regPrivacy");
 if(privacyCheck&&!privacyCheck.checked){toast('يرجى الموافقة على سياسة الخصوصية',true);return;}
@@ -7603,12 +7924,14 @@ if(fn&&fn.value.trim()){
 var relVal = fr?fr.value:"";
 var canBeMinor = ['ابن','ابنة','أخ','أخت'].indexOf(relVal) > -1;
 var isMinor = canBeMinor && fMinor && fMinor.value === 'true';
+var fGrade = card.querySelector('input[name="fm_grade_'+idx+'"]');
 familyMembers.push({
 name:fn.value.trim(),
 phone:fp?fp.value.trim():"",
 email:fe?fe.value.trim():"",
 relation:relVal,
 isMinor: isMinor,
+grade: (isMinor && fGrade) ? fGrade.value.trim() : "",
 showMap:fShowMap?fShowMap.checked:true,
 showPhone:fShowPhone?fShowPhone.checked:false,
 showEmail:fShowEmail?fShowEmail.checked:false
@@ -7625,6 +7948,9 @@ address:address,
 originCity:originCity,
 familySize:parseInt(familySize)||1,
 familyMembers:familyMembers,
+education: education,
+skills: skills,
+languages: languages,
 notes:notes,
 showMap:showMap,
 showPhone:showPhone,
@@ -7665,6 +7991,186 @@ toast(t('requestSentSuccess'));
 document.getElementById("regGetLocation").addEventListener("click",function(){if(navigator.geolocation){toast("جاري تحديد الموقع...");navigator.geolocation.getCurrentPosition(function(pos){document.getElementById("regLat").value=pos.coords.latitude.toFixed(6);document.getElementById("regLng").value=pos.coords.longitude.toFixed(6);document.getElementById("regLocationText").innerHTML="✅ تم تحديد موقعك";document.getElementById("regLocationResult").classList.add("show");toast("تم تحديد الموقع");},function(){toast("تعذر تحديد الموقع",true);});}else{toast("المتصفح لا يدعم تحديد الموقع",true);}});
 
 // ============== Autocomplete - اقتراحات ذكية للعنوان ==============
+
+/* ═══ قائمة مدن وقرى فلسطين التاريخية (عربي + إنجليزي + إحداثيات) ═══ */
+var PALESTINE_LOCATIONS = [
+  // ── محافظة القدس ──
+  {ar:'القدس', en:'Jerusalem', lat:31.7683, lng:35.2137, district:'القدس'},
+  {ar:'بيت حنينا', en:'Beit Hanina', lat:31.8333, lng:35.2167, district:'القدس'},
+  {ar:'شعفاط', en:'Shuafat', lat:31.8131, lng:35.2253, district:'القدس'},
+  {ar:'سلوان', en:'Silwan', lat:31.7728, lng:35.2356, district:'القدس'},
+  {ar:'العيسوية', en:'Issawiya', lat:31.7964, lng:35.2475, district:'القدس'},
+  {ar:'أبو ديس', en:'Abu Dis', lat:31.7619, lng:35.2664, district:'القدس'},
+  {ar:'العيزرية', en:'Al-Eizariya', lat:31.7711, lng:35.2581, district:'القدس'},
+  {ar:'قطنة', en:'Qatanna', lat:31.8392, lng:35.1186, district:'القدس'},
+  {ar:'بدو', en:'Beit Duqqu', lat:31.8606, lng:35.1289, district:'القدس'},
+  {ar:'بير نبالا', en:'Beir Naballah', lat:31.8458, lng:35.1881, district:'القدس'},
+  // ── محافظة بيت لحم ──
+  {ar:'بيت لحم', en:'Bethlehem', lat:31.7054, lng:35.2024, district:'بيت لحم'},
+  {ar:'بيت ساحور', en:'Beit Sahour', lat:31.7022, lng:35.2225, district:'بيت لحم'},
+  {ar:'بيت جالا', en:'Beit Jala', lat:31.7167, lng:35.1881, district:'بيت لحم'},
+  {ar:'الدوحة', en:'Ad-Doha', lat:31.7233, lng:35.1817, district:'بيت لحم'},
+  {ar:'الخضر', en:'Al-Khader', lat:31.7053, lng:35.1697, district:'بيت لحم'},
+  {ar:'تقوع', en:'Tuqu', lat:31.6383, lng:35.2103, district:'بيت لحم'},
+  {ar:'حوسان', en:'Husan', lat:31.7178, lng:35.1339, district:'بيت لحم'},
+  // ── محافظة الخليل ──
+  {ar:'الخليل', en:'Hebron', lat:31.5326, lng:35.0998, district:'الخليل'},
+  {ar:'دورا', en:'Dura', lat:31.5078, lng:35.0264, district:'الخليل'},
+  {ar:'يطا', en:'Yatta', lat:31.4444, lng:35.0908, district:'الخليل'},
+  {ar:'بني نعيم', en:'Bani Naim', lat:31.5181, lng:35.1750, district:'الخليل'},
+  {ar:'حلحول', en:'Halhul', lat:31.5800, lng:35.1078, district:'الخليل'},
+  {ar:'إذنا', en:'Idhna', lat:31.5544, lng:34.9719, district:'الخليل'},
+  {ar:'سعير', en:'Sair', lat:31.5611, lng:35.1486, district:'الخليل'},
+  {ar:'الظاهرية', en:'Adh-Dhahiriya', lat:31.4078, lng:34.9700, district:'الخليل'},
+  {ar:'بيت أمر', en:'Beit Ummar', lat:31.6256, lng:35.1056, district:'الخليل'},
+  // ── محافظة نابلس ──
+  {ar:'نابلس', en:'Nablus', lat:32.2211, lng:35.2544, district:'نابلس'},
+  {ar:'بلاطة', en:'Balata', lat:32.2161, lng:35.2789, district:'نابلس'},
+  {ar:'بيتا', en:'Beita', lat:32.1467, lng:35.2872, district:'نابلس'},
+  {ar:'حوارة', en:'Huwwara', lat:32.1547, lng:35.2611, district:'نابلس'},
+  {ar:'عقربا', en:'Aqraba', lat:32.1364, lng:35.3403, district:'نابلس'},
+  {ar:'سبسطية', en:'Sebastia', lat:32.2761, lng:35.1947, district:'نابلس'},
+  {ar:'بورين', en:'Burin', lat:32.1875, lng:35.2528, district:'نابلس'},
+  {ar:'عصيرة الشمالية', en:'Asira ash-Shamaliya', lat:32.2706, lng:35.2522, district:'نابلس'},
+  // ── محافظة جنين ──
+  {ar:'جنين', en:'Jenin', lat:32.4614, lng:35.3008, district:'جنين'},
+  {ar:'يعبد', en:'Yabad', lat:32.4356, lng:35.1611, district:'جنين'},
+  {ar:'قباطية', en:'Qabatiya', lat:32.4111, lng:35.2864, district:'جنين'},
+  {ar:'الزبابدة', en:'Az-Zababdeh', lat:32.3856, lng:35.3344, district:'جنين'},
+  {ar:'عرابة', en:'Arraba', lat:32.4106, lng:35.2089, district:'جنين'},
+  {ar:'برقين', en:'Burqin', lat:32.4569, lng:35.2697, district:'جنين'},
+  {ar:'سيلة الظهر', en:'Silat adh-Dhahr', lat:32.3789, lng:35.2231, district:'جنين'},
+  // ── محافظة طولكرم ──
+  {ar:'طولكرم', en:'Tulkarm', lat:32.3104, lng:35.0286, district:'طولكرم'},
+  {ar:'عنبتا', en:'Anabta', lat:32.3092, lng:35.1100, district:'طولكرم'},
+  {ar:'بلعا', en:'Balaa', lat:32.3489, lng:35.1119, district:'طولكرم'},
+  {ar:'علار', en:'Allar', lat:32.3964, lng:35.0900, district:'طولكرم'},
+  {ar:'قفين', en:'Qaffin', lat:32.4592, lng:35.0708, district:'طولكرم'},
+  // ── محافظة قلقيلية ──
+  {ar:'قلقيلية', en:'Qalqilya', lat:32.1897, lng:34.9706, district:'قلقيلية'},
+  {ar:'عزون', en:'Azzun', lat:32.1681, lng:35.0739, district:'قلقيلية'},
+  {ar:'حبلة', en:'Hableh', lat:32.1583, lng:34.9886, district:'قلقيلية'},
+  // ── محافظة سلفيت ──
+  {ar:'سلفيت', en:'Salfit', lat:32.0853, lng:35.1797, district:'سلفيت'},
+  {ar:'بديا', en:'Biddya', lat:32.1075, lng:35.0506, district:'سلفيت'},
+  {ar:'بروقين', en:'Bruqin', lat:32.0786, lng:35.1411, district:'سلفيت'},
+  {ar:'حارس', en:'Haris', lat:32.1242, lng:35.1300, district:'سلفيت'},
+  // ── محافظة رام الله والبيرة ──
+  {ar:'رام الله', en:'Ramallah', lat:31.9038, lng:35.2034, district:'رام الله'},
+  {ar:'البيرة', en:'Al-Bireh', lat:31.9097, lng:35.2167, district:'رام الله'},
+  {ar:'بيتونيا', en:'Beitunia', lat:31.8964, lng:35.1697, district:'رام الله'},
+  {ar:'سلواد', en:'Silwad', lat:31.9789, lng:35.2933, district:'رام الله'},
+  {ar:'دير دبوان', en:'Deir Dibwan', lat:31.9300, lng:35.2967, district:'رام الله'},
+  {ar:'بيت ريما', en:'Beit Rima', lat:32.0125, lng:35.1167, district:'رام الله'},
+  {ar:'دير إبزيع', en:'Deir Ibzi', lat:31.9156, lng:35.1394, district:'رام الله'},
+  {ar:'بير زيت', en:'Birzeit', lat:31.9719, lng:35.1903, district:'رام الله'},
+  {ar:'كوبر', en:'Kobar', lat:31.9778, lng:35.1583, district:'رام الله'},
+  // ── محافظة أريحا ──
+  {ar:'أريحا', en:'Jericho', lat:31.8567, lng:35.4500, district:'أريحا'},
+  {ar:'العوجا', en:'Al-Auja', lat:31.9514, lng:35.4664, district:'أريحا'},
+  // ── محافظة طوباس ──
+  {ar:'طوباس', en:'Tubas', lat:32.3211, lng:35.3692, district:'طوباس'},
+  {ar:'طمون', en:'Tammun', lat:32.2722, lng:35.3989, district:'طوباس'},
+  // ── قطاع غزة ──
+  {ar:'غزة', en:'Gaza', lat:31.5018, lng:34.4668, district:'غزة'},
+  {ar:'جباليا', en:'Jabalia', lat:31.5278, lng:34.4831, district:'غزة الشمال'},
+  {ar:'بيت لاهيا', en:'Beit Lahia', lat:31.5500, lng:34.5028, district:'غزة الشمال'},
+  {ar:'بيت حانون', en:'Beit Hanoun', lat:31.5400, lng:34.5358, district:'غزة الشمال'},
+  {ar:'دير البلح', en:'Deir al-Balah', lat:31.4180, lng:34.3508, district:'دير البلح'},
+  {ar:'النصيرات', en:'Nuseirat', lat:31.4500, lng:34.3922, district:'دير البلح'},
+  {ar:'البريج', en:'Al-Bureij', lat:31.4400, lng:34.4022, district:'دير البلح'},
+  {ar:'المغازي', en:'Al-Maghazi', lat:31.4258, lng:34.3914, district:'دير البلح'},
+  {ar:'الزوايدة', en:'Az-Zawayda', lat:31.4475, lng:34.3653, district:'دير البلح'},
+  {ar:'خان يونس', en:'Khan Yunis', lat:31.3464, lng:34.3061, district:'خان يونس'},
+  {ar:'بني سهيلا', en:'Bani Suheila', lat:31.3414, lng:34.3294, district:'خان يونس'},
+  {ar:'عبسان الكبيرة', en:'Abasan al-Kabira', lat:31.3231, lng:34.3528, district:'خان يونس'},
+  {ar:'رفح', en:'Rafah', lat:31.2966, lng:34.2429, district:'رفح'},
+  // ── الجليل (محافظات الشمال - فلسطين 1948) ──
+  {ar:'حيفا', en:'Haifa', lat:32.7940, lng:34.9896, district:'حيفا'},
+  {ar:'عكا', en:'Acre', lat:32.9281, lng:35.0817, district:'عكا'},
+  {ar:'الناصرة', en:'Nazareth', lat:32.7019, lng:35.2978, district:'الناصرة'},
+  {ar:'صفد', en:'Safed', lat:32.9650, lng:35.4953, district:'صفد'},
+  {ar:'طبريا', en:'Tiberias', lat:32.7922, lng:35.5311, district:'طبريا'},
+  {ar:'بيسان', en:'Beisan', lat:32.4969, lng:35.5006, district:'بيسان'},
+  {ar:'الناعورة', en:'Naura', lat:32.6353, lng:35.3531, district:'الناصرة'},
+  {ar:'كفر كنا', en:'Kafr Kanna', lat:32.7475, lng:35.3417, district:'الناصرة'},
+  {ar:'الطيبة', en:'Tayibe', lat:32.2628, lng:35.0094, district:'الطيبة'},
+  {ar:'الطيرة', en:'Tira', lat:32.2336, lng:34.9483, district:'الطيرة'},
+  {ar:'أم الفحم', en:'Umm al-Fahm', lat:32.5167, lng:35.1500, district:'حيفا'},
+  {ar:'باقة الغربية', en:'Baqa al-Gharbiyye', lat:32.4197, lng:35.0386, district:'حيفا'},
+  {ar:'سخنين', en:'Sakhnin', lat:32.8636, lng:35.2978, district:'عكا'},
+  {ar:'عرابة البطوف', en:'Arraba', lat:32.8514, lng:35.3411, district:'عكا'},
+  {ar:'دير حنا', en:'Deir Hanna', lat:32.8639, lng:35.3589, district:'عكا'},
+  {ar:'مجد الكروم', en:'Majd al-Krum', lat:32.9189, lng:35.2547, district:'عكا'},
+  {ar:'كفر مندا', en:'Kafr Manda', lat:32.8094, lng:35.2606, district:'الناصرة'},
+  {ar:'شفاعمرو', en:'Shefa-Amr', lat:32.8056, lng:35.1700, district:'حيفا'},
+  {ar:'كابول', en:'Kabul', lat:32.8689, lng:35.2125, district:'عكا'},
+  {ar:'الرامة', en:'Rameh', lat:32.9356, lng:35.3719, district:'عكا'},
+  {ar:'البعنة', en:'Bina', lat:32.9119, lng:35.3447, district:'عكا'},
+  {ar:'دير الأسد', en:'Deir al-Asad', lat:32.9197, lng:35.3361, district:'عكا'},
+  {ar:'طمرة', en:'Tamra', lat:32.8528, lng:35.1981, district:'حيفا'},
+  {ar:'إكسال', en:'Iksal', lat:32.6797, lng:35.3214, district:'الناصرة'},
+  {ar:'عيلوط', en:'Eilabun', lat:32.8278, lng:35.4111, district:'الناصرة'},
+  {ar:'الجش', en:'Jish', lat:33.0228, lng:35.4475, district:'صفد'},
+  {ar:'كفر ياسيف', en:'Kafr Yasif', lat:32.9533, lng:35.1597, district:'عكا'},
+  {ar:'يافة الناصرة', en:'Yafa an-Naseriyye', lat:32.6886, lng:35.2867, district:'الناصرة'},
+  {ar:'أم الزينات', en:'Umm az-Zinat', lat:32.6478, lng:35.0103, district:'حيفا'},
+  // ── السواحل والوسط (فلسطين 1948) ──
+  {ar:'يافا', en:'Jaffa', lat:32.0522, lng:34.7494, district:'يافا'},
+  {ar:'اللد', en:'Lydda', lat:31.9518, lng:34.8950, district:'اللد'},
+  {ar:'الرملة', en:'Ramla', lat:31.9258, lng:34.8714, district:'الرملة'},
+  {ar:'المجدل', en:'Al-Majdal (Ashkelon)', lat:31.6700, lng:34.5713, district:'غزة'},
+  {ar:'بئر السبع', en:'Beersheba', lat:31.2530, lng:34.7915, district:'بئر السبع'},
+  {ar:'إيلات', en:'Umm al-Rashrash', lat:29.5581, lng:34.9482, district:'بئر السبع'},
+  {ar:'رهط', en:'Rahat', lat:31.3939, lng:34.7536, district:'بئر السبع'},
+  {ar:'تل أبيب', en:'Tel Aviv', lat:32.0853, lng:34.7818, district:'يافا'},
+  // ── قرى فلسطينية تاريخية مشهورة ──
+  {ar:'دير ياسين', en:'Deir Yassin', lat:31.7858, lng:35.1789, district:'القدس'},
+  {ar:'لفتا', en:'Lifta', lat:31.7956, lng:35.1933, district:'القدس'},
+  {ar:'عين كارم', en:'Ein Karem', lat:31.7669, lng:35.1581, district:'القدس'},
+  {ar:'سلمة', en:'Salama', lat:32.0508, lng:34.7975, district:'يافا'},
+  {ar:'صفّورية', en:'Saffuriyya', lat:32.7522, lng:35.2786, district:'الناصرة'},
+  {ar:'حطين', en:'Hattin', lat:32.8089, lng:35.4475, district:'طبريا'},
+  {ar:'إقرث', en:'Iqrit', lat:33.0808, lng:35.3164, district:'عكا'},
+  {ar:'كفر برعم', en:'Kafr Birim', lat:33.0297, lng:35.4131, district:'صفد'},
+  {ar:'الطنطورة', en:'Tantura', lat:32.6131, lng:34.9181, district:'حيفا'},
+  {ar:'المالحة', en:'Al-Maliha', lat:31.7522, lng:35.1822, district:'القدس'},
+  {ar:'بيت دجن', en:'Beit Dajan', lat:32.0211, lng:34.8408, district:'يافا'},
+  {ar:'قاقون', en:'Qaqun', lat:32.3961, lng:35.0044, district:'طولكرم'},
+  {ar:'بيار عدس', en:'Biyar Adas', lat:32.1856, lng:34.9583, district:'يافا'},
+  {ar:'كفر سابا', en:'Kafr Saba', lat:32.1742, lng:34.9067, district:'يافا'},
+  // ── مخيمات اللاجئين الفلسطينية الرئيسية ──
+  {ar:'مخيم بلاطة', en:'Balata Camp', lat:32.2161, lng:35.2789, district:'نابلس'},
+  {ar:'مخيم جنين', en:'Jenin Camp', lat:32.4575, lng:35.2922, district:'جنين'},
+  {ar:'مخيم الدهيشة', en:'Dheisheh Camp', lat:31.6925, lng:35.1958, district:'بيت لحم'},
+  {ar:'مخيم العروب', en:'Al-Arroub Camp', lat:31.6244, lng:35.1058, district:'الخليل'},
+  {ar:'مخيم قلنديا', en:'Qalandia Camp', lat:31.8650, lng:35.2189, district:'القدس'},
+  {ar:'مخيم شعفاط', en:'Shuafat Camp', lat:31.8181, lng:35.2347, district:'القدس'},
+  {ar:'مخيم عسكر', en:'Askar Camp', lat:32.2253, lng:35.2811, district:'نابلس'}
+];
+window.PALESTINE_LOCATIONS = PALESTINE_LOCATIONS;
+
+/* ═══ بحث ذكي في قائمة فلسطين (يدعم العربي والإنجليزي) ═══ */
+function searchPalestineLocations(query){
+    if(!query || query.length < 1) return [];
+    var q = query.trim().toLowerCase();
+    // إزالة التشكيل والهمزات للبحث المرن
+    var qAr = q.replace(/[إأآا]/g,'ا').replace(/[ةه]/g,'ه').replace(/[ىي]/g,'ي').replace(/[ؤو]/g,'و');
+    var qEn = q.replace(/[^a-z0-9 ]/g,'');
+    var results = [];
+    for(var i=0; i<PALESTINE_LOCATIONS.length; i++){
+        var loc = PALESTINE_LOCATIONS[i];
+        var arNorm = loc.ar.replace(/[إأآا]/g,'ا').replace(/[ةه]/g,'ه').replace(/[ىي]/g,'ي').replace(/[ؤو]/g,'و').toLowerCase();
+        var enNorm = loc.en.toLowerCase();
+        if(arNorm.indexOf(qAr) > -1 || (qEn && enNorm.indexOf(qEn) > -1)){
+            results.push(loc);
+            if(results.length >= 10) break;
+        }
+    }
+    return results;
+}
+window.searchPalestineLocations = searchPalestineLocations;
+
 function setupAutocomplete(inputId, listId, options){
     var input = document.getElementById(inputId);
     var list = document.getElementById(listId);
@@ -7675,6 +8181,26 @@ function setupAutocomplete(inputId, listId, options){
         if(query.length < 2){ list.classList.remove('show'); return; }
         list.innerHTML = '<div class="autocomplete-loading">⏳ جاري البحث...</div>';
         list.classList.add('show');
+        
+        // ═══ للبلد الأصلي: ابحث في القائمة الفلسطينية الجاهزة أولاً (عربي + إنجليزي) ═══
+        if(options.mode === 'origin' && window.searchPalestineLocations){
+            var localResults = window.searchPalestineLocations(query);
+            if(localResults.length > 0){
+                // حوّل النتائج المحلية لنفس شكل Nominatim
+                currentResults = localResults.map(function(loc){
+                    return {
+                        lat: loc.lat, lon: loc.lng,
+                        display_name: loc.ar + ' / ' + loc.en + (loc.district ? ' - ' + loc.district : ''),
+                        _localAr: loc.ar, _localEn: loc.en, _localDistrict: loc.district,
+                        _isLocal: true,
+                        address: {city: loc.ar, state: loc.district || 'فلسطين'}
+                    };
+                });
+                renderList();
+                return;
+            }
+            // ما لقيناش - أكمل للبحث بـ Nominatim
+        }
         
         // كشف اللغة - عربي أم لاتيني
         var isArabic = /[\u0600-\u06FF]/.test(query);
@@ -7706,7 +8232,11 @@ function setupAutocomplete(inputId, listId, options){
             var main = '';
             var sub = '';
             
-            if(options.mode === 'city'){
+            if(r._isLocal){
+                // نتيجة من القائمة الفلسطينية المحلية
+                main = r._localAr + ' / ' + r._localEn;
+                sub = (r._localDistrict ? '🇵🇸 ' + r._localDistrict : '🇵🇸 فلسطين');
+            } else if(options.mode === 'city'){
                 main = addr.city || addr.town || addr.village || addr.municipality || addr.county || r.display_name.split(',')[0];
                 sub = [addr.county, addr.state, addr.country].filter(Boolean).join(' • ');
             } else if(options.mode === 'origin'){
@@ -7735,7 +8265,9 @@ function setupAutocomplete(inputId, listId, options){
                 var addr = r.address || {};
                 var displayName;
                 
-                if(options.mode === 'city'){
+                if(r._isLocal){
+                    displayName = r._localAr + ' / ' + r._localEn;
+                } else if(options.mode === 'city'){
                     displayName = addr.city || addr.town || addr.village || addr.municipality || addr.county || r.display_name.split(',')[0];
                 } else if(options.mode === 'origin'){
                     displayName = addr.city || addr.town || addr.village || addr.suburb || addr.neighbourhood || r.display_name.split(',')[0];
@@ -7836,6 +8368,46 @@ document.getElementById("pendingModal").addEventListener("click",function(e){if(
 document.getElementById("approvePending").addEventListener("click",function(){if(currentPendingId)approvePendingDirect(currentPendingId);document.getElementById("pendingModal").classList.remove("show");});
 document.getElementById("rejectPending").addEventListener("click",function(){if(currentPendingId)rejectPendingDirect(currentPendingId);document.getElementById("pendingModal").classList.remove("show");});
 var familyMemberCount=0;
+// ═══ إدارة قائمة اللغات في الاستمارة ═══
+var languagesCount = 0;
+document.getElementById("addLanguageBtn").addEventListener("click", function(){
+    var container = document.getElementById("languagesContainer");
+    var idx = languagesCount++;
+    var div = document.createElement("div");
+    div.className = "language-row";
+    div.style.cssText = "display:grid;grid-template-columns:1.4fr 1fr auto;gap:8px;align-items:end;margin-bottom:10px;padding:10px;background:rgba(255,255,255,0.03);border-radius:8px;";
+    div.innerHTML = 
+        '<div><label class="form-label" style="font-size:0.8rem;">اللغة</label>'+
+        '<select class="form-select" name="lang_name_'+idx+'">'+
+        '<option value="">اختر...</option>'+
+        '<option value="العربية">العربية</option>'+
+        '<option value="النرويجية">النرويجية</option>'+
+        '<option value="الإنجليزية">الإنجليزية</option>'+
+        '<option value="السويدية">السويدية</option>'+
+        '<option value="الدنماركية">الدنماركية</option>'+
+        '<option value="الألمانية">الألمانية</option>'+
+        '<option value="الفرنسية">الفرنسية</option>'+
+        '<option value="الإسبانية">الإسبانية</option>'+
+        '<option value="الإيطالية">الإيطالية</option>'+
+        '<option value="التركية">التركية</option>'+
+        '<option value="الروسية">الروسية</option>'+
+        '<option value="العبرية">العبرية</option>'+
+        '<option value="الفارسية">الفارسية</option>'+
+        '<option value="الأوردو">الأوردو</option>'+
+        '<option value="أخرى">أخرى</option>'+
+        '</select></div>'+
+        '<div><label class="form-label" style="font-size:0.8rem;">المستوى</label>'+
+        '<select class="form-select" name="lang_level_'+idx+'">'+
+        '<option value="mother">🏠 لغة الأم</option>'+
+        '<option value="strong">💪 ممتاز/قوي</option>'+
+        '<option value="intermediate">✅ متوسط</option>'+
+        '<option value="weak">📚 ضعيف/مبتدئ</option>'+
+        '</select></div>'+
+        '<button type="button" class="btn btn-red btn-sm" onclick="this.parentElement.remove()" style="padding:8px 12px;">×</button>';
+    container.appendChild(div);
+});
+
+
 document.getElementById("addFamilyMember").addEventListener("click",function(){
 var container=document.getElementById("familyMembersContainer");
 var idx=familyMemberCount++;
@@ -7850,10 +8422,14 @@ card.innerHTML='<button type="button" class="remove-family" onclick="this.parent
 '</div>'+
 '<div class="form-group" id="fm_ageWrap_'+idx+'" style="display:none;padding:10px;background:rgba(255,209,102,0.08);border:1px solid rgba(255,209,102,0.25);border-radius:8px;">'+
 '<label class="form-label" style="color:var(--gold);">🎂 العمر <span style="color:var(--muted);font-size:0.8rem;">(لتحديد حق التصويت)</span></label>'+
-'<select class="form-select" name="fm_isMinor_'+idx+'">'+
+'<select class="form-select" name="fm_isMinor_'+idx+'" onchange="toggleGradeField('+idx+')">'+
 '<option value="false">✅ فوق 18 سنة (عضو يحق له التصويت)</option>'+
 '<option value="true">🔒 تحت 18 سنة (مسجّل للإحصاء فقط)</option>'+
 '</select>'+
+'<div id="fm_gradeWrap_'+idx+'" style="display:none;margin-top:10px;">'+
+'<label class="form-label" style="font-size:0.85rem;">🏫 الصف الدراسي / العمر بالسنوات (اختياري)</label>'+
+'<input type="text" class="form-input" name="fm_grade_'+idx+'" placeholder="مثلاً: الصف الخامس، 10 سنوات، روضة">'+
+'</div>'+
 '</div>'+
 '<div class="form-group"><label class="form-label">'+t('email')+'</label><input type="email" class="form-input" name="fm_email_'+idx+'" placeholder="example@email.com"></div>'+
 '<div style="margin-top:10px;padding:10px;background:rgba(0,0,0,0.2);border-radius:8px;">'+
@@ -7872,6 +8448,22 @@ window.toggleAgeField = function(idx){
     if(!sel || !wrap) return;
     var needsAge = ['ابن','ابنة','أخ','أخت'].indexOf(sel.value) > -1;
     wrap.style.display = needsAge ? 'block' : 'none';
+    // لو ما عاد قاصر، اخفي حقل الصف
+    if(!needsAge){
+        var gw = document.getElementById('fm_gradeWrap_'+idx);
+        if(gw) gw.style.display = 'none';
+    } else {
+        // فعّل/عطّل الصف حسب اختيار العمر الحالي
+        window.toggleGradeField(idx);
+    }
+};
+
+// ═══ إظهار/إخفاء حقل الصف حسب اختيار "تحت 18" ═══
+window.toggleGradeField = function(idx){
+    var minorSel = document.querySelector('select[name="fm_isMinor_'+idx+'"]');
+    var gw = document.getElementById('fm_gradeWrap_'+idx);
+    if(!minorSel || !gw) return;
+    gw.style.display = (minorSel.value === 'true') ? 'block' : 'none';
 };
 if(!appData.sheet)appData.sheet=[];
 function loadSheet(){
@@ -7948,7 +8540,7 @@ break;
 // محرر استمارة الطباعة
 window.openPrintableFormEditor=function(){
 var orgNameAr=appData.orgName?appData.orgName.ar:"الجالية الفلسطينية في روغالاند";
-var orgNameEn=appData.orgName?appData.orgName.en:"Det palestinske samfunn i Rogaland";
+var orgNameEn=appData.orgName?appData.orgName.en:"Den palestinske forening i Rogaland";
 
 document.getElementById("printFormYear").value=document.getElementById("sheetYear")?document.getElementById("sheetYear").textContent.trim():"2025";
 
@@ -7958,7 +8550,7 @@ document.getElementById("printFormModal").classList.add("show");
 
 window.updatePrintFormPreview=function(){
 var orgNameAr=appData.orgName?appData.orgName.ar:"الجالية الفلسطينية في روغالاند";
-var orgNameEn=appData.orgName?appData.orgName.en:"Det palestinske samfunn i Rogaland";
+var orgNameEn=appData.orgName?appData.orgName.en:"Den palestinske forening i Rogaland";
 var year=document.getElementById("printFormYear").value||"2025";
 var rows=parseInt(document.getElementById("printFormRows").value)||20;
 
@@ -8510,7 +9102,7 @@ toast("تم الحذف");
 }
 function loadOrgName(){
 var nameAr=appData.orgName?appData.orgName.ar:"الجالية الفلسطينية في روغالاند";
-var nameEn=appData.orgName?appData.orgName.en:"Det palestinske samfunn i Rogaland";
+var nameEn=appData.orgName?appData.orgName.en:"Den palestinske forening i Rogaland";
 document.querySelector(".org-name").textContent=nameAr;
 document.querySelector(".org-sub").textContent=nameEn;
 document.getElementById("orgNameAr").value=nameAr;
@@ -10287,6 +10879,105 @@ window.deleteAlbum=function(idx){
 document.getElementById('btnGallery').addEventListener('click',function(){goTo('gallery');loadGallery();});
 document.getElementById('btnManageGallery').addEventListener('click',function(){goTo('manageGallery');loadAdminGallery();});
 
+// ═══ صفحة التبرع ═══
+document.getElementById('btnDonate').addEventListener('click',function(){goTo('donate');loadDonatePage();});
+document.getElementById('btnManageDonate').addEventListener('click',function(){goTo('manageDonate');loadDonateAdmin();});
+
+function _getDonateSettings(){
+    if(!appData.homeSettings) appData.homeSettings = {};
+    if(!appData.homeSettings.donate) appData.homeSettings.donate = {vipps:'',account:'',image:'',infoAr:'',infoEn:'',infoNo:''};
+    return appData.homeSettings.donate;
+}
+
+window.loadDonatePage = function(){
+    var d = _getDonateSettings();
+    var lang = (typeof currentLanguage !== 'undefined' && currentLanguage) || 'ar';
+    // الصورة
+    var img = document.getElementById('donateImage');
+    var phWrap = document.getElementById('donateImagePlaceholder');
+    if(d.image){ img.src = d.image; img.style.display='block'; phWrap.style.display='none'; }
+    else { img.style.display='none'; phWrap.style.display='block'; }
+    // Vipps
+    var vWrap = document.getElementById('donateVippsWrap');
+    if(d.vipps){
+        vWrap.style.display='block';
+        document.getElementById('donateVippsNumber').textContent = d.vipps;
+        document.getElementById('donateVippsBtn').href = 'vipps://send/'+encodeURIComponent(d.vipps);
+    } else { vWrap.style.display='none'; }
+    // الحساب
+    var aWrap = document.getElementById('donateAccountWrap');
+    if(d.account){
+        aWrap.style.display='block';
+        document.getElementById('donateAccountNumber').textContent = d.account;
+    } else { aWrap.style.display='none'; }
+    // النص
+    var info = (lang==='en' && d.infoEn) ? d.infoEn : (lang==='no' && d.infoNo) ? d.infoNo : (d.infoAr || '');
+    if(info){
+        document.getElementById('donateInfoText').innerHTML = info;
+    }
+};
+
+window.loadDonateAdmin = function(){
+    var d = _getDonateSettings();
+    document.getElementById('dnVippsNumber').value = d.vipps || '';
+    document.getElementById('dnAccountNumber').value = d.account || '';
+    document.getElementById('dnInfoAr').value = d.infoAr || '';
+    document.getElementById('dnInfoEn').value = d.infoEn || '';
+    document.getElementById('dnInfoNo').value = d.infoNo || '';
+    var prev = document.getElementById('dnImagePreview');
+    var prevImg = document.getElementById('dnImagePreviewImg');
+    if(d.image){ prevImg.src = d.image; prev.style.display='block'; }
+    else { prev.style.display='none'; }
+};
+
+// رفع صورة QR
+document.getElementById('dnImageUploadArea').addEventListener('click', function(){
+    document.getElementById('dnImageFile').click();
+});
+document.getElementById('dnImageFile').addEventListener('change', function(e){
+    var file = e.target.files[0];
+    if(!file) return;
+    if(typeof compressImage === 'function'){
+        compressImage(file, function(dataUrl){
+            var d = _getDonateSettings();
+            d.image = dataUrl;
+            document.getElementById('dnImagePreviewImg').src = dataUrl;
+            document.getElementById('dnImagePreview').style.display = 'block';
+            toast('تم رفع الصورة - اضغط حفظ');
+        }, 1000, 0.85);
+    } else {
+        var reader = new FileReader();
+        reader.onload = function(ev){
+            var d = _getDonateSettings();
+            d.image = ev.target.result;
+            document.getElementById('dnImagePreviewImg').src = ev.target.result;
+            document.getElementById('dnImagePreview').style.display = 'block';
+            toast('تم رفع الصورة - اضغط حفظ');
+        };
+        reader.readAsDataURL(file);
+    }
+});
+document.getElementById('dnImageRemoveBtn').addEventListener('click', function(){
+    if(!confirm('إزالة الصورة؟')) return;
+    var d = _getDonateSettings();
+    d.image = '';
+    document.getElementById('dnImagePreview').style.display = 'none';
+    document.getElementById('dnImageFile').value = '';
+    toast('تمت الإزالة - اضغط حفظ');
+});
+
+// حفظ
+document.getElementById('dnSaveBtn').addEventListener('click', function(){
+    var d = _getDonateSettings();
+    d.vipps = document.getElementById('dnVippsNumber').value.trim();
+    d.account = document.getElementById('dnAccountNumber').value.trim();
+    d.infoAr = document.getElementById('dnInfoAr').value.trim();
+    d.infoEn = document.getElementById('dnInfoEn').value.trim();
+    d.infoNo = document.getElementById('dnInfoNo').value.trim();
+    save();
+    toast('✅ تم حفظ إعدادات التبرع');
+});
+
 // Gallery nav button
 window.enablePushNotifications=function(){
     if(!('Notification' in window)){
@@ -10583,8 +11274,22 @@ if(isIOS && !isInStandalone && !localStorage.getItem('iosInstallShown')){
 <script>
 /* ═══ كلمات فلسطين المتحركة في الخلفية ═══ */
 (function(){
-  // 100 عبارة: نثر وطني عام + أمثال شعبية فلسطينية تراثية (غير منسوبة لمؤلف محمي)
-  var phrases = [
+
+  /* ╔══════════════════════════════════════════════════════════╗
+     ║  ✏️  ضع أشعارك وكلماتك هنا                                  ║
+     ║  ─────────────────────────────────────────────────────    ║
+     ║  • كل سطر بين علامتي اقتباس ' ' وبعده فاصلة ,                ║
+     ║  • تقدر تحذف أو تضيف أسطر زي ما بدك                          ║
+     ║  • هي مسؤوليتك الشخصية عن أي نص تضيفه هنا                    ║
+     ╚══════════════════════════════════════════════════════════╝ */
+  var myPoems = [
+    // ── اكتب أشعارك هنا (مثال) ──
+    // 'البيت الأول من الشعر',
+    // 'البيت الثاني من الشعر',
+  ];
+
+  /* ── العبارات الجاهزة (نثر وطني عام + أمثال شعبية تراثية) ── */
+  var defaultPhrases = [
     'القدس عاصمة فلسطين الأبدية ولن تكون إلا كذلك مهما طال الزمن',
     'من يافا إلى القدس ومن غزة إلى الجليل فلسطين واحدة لا تتجزأ',
     'يافا عروس البحر وحيفا وعكا جواهر الساحل الفلسطيني الجميل',
@@ -10686,10 +11391,13 @@ if(isIOS && !isInStandalone && !localStorage.getItem('iosInstallShown')){
     'يدٌ تبني ويدٌ تزرع وقلبٌ يحب فلسطين هذا طريق الغد',
     'تحيا فلسطين حرة أبية ويحيا شعبها كريماً عزيزاً'
   ];
+
+  // دمج أشعارك مع العبارات الجاهزة (أشعارك أولاً)
+  var phrases = myPoems.concat(defaultPhrases);
+
   // خلط العبارات عشوائياً
   for(var s=phrases.length-1;s>0;s--){ var r=Math.floor(Math.random()*(s+1)); var tmp=phrases[s]; phrases[s]=phrases[r]; phrases[r]=tmp; }
 
-  var animations = ['pbgFloatLeft','pbgFloatRight','pbgFloatUp','pbgFloatDown','pbgFloatDiag'];
   var colors = ['','gold','green','red'];
   var container = document.getElementById('pbgWords');
   if(!container) return;
@@ -10700,19 +11408,11 @@ if(isIOS && !isInStandalone && !localStorage.getItem('iosInstallShown')){
     var el = document.createElement('div');
     el.className = 'pbg-word ' + colors[Math.floor(Math.random()*colors.length)];
     el.textContent = phrases[i % phrases.length];
-    var anim = animations[Math.floor(Math.random()*animations.length)];
     var size = rand(0.85,1.7);
 
-    // موضع ثابت مرئي على الشاشة (تبدأ واقفة هنا)
-    if(anim==='pbgFloatUp'||anim==='pbgFloatDown'){
-      el.style.left = rand(4,90)+'%';
-      el.style.top = rand(10,75)+'%';
-      el.style.writingMode = 'vertical-rl';
-      size = rand(0.8,1.3);
-    } else {
-      el.style.top = rand(4,93)+'%';
-      el.style.left = rand(2,55)+'%';
-    }
+    // الحركة من اليسار إلى اليمين فقط
+    el.style.top = rand(4,93)+'%';
+    el.style.left = rand(2,55)+'%';
     el.style.fontSize = size.toFixed(2)+'rem';
 
     // الشفافية القصوى لكل عبارة (تُستخدم داخل keyframes)
@@ -10724,7 +11424,7 @@ if(isIOS && !isInStandalone && !localStorage.getItem('iosInstallShown')){
     // تأخير عشوائي: أول ما تفتح الصفحة الكلمات مخفية وتبدأ تظهر وحدة وحدة
     var delay = rand(0.5, 14);
 
-    el.style.animation = anim+' '+duration.toFixed(1)+'s linear '+delay.toFixed(1)+'s infinite';
+    el.style.animation = 'pbgFloatRight '+duration.toFixed(1)+'s linear '+delay.toFixed(1)+'s infinite';
     container.appendChild(el);
   }
 
@@ -10734,5 +11434,6 @@ if(isIOS && !isInStandalone && !localStorage.getItem('iosInstallShown')){
 })();
 </script>
 <script src="translate.js"></script>
+</div>
 </body>
 </html>
