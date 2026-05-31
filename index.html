@@ -3789,7 +3789,8 @@ body.light-mode .translate-panel{background:rgba(0,0,0,0.02);border-color:rgba(0
 <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="api.js"></script>
+<!-- api.js معطّل لأنه backend محلي مش موجود على GitHub Pages -->
+<!-- <script src="api.js"></script> -->
 <script>
 (function(){
 // ====== إعدادات الـ Backend API ======
@@ -6215,16 +6216,43 @@ function loadPalestineMarkers(){
     psMarkers.forEach(function(m){psMap.removeLayer(m);});
     psMarkers = [];
     
-    // تجميع الأعضاء حسب المدينة الأصلية
+    // تجميع العائلات المعتمدة حسب المدينة الأصلية (الإحداثيات على مستوى العائلة)
     var originGroups = {};
-    for(var i = 0; i < appData.members.length; i++){
-        var m = appData.members[i];
-        if(m.originLat && m.originLng){
-            var key = m.originLat.toFixed(4) + ',' + m.originLng.toFixed(4);
-            if(!originGroups[key]) originGroups[key] = {lat: m.originLat, lng: m.originLng, city: m.originCity, members: []};
-            originGroups[key].members.push(m);
+    var fallbackCount = 0;
+    for(var fi = 0; fi < (appData.approved||[]).length; fi++){
+        var fam = appData.approved[fi];
+        var lat = fam.originLat, lng = fam.originLng;
+        
+        // إذا ما عندنا إحداثيات بس عندنا اسم البلد، نحاول نلقاه في قائمة فلسطين
+        if((!lat || !lng) && fam.originCity && window.PALESTINE_LOCATIONS){
+            var nameCheck = String(fam.originCity).toLowerCase();
+            for(var pi=0; pi<window.PALESTINE_LOCATIONS.length; pi++){
+                var loc = window.PALESTINE_LOCATIONS[pi];
+                if(nameCheck.indexOf(loc.ar.toLowerCase())>-1 || nameCheck.indexOf(loc.en.toLowerCase())>-1){
+                    lat = loc.lat; lng = loc.lng;
+                    fallbackCount++;
+                    break;
+                }
+            }
         }
+        if(!lat || !lng) continue;
+        
+        var key = parseFloat(lat).toFixed(4) + ',' + parseFloat(lng).toFixed(4);
+        // عد كل أفراد العائلة الراشدين (رب الأسرة + الأعضاء الراشدين)
+        var famSize = 1 + ((fam.familyMembers||[]).filter(function(fm){return fm.isMinor !== true;}).length);
+        var minorCount = ((fam.familyMembers||[]).filter(function(fm){return fm.isMinor === true;}).length);
+        
+        if(!originGroups[key]) originGroups[key] = {
+            lat: parseFloat(lat), lng: parseFloat(lng),
+            city: fam.originCity || '',
+            families: [], totalMembers: 0, totalMinors: 0
+        };
+        originGroups[key].families.push(fam);
+        originGroups[key].totalMembers += famSize;
+        originGroups[key].totalMinors += minorCount;
     }
+    
+    if(fallbackCount > 0) console.log('🇵🇸 تم استرجاع '+fallbackCount+' موقع من قائمة فلسطين');
     
     // إنشاء أيقونة فلسطينية
     var psIcon = L.divIcon({
@@ -6236,25 +6264,28 @@ function loadPalestineMarkers(){
     
     for(var key in originGroups){
         var group = originGroups[key];
-        var members = group.members;
-        var icon = members.length > 1 ? L.divIcon({
+        var total = group.totalMembers + group.totalMinors;
+        var icon = total > 1 ? L.divIcon({
             className: '',
-            html: '<div style="background:linear-gradient(135deg,#009639,#CE1126);width:34px;height:34px;border-radius:50%;border:3px solid #FFD700;box-shadow:0 2px 10px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px;">'+members.length+'</div>',
-            iconSize: [34, 34],
-            iconAnchor: [17, 17]
+            html: '<div style="background:linear-gradient(135deg,#009639,#CE1126);width:36px;height:36px;border-radius:50%;border:3px solid #FFD700;box-shadow:0 2px 10px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px;">'+total+'</div>',
+            iconSize: [36, 36],
+            iconAnchor: [18, 18]
         }) : psIcon;
         
         // محتوى الـ popup
-        var popup = '<div style="min-width:200px;direction:rtl;text-align:right;">';
-        popup += '<div style="text-align:center;padding-bottom:10px;border-bottom:2px solid #009639;margin-bottom:10px;"><strong style="color:#009639;font-size:1rem;">🇵🇸 '+group.city+'</strong><br><span style="font-size:0.8rem;color:#666;">'+members.length+' '+(members.length===1?'عضو':'أعضاء')+'</span></div>';
-        for(var k = 0; k < members.length; k++){
-            var mem = members[k];
+        var popup = '<div style="min-width:220px;direction:rtl;text-align:right;">';
+        popup += '<div style="text-align:center;padding-bottom:10px;border-bottom:2px solid #009639;margin-bottom:10px;">';
+        popup += '<strong style="color:#009639;font-size:1.05rem;">🇵🇸 '+(group.city||'موقع في فلسطين')+'</strong><br>';
+        popup += '<span style="font-size:0.82rem;color:#666;">'+group.families.length+' '+(group.families.length===1?'عائلة':'عائلات');
+        popup += ' • '+group.totalMembers+' عضو';
+        if(group.totalMinors > 0) popup += ' • 🔒 '+group.totalMinors+' تحت 18';
+        popup += '</span></div>';
+        for(var fk = 0; fk < group.families.length; fk++){
+            var fmEntry = group.families[fk];
             popup += '<div style="padding:8px;border-bottom:1px solid #eee;">';
-            if(mem.img) popup += '<img src="'+mem.img+'" style="width:32px;height:32px;border-radius:50%;object-fit:cover;float:right;margin-left:8px;border:2px solid #009639;">';
-            popup += '<strong>'+mem.name+'</strong>';
-            if(mem.city) popup += '<br><span style="font-size:0.8rem;color:#666;">🏠 يقيم في: '+mem.city+'</span>';
-            if(mem.showPhone && mem.phone) popup += '<br><a href="tel:'+mem.phone+'" style="color:#009639;font-size:0.85rem;">📱 '+mem.phone+'</a>';
-            popup += '<div style="clear:both;"></div></div>';
+            popup += '<strong>🏠 عائلة '+fmEntry.name+'</strong>';
+            if(fmEntry.city) popup += '<br><span style="font-size:0.8rem;color:#666;">📍 يقيم في: '+fmEntry.city+'</span>';
+            popup += '</div>';
         }
         popup += '</div>';
         
@@ -6697,7 +6728,43 @@ var gradeLine = (isMinor && member.grade) ? ' | 🏫 '+member.grade : '';
 membersHtml+='<div class="family-member-row"'+(isMinor?' style="background:rgba(243,156,18,0.05);border-right:3px solid #F39C12;"':'')+'><div class="family-member-avatar">'+(isMinor?'🧒':'👤')+'</div><div class="family-member-info"><h4>'+member.name+'</h4><p>'+(member.relation?member.relation:'')+(member.phone?' | 📱 '+member.phone:'')+gradeLine+'</p></div>'+editMemberBtn+promoteBtn+ageBadge+'</div>';
 }
 }
-al.innerHTML+='<div class="family-card" id="family_'+famId+'" data-famid="'+famId+'"><div class="family-card-header" data-famid="'+famId+'"><h3>🏠 عائلة '+fam.name+' <span class="family-count">'+totalMembers+' أفراد</span></h3><div><span class="family-date">📅 '+(fam.approvedDate||'')+'</span> <span class="expand-icon">▼</span></div></div><div class="family-card-body"><div style="margin-bottom:10px;padding:10px;background:rgba(255,255,255,0.03);border-radius:8px;"><span style="color:var(--muted);font-size:0.85rem;">📍 '+(fam.city||'')+(fam.originCity?' | 🇵🇸 '+fam.originCity:'')+'</span></div>'+membersHtml+'<div class="family-actions"><button class="btn btn-gray btn-sm family-edit-btn" data-famid="'+famId+'">✏️ تعديل</button><button class="btn btn-red btn-sm family-delete-btn" data-famid="'+famId+'">🗑️ حذف</button></div></div></div>';
+// بناء كتلة معلومات تفصيلية للعائلة
+var detailsHtml = '<div style="margin-bottom:12px;padding:12px;background:rgba(255,255,255,0.03);border-radius:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:0.85rem;">';
+detailsHtml += '<div><span style="color:var(--muted);">📱 الهاتف:</span> <strong>'+(fam.phone||'-')+'</strong></div>';
+if(fam.email) detailsHtml += '<div><span style="color:var(--muted);">📧 البريد:</span> <strong>'+fam.email+'</strong></div>';
+detailsHtml += '<div><span style="color:var(--muted);">📍 المدينة:</span> <strong>'+(fam.city||'-')+'</strong></div>';
+if(fam.address) detailsHtml += '<div><span style="color:var(--muted);">🏠 العنوان:</span> <strong>'+fam.address+'</strong></div>';
+if(fam.originCity) detailsHtml += '<div style="grid-column:1/-1;"><span style="color:var(--muted);">🇵🇸 البلد الأصلي:</span> <strong>'+fam.originCity+'</strong></div>';
+detailsHtml += '</div>';
+
+// المؤهلات والمهارات واللغات
+if(fam.education || fam.skills || (fam.languages && fam.languages.length)){
+    detailsHtml += '<div style="background:rgba(0,210,106,0.08);border:1px solid rgba(0,210,106,0.25);padding:10px;border-radius:10px;margin-bottom:12px;font-size:0.85rem;">';
+    detailsHtml += '<div style="font-weight:700;color:var(--green);margin-bottom:6px;">🎓 المؤهلات والمهارات</div>';
+    if(fam.education) detailsHtml += '<div style="margin-bottom:4px;"><strong>📚 المؤهل العلمي:</strong> '+fam.education+'</div>';
+    if(fam.skills) detailsHtml += '<div style="margin-bottom:4px;"><strong>🛠️ المهارات:</strong> '+fam.skills+'</div>';
+    if(fam.languages && fam.languages.length){
+        var lvlMap={mother:'🏠 أم',strong:'💪 قوي',intermediate:'✅ متوسط',weak:'📚 ضعيف'};
+        detailsHtml += '<div><strong>🗣️ اللغات:</strong> '+fam.languages.map(function(l){return l.name+' ('+(lvlMap[l.level]||l.level)+')';}).join(' • ')+'</div>';
+    }
+    detailsHtml += '</div>';
+}
+
+// إعدادات الخصوصية
+detailsHtml += '<div style="background:rgba(0,0,0,0.2);padding:10px;border-radius:8px;margin-bottom:12px;font-size:0.8rem;color:var(--muted);">';
+detailsHtml += '<span style="color:var(--gold);">🔒 خصوصية رب الأسرة:</span> ';
+detailsHtml += (fam.showMap?'✅':'❌')+' خارطة | ';
+detailsHtml += (fam.showPhone?'✅':'❌')+' هاتف | ';
+detailsHtml += (fam.showEmail?'✅':'❌')+' بريد';
+detailsHtml += '</div>';
+
+// ملاحظات
+if(fam.notes){
+    detailsHtml += '<div style="background:rgba(255,255,255,0.05);padding:10px;border-radius:8px;margin-bottom:12px;font-size:0.85rem;">';
+    detailsHtml += '<div style="color:var(--muted);font-size:0.75rem;margin-bottom:4px;">📝 ملاحظات</div>'+fam.notes+'</div>';
+}
+
+al.innerHTML+='<div class="family-card" id="family_'+famId+'" data-famid="'+famId+'"><div class="family-card-header" data-famid="'+famId+'"><h3>🏠 عائلة '+fam.name+' <span class="family-count">'+totalMembers+' أفراد</span></h3><div><span class="family-date">📅 '+(fam.approvedDate||'')+'</span> <span class="expand-icon">▼</span></div></div><div class="family-card-body">'+detailsHtml+membersHtml+'<div class="family-actions"><button class="btn btn-gray btn-sm family-edit-btn" data-famid="'+famId+'">✏️ تعديل</button><button class="btn btn-red btn-sm family-delete-btn" data-famid="'+famId+'">🗑️ حذف</button></div></div></div>';
 }
 // Attach family event listeners
 attachFamilyListeners();
@@ -6829,12 +6896,30 @@ toast("تم حفظ التعديلات ✅");
 };
 window.deleteFamily=function(id){
 id=String(id);
-if(confirm("هل تريد حذف هذه العائلة؟")){
-deleteCollectionDoc('approved', id);
-appData.approved=appData.approved.filter(function(f){return String(f.id||f._id)!==id;});
-save();
-loadPending();
-toast("تم الحذف");
+// نعرض كم عضو رح ينحذف معها
+var fam = appData.approved.find(function(f){return String(f.id||f._id)===id;});
+var relatedMembers = appData.members.filter(function(m){return String(m.familyId)===id;});
+var memberCount = relatedMembers.length;
+var msg = "هل تريد حذف هذه العائلة؟";
+if(memberCount > 0) msg += "\n⚠️ سيتم حذف " + memberCount + " عضو/أعضاء مرتبطين بها من قائمة الأعضاء أيضاً.";
+
+if(confirm(msg)){
+    // احذف العائلة من المعتمدين
+    deleteCollectionDoc('approved', id);
+    appData.approved=appData.approved.filter(function(f){return String(f.id||f._id)!==id;});
+
+    // احذف كل الأعضاء المرتبطين بهذه العائلة من قائمة الأعضاء
+    relatedMembers.forEach(function(m){
+        deleteCollectionDoc('members', m.id || m._id);
+    });
+    appData.members = appData.members.filter(function(m){return String(m.familyId)!==id;});
+
+    save();
+    loadPending();
+    if(typeof loadMembers==='function') loadMembers();
+    if(typeof loadCount==='function') loadCount();
+    if(typeof loadMarkers==='function') loadMarkers();
+    toast(memberCount>0 ? ("تم الحذف ("+memberCount+" عضو)") : "تم الحذف");
 }
 };
 
